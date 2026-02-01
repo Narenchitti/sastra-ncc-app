@@ -17,8 +17,6 @@ import {
     Attendance
 } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs';
-import path from 'path';
 import { supabase } from '@/lib/supabase'; // Direct access for deletions
 import crypto from 'crypto';
 
