@@ -153,7 +153,7 @@ export default function Home() {
                     </div>
                 </div>
                 <div className="text-center mt-12 pt-8 border-t border-white/10 text-gray-500 text-xs">
-                    &copy; 2025 SASTRA NCC Boys Contingent. All Rights Reserved.
+                    &copy; 2026 SASTRA NCC Boys Contingent. All Rights Reserved. | Cloud Powered by Supabase ☁️
                 </div>
             </footer>
         </main>
