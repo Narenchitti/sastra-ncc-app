@@ -23,20 +23,43 @@ import { supabase } from '@/lib/supabase'; // Direct access for deletions
 import crypto from 'crypto';
 
 // --- HELPER: FILE UPLOAD (Unchanged) ---
-async function saveFile(file: File, folder: string): Promise<string> {
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+// --- HELPER: FILE UPLOAD (Supabase Storage) ---
+async function saveFile(file: File, folder: string): Promise<string | undefined> {
+    try {
+        if (!file || file.size === 0) return undefined;
 
-    const uploadDir = path.join(process.cwd(), 'public', folder);
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        // Sanitize filename
+        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+
+        // Upload to Supabase Storage
+        // Note: User must create 'uploads' and 'certificates' buckets in Supabase Dashboard
+        const bucketName = folder === 'certificates' ? 'certificates' : 'uploads';
+
+        const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(fileName, buffer, {
+                contentType: file.type,
+                upsert: false
+            });
+
+        if (error) {
+            console.error('Supabase Upload Error:', error);
+            return undefined;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+            .from(bucketName)
+            .getPublicUrl(fileName);
+
+        return publicUrlData.publicUrl;
+
+    } catch (e) {
+        console.error('File save error:', e);
+        return undefined;
     }
-
-    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    fs.writeFileSync(filePath, buffer);
-    return `/${folder}/${fileName}`;
 }
 
 // --- AUTH ---
