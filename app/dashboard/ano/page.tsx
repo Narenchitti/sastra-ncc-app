@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent } from '@/app/actions';
 import { User, Permission, Event, Achievement } from '@/lib/db';
+import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 
 export default function ANODashboard() {
   const router = useRouter();
@@ -256,6 +257,11 @@ export default function ANODashboard() {
 
             {/* Quick Actions / Recent Activity */}
             <div className="grid md:grid-cols-2 gap-8">
+              {/* Army News Feed (NEW) */}
+              <div>
+                <ArmyNewsFeed />
+              </div>
+
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800">Recent SUO Activity</h3></div>
                 {data.permissions.filter(p => p.status === 'FORWARDED_TO_ANO' || p.status === 'REJECTED_BY_SUO').slice(0, 5).map(p => (

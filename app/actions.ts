@@ -19,6 +19,35 @@ import {
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase'; // Direct access for deletions
 import crypto from 'crypto';
+import Parser from 'rss-parser';
+
+// --- NEWS ACTION ---
+export async function getArmyNews() {
+    try {
+        const parser = new Parser();
+        // PIB Ministry of Defence RSS Feed
+        // URL: Press Information Bureau (Defence Wing)
+        const feed = await parser.parseURL('https://pib.gov.in/Rss/RssFeed.aspx?ModId=8');
+
+        return feed.items.map(item => {
+            // Extract image from content if strictly needed, but PIB often just has text.
+            // We'll try to find an image or provide a default one.
+            const imgMatch = item.content?.match(/src="([^"]+)"/);
+            const imageUrl = imgMatch ? imgMatch[1] : null;
+
+            return {
+                title: item.title,
+                link: item.link,
+                pubDate: item.pubDate,
+                content: item.contentSnippet || item.content,
+                imageUrl: imageUrl
+            };
+        }).slice(0, 5); // Limit to top 5 recent news
+    } catch (error) {
+        console.error("News Fetch Error:", error);
+        return [];
+    }
+}
 
 // --- HELPER: FILE UPLOAD (Unchanged) ---
 // --- HELPER: FILE UPLOAD (Supabase Storage) ---
