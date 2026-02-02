@@ -15,39 +15,62 @@ export default function ArmyNewsFeed() {
     const [news, setNews] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Reliable Fallback Images (Indian Army / Defence Themed - Public Domain/Unsplash)
+    const FALLBACK_IMAGES = [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Indian_Army_Republic_Day_2013.jpg/800px-Indian_Army_Republic_Day_2013.jpg", // Marching
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Indian_Army_T-90_Bhishma_Tank.jpg/800px-Indian_Army_T-90_Bhishma_Tank.jpg", // Tank
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Indian_Army_Special_Forces_soldier_with_Tavor_TAR-21.jpg/600px-Indian_Army_Special_Forces_soldier_with_Tavor_TAR-21.jpg", // Soldier
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Indian_Army_during_Exercise_Yudh_Abhyas_2013.jpg/800px-Indian_Army_during_Exercise_Yudh_Abhyas_2013.jpg", // Patrolling
+    ];
+
+    // Helper to get a deterministic image based on title string
+    const getFallbackImage = (title: string = '') => {
+        let hash = 0;
+        for (let i = 0; i < title.length; i++) {
+            hash = title.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % FALLBACK_IMAGES.length;
+        return FALLBACK_IMAGES[index];
+    };
+
     useEffect(() => {
         async function loadNews() {
-            const data = await getArmyNews();
-            // Fallback mock data if RSS fails (common in dev environments due to CORS/Network)
-            if (!data || data.length === 0) {
-                setNews([
-                    {
-                        title: "Indian Army conducts training exercise 'Trishakti Prahar' in North Bengal",
-                        pubDate: new Date().toUTCString(),
-                        content: "The exercise was aimed at validating battle preparedness of the Security Forces using latest weapons and equipment in a networked environment.",
-                        link: "https://indianarmy.nic.in",
-                        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Indian_Army_soldiers_during_Exercise_Yudh_Abhyas_2015.jpg/1200px-Indian_Army_soldiers_during_Exercise_Yudh_Abhyas_2015.jpg"
-                    },
-                    {
-                        title: "Defence Minister visits forward areas in Arunachal Pradesh",
-                        pubDate: new Date(Date.now() - 86400000).toUTCString(),
-                        content: "Reviewing the operational preparedness involved detailed discussions with field commanders on the ground.",
-                        link: "https://pib.gov.in",
-                        imageUrl: null
-                    }
-                ]);
-            } else {
-                setNews(data);
+            try {
+                const data = await getArmyNews();
+                // Fallback mock data if RSS fails (common in dev environments due to CORS/Network)
+                if (!data || data.length === 0) {
+                    setNews([
+                        {
+                            title: "Indian Army conducts training exercise 'Trishakti Prahar' in North Bengal",
+                            pubDate: new Date().toUTCString(),
+                            content: "The exercise was aimed at validating battle preparedness of the Security Forces using latest weapons and equipment in a networked environment.",
+                            link: "https://indianarmy.nic.in",
+                            imageUrl: null // Let it use the deterministic fallback
+                        },
+                        {
+                            title: "Defence Minister visits forward areas in Arunachal Pradesh",
+                            pubDate: new Date(Date.now() - 86400000).toUTCString(),
+                            content: "Reviewing the operational preparedness involved detailed discussions with field commanders on the ground.",
+                            link: "https://pib.gov.in",
+                            imageUrl: null
+                        }
+                    ]);
+                } else {
+                    setNews(data);
+                }
+            } catch (e) {
+                console.error("Failed to load news", e);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         }
         loadNews();
     }, []);
 
-    if (loading) return <div className="p-4 text-center text-gray-500 animate-pulse">Loading Army News...</div>;
+    if (loading) return <div className="p-4 text-center text-xs text-gray-500 animate-pulse">Loading Army News...</div>;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
             <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-white flex justify-between items-center">
                 <h3 className="font-heading text-lg font-bold text-gray-800 flex items-center gap-2">
                     <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -58,18 +81,19 @@ export default function ArmyNewsFeed() {
                 </span>
             </div>
 
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 flex-1 overflow-y-auto max-h-[400px]">
                 {news.map((item, i) => (
                     <article key={i} className="p-4 hover:bg-gray-50 transition-colors group flex gap-4">
                         {/* Image Thumbnail (or Placeholder) */}
                         <div className="flex-shrink-0 w-24 h-24 bg-gray-200 rounded-lg overflow-hidden relative">
-                            {item.imageUrl ? (
-                                <img src={item.imageUrl} alt="News" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
-                                    <i className="fas fa-newspaper text-2xl"></i>
-                                </div>
-                            )}
+                            <img
+                                src={item.imageUrl || getFallbackImage(item.title)}
+                                alt="News"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = getFallbackImage(item.title);
+                                }}
+                            />
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -84,7 +108,7 @@ export default function ArmyNewsFeed() {
                             </p>
                         </div>
 
-                        <div className="flex-shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex-shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
                             <a href={item.link} target="_blank" className="text-gray-400 hover:text-ncc-red p-2">
                                 <i className="fas fa-chevron-right"></i>
                             </a>
@@ -92,8 +116,8 @@ export default function ArmyNewsFeed() {
                     </article>
                 ))}
             </div>
-            <div className="bg-gray-50 p-2 text-center">
-                <a href="https://indianarmy.nic.in" target="_blank" className="text-xs font-bold text-gray-500 hover:text-red-600 uppercase tracking-widest">
+            <div className="bg-gray-50 p-3 text-center border-t border-gray-100">
+                <a href="https://indianarmy.nic.in" target="_blank" className="text-xs font-bold text-gray-500 hover:text-red-600 uppercase tracking-widest transition-colors">
                     View Official Army Site <i className="fas fa-external-link-alt ml-1"></i>
                 </a>
             </div>

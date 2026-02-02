@@ -30,17 +30,21 @@ export async function getArmyNews() {
         const feed = await parser.parseURL('https://pib.gov.in/Rss/RssFeed.aspx?ModId=8');
 
         return feed.items.map(item => {
-            // Extract image from content if strictly needed, but PIB often just has text.
-            // We'll try to find an image or provide a default one.
-            const imgMatch = item.content?.match(/src="([^"]+)"/);
-            const imageUrl = imgMatch ? imgMatch[1] : null;
+            // Priority 1: Image from 'enclosure' (standard RSS media)
+            let imageUrl: string | null | undefined = item.enclosure?.url;
+
+            // Priority 2: Image from 'content' (regex match for <img src="...">)
+            if (!imageUrl && item.content) {
+                const imgMatch = item.content.match(/src=["']([^"']+)["']/);
+                if (imgMatch) imageUrl = imgMatch[1];
+            }
 
             return {
                 title: item.title,
                 link: item.link,
                 pubDate: item.pubDate,
                 content: item.contentSnippet || item.content,
-                imageUrl: imageUrl
+                imageUrl: imageUrl || null
             };
         }).slice(0, 5); // Limit to top 5 recent news
     } catch (error) {
