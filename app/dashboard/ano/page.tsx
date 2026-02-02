@@ -21,6 +21,9 @@ export default function ANODashboard() {
   const [eventStart, setEventStart] = useState('');
   const [eventEnd, setEventEnd] = useState('');
 
+  // Verified Registry State
+  const [searchQuery, setSearchQuery] = useState('');
+
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (!stored) router.push('/login');
@@ -49,10 +52,12 @@ export default function ANODashboard() {
   if (!user) return null;
   const isANO = user.role === 'ANO';
 
+
   // Stats
   const pendingApprovals = data.permissions.filter(p => p.status === 'FORWARDED_TO_ANO');
   const suoRejections = data.permissions.filter(p => p.status === 'REJECTED_BY_SUO');
   const pendingAchievements = data.achievements.filter(a => a.status === 'PENDING');
+  const verifiedAchievements = data.achievements.filter(a => a.status === 'VERIFIED'); // Filter Verified
   const nextEvent = data.events.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
   // Calendar View Component (Reused)
