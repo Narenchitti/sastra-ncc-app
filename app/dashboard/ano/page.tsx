@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent } from '@/app/actions';
 import { User, Permission, Event, Achievement } from '@/lib/db';
 
 export default function ANODashboard() {
@@ -12,9 +12,14 @@ export default function ANODashboard() {
   const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[], users: User[] }>({ events: [], permissions: [], achievements: [], users: [] });
   const [actionComment, setActionComment] = useState('');
 
-  // Event Creation State
+  // Event Creation / Editing State
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [eventType, setEventType] = useState('Parade');
-  const [eventTitle, setEventTitle] = useState('Morning Drill Parade'); // Default
+  const [eventTitle, setEventTitle] = useState('Morning Drill Parade');
+  const [eventDate, setEventDate] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
+  const [eventStart, setEventStart] = useState('');
+  const [eventEnd, setEventEnd] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -51,6 +56,31 @@ export default function ANODashboard() {
   const nextEvent = data.events.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
   // Calendar View Component (Reused)
+
+  // Form Helpers
+  const resetForm = () => {
+    setEditingId(null);
+    setEventType('Parade');
+    setEventTitle('Morning Drill Parade');
+    setEventDate('');
+    setEventLocation('');
+    setEventStart('');
+    setEventEnd('');
+  }
+
+  const handleEditClick = (e: Event) => {
+    setEditingId(e.id);
+    setEventType(e.type);
+    setEventTitle(e.title);
+    setEventDate(e.date);
+    setEventLocation(e.location);
+    setEventStart(e.startTime);
+    setEventEnd(e.endTime);
+
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   // Calendar View Component (Redesigned)
   const CalendarView = () => {
     const startDate = new Date('2026-02-01'); // Keeping simulation date
@@ -128,8 +158,8 @@ export default function ANODashboard() {
                   <div className="flex-grow">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${ev.type === 'Parade' ? 'bg-red-100 text-red-700' :
-                          ev.type === 'Theory' ? 'bg-blue-100 text-blue-700' :
-                            'bg-purple-100 text-purple-700'
+                        ev.type === 'Theory' ? 'bg-blue-100 text-blue-700' :
+                          'bg-purple-100 text-purple-700'
                         }`}>
                         {ev.type}
                       </span>
@@ -145,9 +175,22 @@ export default function ANODashboard() {
                     </div>
                   </div>
 
-                  {/* Action/Edit (Placeholder for now) */}
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="text-gray-400 hover:text-ncc-navy"><i className="fas fa-ellipsis-v"></i></button>
+
+                  {/* Action/Edit (Update & Delete) */}
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                    <button onClick={() => handleEditClick(ev)} className="text-gray-400 hover:text-blue-600 p-2" title="Edit Event">
+                      <i className="fas fa-edit"></i>
+                    </button>
+                    <form action={async (fd) => {
+                      if (!confirm('Are you sure you want to delete this event?')) return;
+                      fd.append('id', ev.id);
+                      await deleteEvent(fd);
+                      refreshData();
+                    }}>
+                      <button className="text-gray-400 hover:text-red-600 p-2" title="Delete Event">
+                        <i className="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
                   </div>
                 </div>
               ))
@@ -354,11 +397,13 @@ export default function ANODashboard() {
 
         {activeTab === 'schedule' && (
           <div className="grid md:grid-cols-2 gap-12 animate-fade-in">
+
             {/* Left: Form */}
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-6">Create Event</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-6">{editingId ? 'Update Event' : 'Create Event'}</h1>
               <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                <form action={async (fd) => { await createEvent(fd); alert('Event Published to Calendar'); refreshData(); }} className="space-y-5">
+                <form action={async (fd) => { await createEvent(fd); alert(editingId ? 'Event Updated' : 'Event Published'); refreshData(); resetForm(); }} className="space-y-5">
+                  <input type="hidden" name="id" value={editingId || ''} />
 
                   <div>
                     <label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Event Type</label>
@@ -376,16 +421,19 @@ export default function ANODashboard() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Date</label><input name="date" type="date" className="w-full border p-3 rounded" required /></div>
-                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Location</label><input name="location" className="w-full border p-3 rounded" required /></div>
+                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Date</label><input name="date" type="date" className="w-full border p-3 rounded" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required /></div>
+                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Location</label><input name="location" className="w-full border p-3 rounded" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required /></div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Start Time</label><input name="startTime" type="time" className="w-full border p-3 rounded" required /></div>
-                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">End Time</label><input name="endTime" type="time" className="w-full border p-3 rounded" required /></div>
+                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">Start Time</label><input name="startTime" type="time" className="w-full border p-3 rounded" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required /></div>
+                    <div><label className="font-bold text-xs uppercase text-gray-500 mb-1.5 block">End Time</label><input name="endTime" type="time" className="w-full border p-3 rounded" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required /></div>
                   </div>
 
-                  <button className="w-full bg-ncc-navy text-white py-4 rounded font-bold hover:bg-black transition-colors shadow-lg">PUBLISH TO UNIT CALENDAR</button>
+                  <div className="flex gap-2">
+                    {editingId && <button type="button" onClick={resetForm} className="flex-1 bg-gray-200 text-gray-700 py-4 rounded font-bold hover:bg-gray-300 transition-colors">CANCEL</button>}
+                    <button className="flex-[2] bg-ncc-navy text-white py-4 rounded font-bold hover:bg-black transition-colors shadow-lg">{editingId ? 'UPDATE EVENT' : 'PUBLISH TO UNIT CALENDAR'}</button>
+                  </div>
                 </form>
               </div>
             </div>
