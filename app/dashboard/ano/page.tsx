@@ -51,8 +51,9 @@ export default function ANODashboard() {
   const nextEvent = data.events.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
   // Calendar View Component (Reused)
+  // Calendar View Component (Redesigned)
   const CalendarView = () => {
-    const startDate = new Date('2026-02-01');
+    const startDate = new Date('2026-02-01'); // Keeping simulation date
     const weekDates = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
@@ -60,34 +61,98 @@ export default function ANODashboard() {
     });
     const monthName = startDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
+    // Collect all events for this week for the Detailed Agenda
+    const weekEvents = weekDates.flatMap(dateObj => {
+      const dateStr = dateObj.toISOString().split('T')[0];
+      return data.events
+        .filter(e => e.date === dateStr)
+        .map(e => ({ ...e, dateObj }));
+    }).sort((a, b) => a.startTime.localeCompare(b.startTime));
+
     return (
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex justify-between items-end mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
           <div>
-            <h3 className="font-heading text-2xl font-bold text-gray-800">Weekly Schedule</h3>
+            <h3 className="font-heading text-xl font-bold text-gray-800">Weekly Schedule</h3>
             <p className="text-ncc-red font-bold uppercase text-xs tracking-widest">{monthName} | Week 1</p>
           </div>
+          <div className="text-right">
+            <span className="text-2xl font-bold text-gray-800">{weekEvents.length}</span>
+            <span className="text-xs text-gray-500 block uppercase tracking-wider">Events</span>
+          </div>
         </div>
-        <div className="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+
+        {/* 1. Mini Visual Grid (Quick Glance) */}
+        <div className="grid grid-cols-7 gap-px bg-gray-200 border-b border-gray-200">
           {weekDates.map((dateObj, i) => {
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dateObj.toLocaleDateString('default', { weekday: 'short' });
             const dayNum = dateObj.getDate();
             const daysEvents = data.events.filter(e => e.date === dateStr);
+            const isToday = i === 0; // Assuming start date is today for simulation
+
             return (
-              <div key={i} className={`min-h-[100px] bg-white p-2 flex flex-col gap-1`}>
-                <div className={`text-center mb-1 text-gray-500`}>
+              <div key={i} className={`min-h-[80px] bg-white p-2 flex flex-col gap-1 ${isToday ? 'bg-blue-50/30' : ''}`}>
+                <div className={`text-center mb-1`}>
                   <span className="block text-[10px] uppercase opacity-70">{dayName}</span>
-                  <span className="text-sm font-bold leading-none">{dayNum}</span>
+                  <span className={`text-sm font-bold leading-none ${isToday ? 'text-ncc-red' : 'text-gray-700'}`}>{dayNum}</span>
                 </div>
-                {daysEvents.map(ev => (
-                  <div key={ev.id} className={`text-[9px] p-1 rounded border-l-2 truncate ${ev.type === 'Parade' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-blue-50 border-blue-500 text-blue-700'}`}>
-                    {ev.title}
-                  </div>
-                ))}
+                {/* Dots/Small Indicators instead of full truncated text */}
+                <div className="flex flex-col gap-1">
+                  {daysEvents.map(ev => (
+                    <div key={ev.id} className={`h-1.5 rounded-full w-full ${ev.type === 'Parade' ? 'bg-red-400' : 'bg-blue-400'}`} title={ev.title}></div>
+                  ))}
+                </div>
               </div>
             );
           })}
+        </div>
+
+        {/* 2. Detailed Agenda List */}
+        <div className="bg-gray-50 p-6">
+          <h4 className="font-bold text-gray-400 text-xs uppercase tracking-wider mb-4">Detailed Agenda</h4>
+          <div className="space-y-3">
+            {weekEvents.length === 0 ? (
+              <p className="text-sm text-gray-400 italic text-center py-4">No events scheduled for this week.</p>
+            ) : (
+              weekEvents.map(ev => (
+                <div key={ev.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center gap-4 hover:border-ncc-navy transition-colors group">
+                  {/* Date Badge */}
+                  <div className="flex-shrink-0 w-16 text-center border-r border-gray-100 pr-4">
+                    <span className="block text-xs font-bold text-gray-400 uppercase">{ev.dateObj.toLocaleDateString('default', { weekday: 'short' })}</span>
+                    <span className="block text-xl font-bold text-gray-800">{ev.dateObj.getDate()}</span>
+                  </div>
+
+                  {/* Event Details */}
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${ev.type === 'Parade' ? 'bg-red-100 text-red-700' :
+                          ev.type === 'Theory' ? 'bg-blue-100 text-blue-700' :
+                            'bg-purple-100 text-purple-700'
+                        }`}>
+                        {ev.type}
+                      </span>
+                      <h5 className="font-bold text-gray-800 text-sm">{ev.title}</h5>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <i className="far fa-clock text-gray-400"></i> {ev.startTime} - {ev.endTime}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <i className="fas fa-map-marker-alt text-gray-400"></i> {ev.location}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action/Edit (Placeholder for now) */}
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="text-gray-400 hover:text-ncc-navy"><i className="fas fa-ellipsis-v"></i></button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     );
