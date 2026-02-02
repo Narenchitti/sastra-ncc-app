@@ -397,6 +397,77 @@ export default function ANODashboard() {
                 })
               )}
             </div>
+
+            {/* 2. Verified Database Registry */}
+            <div className="space-y-4 pt-12">
+              <div className="flex justify-between items-end border-b pb-2 mb-4">
+                <h3 className="font-bold text-lg text-green-700"><i className="fas fa-database mr-2"></i>Verified Achievement Registry</h3>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search Cadet Name..."
+                    className="pl-8 pr-4 py-1.5 text-sm border rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-green-500 w-64"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <i className="fas fa-search absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase">
+                    <tr>
+                      <th className="px-6 py-3">Cadet</th>
+                      <th className="px-6 py-3">Achievement</th>
+                      <th className="px-6 py-3">Category</th>
+                      <th className="px-6 py-3">Date</th>
+                      <th className="px-6 py-3 text-right">Certificate</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {verifiedAchievements
+                      .filter(a => {
+                        const c = data.users.find(u => u.id === a.cadetId);
+                        return !searchQuery || c?.name.toLowerCase().includes(searchQuery.toLowerCase());
+                      })
+                      .map(a => {
+                        const cadet = data.users.find(u => u.id === a.cadetId);
+                        return (
+                          <tr key={a.id} className="hover:bg-green-50/30 transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-gray-800">{cadet?.name || 'Unknown'}</div>
+                              <div className="text-xs text-gray-500">{cadet?.rank}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-gray-700">{a.title}</div>
+                              <div className="text-xs text-gray-500 truncate max-w-[200px]">{a.description}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded uppercase tracking-wider">{a.category}</span>
+                            </td>
+                            <td className="px-6 py-4 font-mono text-xs text-gray-600">
+                              {a.date}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              {a.certificateUrl ? (
+                                <a href={a.certificateUrl} target="_blank" className="text-blue-600 hover:text-blue-800 hover:underline font-bold text-xs"><i className="fas fa-external-link-alt mr-1"></i> View</a>
+                              ) : (
+                                <span className="text-gray-300 text-xs italic">No File</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    {verifiedAchievements.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">No verified achievements found in the database.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
