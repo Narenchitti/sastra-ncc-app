@@ -414,58 +414,74 @@ export default function ANODashboard() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase">
-                    <tr>
-                      <th className="px-6 py-3">Cadet</th>
-                      <th className="px-6 py-3">Achievement</th>
-                      <th className="px-6 py-3">Category</th>
-                      <th className="px-6 py-3">Date</th>
-                      <th className="px-6 py-3 text-right">Certificate</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {verifiedAchievements
-                      .filter(a => {
-                        const c = data.users.find(u => u.id === a.cadetId);
-                        return !searchQuery || c?.name.toLowerCase().includes(searchQuery.toLowerCase());
-                      })
-                      .map(a => {
-                        const cadet = data.users.find(u => u.id === a.cadetId);
-                        return (
-                          <tr key={a.id} className="hover:bg-green-50/30 transition-colors">
-                            <td className="px-6 py-4">
-                              <div className="font-bold text-gray-800">{cadet?.name || 'Unknown'}</div>
-                              <div className="text-xs text-gray-500">{cadet?.rank}</div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="font-bold text-gray-700">{a.title}</div>
-                              <div className="text-xs text-gray-500 truncate max-w-[200px]">{a.description}</div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded uppercase tracking-wider">{a.category}</span>
-                            </td>
-                            <td className="px-6 py-4 font-mono text-xs text-gray-600">
-                              {a.date}
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              {a.certificateUrl ? (
-                                <a href={a.certificateUrl} target="_blank" className="text-blue-600 hover:text-blue-800 hover:underline font-bold text-xs"><i className="fas fa-external-link-alt mr-1"></i> View</a>
-                              ) : (
-                                <span className="text-gray-300 text-xs italic">No File</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    {verifiedAchievements.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">No verified achievements found in the database.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="space-y-6">
+                {Array.from(new Set(verifiedAchievements.map(a => a.cadetId)))
+                  .map(id => data.users.find(u => u.id === id))
+                  .filter(u => u && (!searchQuery || u.name.toLowerCase().includes(searchQuery.toLowerCase())))
+                  .map(cadet => {
+                    if (!cadet) return null;
+                    const cadetAchievements = verifiedAchievements.filter(a => a.cadetId === cadet.id);
+
+                    return (
+                      <div key={cadet.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        {/* Cadet Header */}
+                        <div className="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-ncc-navy text-white flex items-center justify-center font-bold">
+                              {cadet.name.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-gray-800 text-lg">{cadet.rank} {cadet.name}</h4>
+                              <div className="text-xs text-gray-500 flex gap-2">
+                                <span className="bg-white border px-1.5 rounded">{cadet.regimentalNumber || 'No Regt #'}</span>
+                                <span>•</span>
+                                <span>{cadetAchievements.length} Verified Records</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Achievements List */}
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-white text-[10px] font-bold text-gray-400 uppercase border-b">
+                            <tr>
+                              <th className="px-6 py-2">Achievement Title</th>
+                              <th className="px-6 py-2">Category</th>
+                              <th className="px-6 py-2">Date</th>
+                              <th className="px-6 py-2 text-right">Certificate</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50">
+                            {cadetAchievements.map(a => (
+                              <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-3">
+                                  <div className="font-bold text-gray-700">{a.title}</div>
+                                  <div className="text-xs text-gray-500 truncate max-w-[300px]">{a.description}</div>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded uppercase tracking-wider">{a.category}</span>
+                                </td>
+                                <td className="px-6 py-3 font-mono text-xs text-gray-600">
+                                  {a.date}
+                                </td>
+                                <td className="px-6 py-3 text-right">
+                                  {a.certificateUrl ? (
+                                    <a href={a.certificateUrl} target="_blank" className="text-blue-600 hover:text-blue-800 hover:underline font-bold text-xs"><i className="fas fa-external-link-alt mr-1"></i> View</a>
+                                  ) : (
+                                    <span className="text-gray-300 text-xs italic">No File</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })}
+
+                {verifiedAchievements.length === 0 && (
+                  <div className="p-8 text-center text-gray-400 bg-white rounded border border-dashed">No verified achievements found in the database.</div>
+                )}
               </div>
             </div>
           </div>
