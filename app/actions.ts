@@ -291,7 +291,18 @@ export async function updatePermissionStatus(formData: FormData) {
     return { success: true };
 }
 
+
+export async function deleteEvent(formData: FormData) {
+    const id = formData.get('id') as string;
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (error) return { success: false, message: 'Failed to delete event' };
+
+    revalidatePath('/dashboard');
+    return { success: true, message: 'Event Deleted' };
+}
+
 export async function createEvent(formData: FormData) {
+    const id = formData.get('id') as string | null; // Optional ID for updates
     const title = formData.get('title') as string;
     const date = formData.get('date') as string;
     const startTime = formData.get('startTime') as string;
@@ -300,10 +311,11 @@ export async function createEvent(formData: FormData) {
     const location = formData.get('location') as string;
 
     await saveEvent({
-        id: crypto.randomUUID(),
+        id: id || crypto.randomUUID(), // Use existing ID if provided
         title, date, startTime, endTime, type, location
     });
     revalidatePath('/dashboard');
-    return { success: true };
+    return { success: true, message: id ? 'Event Updated' : 'Event Created' };
 }
+
 
