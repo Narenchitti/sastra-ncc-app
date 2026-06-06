@@ -1,15 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from fastapi import HTTPException, Security, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from .config import get_settings
 
 settings = get_settings()
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT Bearer scheme
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -17,12 +14,17 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    except Exception:
+        # Fallback for plain text passwords (legacy)
+        return plain_password == hashed_password
 
 
 def hash_password(plain_password: str) -> str:
     """Hash a plain password with bcrypt."""
-    return pwd_context.hash(plain_password)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(plain_password.encode("utf-8"), salt).decode("utf-8")
 
 
 def create_access_token(data: dict, expires_minutes: Optional[int] = None) -> str:

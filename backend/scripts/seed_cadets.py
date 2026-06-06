@@ -5,10 +5,8 @@ Passwords are hashed with bcrypt before insertion.
 import sys, os, uuid
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from passlib.context import CryptContext
+import bcrypt
 from app.core.supabase import supabase
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ── Step 1: Drop old table and create new one ──
 print("=" * 60)
@@ -77,8 +75,8 @@ CADETS = [
 print("\nHashing passwords with bcrypt (this may take a few seconds)...")
 payloads = []
 for c in CADETS:
-    plain = c.pop("plain_password")          # remove plain-text before inserting
-    hashed = pwd_context.hash(plain)         # bcrypt hash
+    plain = c.pop("plain_password")
+    hashed = bcrypt.hashpw(plain.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")         # bcrypt hash
     payloads.append({**c, "id": str(uuid.uuid4()), "password": hashed})
 
 print(f"   ✓ All {len(payloads)} passwords hashed\n")

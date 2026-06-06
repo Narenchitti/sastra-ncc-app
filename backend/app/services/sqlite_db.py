@@ -2,12 +2,12 @@ import sqlite3
 import os
 import uuid
 from typing import List
-from passlib.context import CryptContext
+import bcrypt
 from ..schemas.models import UserBase, EventBase, PermissionBase, AchievementBase, AttendanceBase
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "db.sqlite3")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# pwd_context removed
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -153,7 +153,7 @@ def init_db():
 
         # Insert ANO
         ano_id = "6ced2391-0526-446a-bf3f-32565eb09a0d"
-        hashed_ano_pwd = pwd_context.hash(ANO_USER["plain_password"])
+        hashed_ano_pwd = bcrypt.hashpw(ANO_USER["plain_password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         cursor.execute("""
         INSERT INTO users (id, name, email, password, rank, role, batch_year, regimental_number, registration_number, dob, year_branch, hostel_info, camp_count)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -178,7 +178,7 @@ def init_db():
             elif cadet["name"] == "NAREN CHITTIBABU":
                 uid = "5cb99503-3194-4386-8d32-9ca992dae696"
 
-            hashed_pwd = pwd_context.hash(cadet["plain_password"])
+            hashed_pwd = bcrypt.hashpw(cadet["plain_password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
             cursor.execute("""
             INSERT INTO users (id, name, email, password, rank, role, batch_year, regimental_number, registration_number, dob, year_branch, hostel_info, camp_count)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
