@@ -1,6 +1,7 @@
 export type Rank = 'Cadet' | 'Lance Corporal' | 'Corporal' | 'Sergeant' | 'CSM' | 'CUO' | 'SUO';
 export type Role = 'CADET' | 'ANO';
-export type PermissionStatus = 'PENDING_SUO' | 'FORWARDED_TO_ANO' | 'REJECTED_BY_SUO' | 'APPROVED' | 'DECLINED_BY_ANO' | 'MEET_ANO';
+export type PermissionStatus = 'PENDING_REVIEW' | 'PENDING_SUO' | 'FORWARDED_TO_ANO' | 'REJECTED_BY_SUO' | 'APPROVED' | 'DECLINED_BY_ANO' | 'MEET_ANO';
+
 
 export interface User {
     id: string;

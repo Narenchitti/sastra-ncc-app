@@ -12,8 +12,10 @@ export default function LoginPage() {
     const res = await loginAction(formData);
     
     if (res.success && res.user) {
+      // Store both user info and the JWT token for authenticated API calls
       localStorage.setItem('user', JSON.stringify(res.user));
-      if (res.user.role === 'ANO') router.push('/dashboard/ano');
+      localStorage.setItem('access_token', res.accessToken);
+      if (res.user.role === 'ANO' || res.user.rank === 'SUO' || res.user.rank === 'CUO') router.push('/dashboard/ano');
       else router.push('/dashboard/cadet');
     } else {
       setError(res.message || 'Login Failed');

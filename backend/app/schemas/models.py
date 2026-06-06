@@ -25,6 +25,22 @@ class UserBase(APIModel):
     hostel_info: Optional[str] = None
     camp_count: Optional[int] = 0
 
+
+class UserPublic(APIModel):
+    """Safe user schema — never includes the password field."""
+    id: str
+    name: str
+    email: str
+    rank: str
+    role: str
+    batch_year: int
+    regimental_number: Optional[str] = None
+    registration_number: Optional[str] = None
+    dob: Optional[str] = None
+    year_branch: Optional[str] = None
+    hostel_info: Optional[str] = None
+    camp_count: Optional[int] = 0
+
 class EventBase(APIModel):
     id: str
     title: str

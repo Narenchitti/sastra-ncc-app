@@ -3,15 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDashboardData, submitPermission, submitAchievement, deleteAchievement, submitAchievementForVerification, getAttendanceSheet, submitBulkAttendance, updatePermissionStatus, deletePermission } from '@/app/actions';
-import { User, Event, Permission, Achievement } from '@/lib/types';
+import { User, Event, Permission, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 
 export default function CadetDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('home');
-  const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[] }>({ events: [], permissions: [], achievements: [] });
+  const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[], attendance: Attendance[], permissionManagerId?: string | null }>({ events: [], permissions: [], achievements: [], attendance: [] });
   const [message, setMessage] = useState('');
+  const [attFilter, setAttFilter] = useState<'all' | 'parade' | 'event' | 'other'>('all');
 
   // Achievement State
   const [achCategory, setAchCategory] = useState<string>('Camp');
@@ -137,7 +138,7 @@ export default function CadetDashboard() {
   }
 
   if (!user) return null;
-  const isRankHolder = ['Lance Corporal', 'Corporal', 'Sergeant', 'SUO', 'CUO', 'CSM'].includes(user.rank);
+  const isRankHolder = ['Sergeant', 'CSM', 'CUO', 'SUO'].includes(user.rank);
   const isSUO = user.rank === 'SUO' || user.rank === 'CUO';
 
   const currentYear = new Date().getFullYear();
@@ -260,8 +261,25 @@ export default function CadetDashboard() {
   }
 
   /* ... Filters ... */
-  const pendingRequests = data.permissions.filter(p => p.status === 'PENDING_SUO');
-  const pastApprovals = data.permissions.filter(p => !['PENDING_SUO'].includes(p.status) && (p.suoComment || p.status.includes('BY_SUO') || p.status.includes('FORWARDED')));
+  // The appointed Permission Manager (designated by ANO)
+  const isManager = data.permissionManagerId === user?.id;
+
+  // PENDING_REVIEW = just submitted, visible to both ANO and Manager
+  // PENDING_SUO kept for backward compat with any old records in DB
+
+  const pendingRequests = data.permissions.filter(p => p.status === 'PENDING_REVIEW' || p.status === 'PENDING_SUO');
+  const pastApprovals = data.permissions.filter(p => !['PENDING_REVIEW', 'PENDING_SUO'].includes(p.status) && (p.suoComment || p.status.includes('BY_SUO') || p.status.includes('FORWARDED')));
+  // ── Attendance derived data (used in Attendance tab) ─────────────────
+  const attMyRecords = (data.attendance || [])
+    .filter((a: Attendance) => a.userId === user?.id)
+    .map((a: Attendance) => ({ ...a, event: data.events.find(e => e.id === a.eventId) }))
+    .filter(r => r.event)
+    .sort((a, b) => new Date((b.event as Event).date).getTime() - new Date((a.event as Event).date).getTime()) as (Attendance & { event: Event })[];
+  const attParades = attMyRecords.filter(r => r.event.type === 'Parade');
+  const attEvents  = attMyRecords.filter(r => r.event.type === 'Event' || r.event.type === 'Camp');
+  const attOthers  = attMyRecords.filter(r => r.event.type === 'Theory');
+  const attFiltered = attFilter === 'all' ? attMyRecords : attFilter === 'parade' ? attParades : attFilter === 'event' ? attEvents : attOthers;
+  const attPct = (recs: typeof attMyRecords) => { if (!recs.length) return null; return Math.round(recs.filter(r => r.status === 'Present' || r.status === 'Late').length / recs.length * 100); };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -269,10 +287,10 @@ export default function CadetDashboard() {
         {/* Sidebar Content */}
         <div className="p-8 border-b border-white/10"><h2 className="font-heading text-3xl font-bold tracking-tight">SASTRA NCC</h2><p className="text-xs text-ncc-sky tracking-[0.2em] uppercase mt-1">Cadet Portal</p></div>
         <nav className="p-4 space-y-2 flex-grow">
-          {['Home', 'Schedule', 'Permissions', 'Achievements'].map((item) => (
-            <button key={item} onClick={() => setActiveTab(item.toLowerCase())} className={`w-full text-left px-5 py-3.5 rounded-lg transition-all flex items-center gap-3 font-medium ${activeTab === item.toLowerCase() ? 'bg-ncc-red text-white shadow-lg shadow-red-900/20' : 'hover:bg-white/5 text-gray-300'}`}><i className={`fas fa-${item === 'Home' ? 'home' : item === 'Schedule' ? 'calendar-alt' : item === 'Permissions' ? 'file-signature' : 'medal'} w-5 text-center`}></i>{item}</button>
+          {['Home', 'Schedule', 'Permissions', 'Achievements', 'Attendance'].map((item) => (
+            <button key={item} onClick={() => setActiveTab(item.toLowerCase())} className={`w-full text-left px-5 py-3.5 rounded-lg transition-all flex items-center gap-3 font-medium ${activeTab === item.toLowerCase() ? 'bg-ncc-red text-white shadow-lg shadow-red-900/20' : 'hover:bg-white/5 text-gray-300'}`}><i className={`fas fa-${item === 'Home' ? 'home' : item === 'Schedule' ? 'calendar-alt' : item === 'Permissions' ? 'file-signature' : item === 'Achievements' ? 'medal' : 'chart-bar'} w-5 text-center`}></i>{item}</button>
           ))}
-          {isSUO && (<button onClick={() => setActiveTab('approvals')} className={`w-full text-left px-5 py-3.5 rounded-lg transition-all flex items-center gap-3 font-medium ${activeTab === 'approvals' ? 'bg-ncc-red text-white shadow-lg shadow-red-900/20' : 'hover:bg-white/5 text-gray-300'}`}><i className="fas fa-check-double w-5 text-center text-green-400"></i> Approvals {pendingRequests.length > 0 && <span className="text-[10px] bg-red-600 px-1.5 rounded-full ml-auto">{pendingRequests.length}</span>}</button>)}
+          {isManager && (<button onClick={() => setActiveTab('approvals')} className={`w-full text-left px-5 py-3.5 rounded-lg transition-all flex items-center gap-3 font-medium ${activeTab === 'approvals' ? 'bg-ncc-red text-white shadow-lg shadow-red-900/20' : 'hover:bg-white/5 text-gray-300'}`}><i className="fas fa-check-double w-5 text-center text-green-400"></i> Approvals {pendingRequests.length > 0 && <span className="text-[10px] bg-red-600 px-1.5 rounded-full ml-auto">{pendingRequests.length}</span>}</button>)}
         </nav>
         <div className="p-6 bg-black/20 mt-auto"><div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-full bg-ncc-gold text-ncc-navy flex items-center justify-center font-bold text-lg">{user.name.charAt(0)}</div><div><div className="text-white font-bold text-sm leading-tight">{user.rank} {user.name}</div><div className="text-ncc-sky text-[10px] uppercase font-bold tracking-wider mb-0.5">{user.regimentalNumber || 'N/A'}</div><div className="text-gray-400 text-[10px]">{getYearLabel(user.batchYear)} • Batch {user.batchYear}</div></div></div><button onClick={() => { localStorage.removeItem('user'); router.push('/'); }} className="w-full py-2 rounded border border-white/20 text-xs hover:bg-white/10 text-gray-300 transition-colors"><i className="fas fa-sign-out-alt mr-2"></i> Sign Out</button></div>
       </aside>
@@ -281,8 +299,18 @@ export default function CadetDashboard() {
         {message && <div className="fixed top-5 right-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50 animate-bounce shadow-lg"><i className="fas fa-check-circle mr-2"></i> {message} <button onClick={() => setMessage('')} className="ml-4 opacity-50 hover:opacity-100"><i className="fas fa-times"></i></button></div>}
 
         <header className="flex justify-between items-center mb-8">
-          <div><h1 className="text-3xl font-bold text-gray-800 capitalize mb-1">{activeTab}</h1><p className="text-gray-500 text-sm">Manage your NCC activities and records</p></div>
-          {isRankHolder && <span className="bg-gradient-to-r from-ncc-gold to-yellow-600 text-white px-4 py-1.5 rounded-full font-bold text-xs uppercase shadow-md flex items-center gap-2"><i className="fas fa-star"></i> Rank Holder Access</span>}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 capitalize mb-2">{activeTab}</h1>
+            <p className="text-gray-500 text-sm">Manage your NCC activities and records</p>
+          </div>
+          <div className="flex gap-3">
+            {data.permissionManagerId === user.id && (
+              <span className="bg-amber-100 text-amber-800 px-4 py-1.5 rounded-full font-bold text-xs uppercase shadow-md flex items-center gap-2 border border-amber-300">
+                <i className="fas fa-shield-alt"></i> Permission Manager
+              </span>
+            )}
+            {isRankHolder && <span className="bg-gradient-to-r from-ncc-gold to-yellow-600 text-white px-4 py-1.5 rounded-full font-bold text-xs uppercase shadow-md flex items-center gap-2"><i className="fas fa-star"></i> Rank Holder</span>}
+          </div>
         </header>
 
         {activeTab === 'home' && (
@@ -307,7 +335,7 @@ export default function CadetDashboard() {
           </div>
         )}
 
-        {activeTab === 'approvals' && isSUO && (
+        {activeTab === 'approvals' && isManager && (
           <div className="animate-fade-in space-y-6">
             <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm">
               <div><h2 className="text-xl font-bold text-gray-800">Review Requests</h2><p className="text-gray-500 text-sm">Manage permission requests and view history.</p></div>
@@ -392,8 +420,8 @@ export default function CadetDashboard() {
                         {p.status.replace(/_/g, ' ')}
                       </span>
 
-                      {/* ACTION: Withdraw Request (If Pending) */}
-                      {p.status === 'PENDING_SUO' && (
+                      {/* ACTION: Withdraw Request (If still pending) */}
+                      {(p.status === 'PENDING_REVIEW' || p.status === 'PENDING_SUO') && (
                         <form action={async (fd) => {
                           if (confirm('Are you sure you want to withdraw this request?')) {
                             fd.append('id', p.id);
@@ -479,8 +507,8 @@ export default function CadetDashboard() {
                         {p.status.replace(/_/g, ' ')}
                       </span>
 
-                      {/* Withdraw Option */}
-                      {p.status === 'PENDING_SUO' && (
+                      {/* Withdraw Option — only while still pending */}
+                      {(p.status === 'PENDING_REVIEW' || p.status === 'PENDING_SUO') && (
                         <form action={async (fd) => {
                           if (confirm('Are you sure you want to withdraw this request?')) {
                             fd.append('id', p.id);
@@ -613,6 +641,117 @@ export default function CadetDashboard() {
             </div>
           </div>
         )}
+
+        {activeTab === 'attendance' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">My Attendance</h1>
+                <p className="text-gray-500 text-sm mt-1">Your full attendance record across all activities</p>
+              </div>
+              {/* ── Summary Cards ── */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Parades', val: attPct(attParades),    total: attParades.length,   color: 'border-red-500' },
+                  { label: 'Events',  val: attPct(attEvents),     total: attEvents.length,    color: 'border-purple-500' },
+                  { label: 'Others',  val: attPct(attOthers),     total: attOthers.length,    color: 'border-yellow-500' },
+                ].map(({ label, val, total, color }) => (
+                  <div key={label} className={`bg-white p-5 rounded-xl shadow-sm border-l-4 ${color}`}>
+                    <div className="text-xs font-bold uppercase text-gray-400 tracking-wider">{label}</div>
+                    {total === 0 ? (
+                      <div className="text-2xl font-bold text-gray-300 mt-2">—</div>
+                    ) : (
+                      <>
+                        <div className={`text-3xl font-bold mt-2 ${(val ?? 0) >= 75 ? 'text-green-600' : (val ?? 0) >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                          {val}%
+                        </div>
+                        <div className="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
+                          <div className={`h-full rounded-full ${(val ?? 0) >= 75 ? 'bg-green-500' : (val ?? 0) >= 50 ? 'bg-yellow-400' : 'bg-red-500'}`}
+                            style={{ width: `${val}%` }} />
+                        </div>
+                        <div className="text-[10px] text-gray-400 mt-1">{total} session{total !== 1 ? 's' : ''}</div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* ── Filter Pills ── */}
+              <div className="flex gap-2 flex-wrap">
+                {([
+                  { key: 'all',    label: 'All Activities', count: attMyRecords.length },
+                  { key: 'parade', label: 'Parades',        count: attParades.length },
+                  { key: 'event',  label: 'Events & Camps', count: attEvents.length },
+                  { key: 'other',  label: 'Other (Theory)', count: attOthers.length },
+                ] as const).map(({ key, label, count }) => (
+                  <button key={key} onClick={() => setAttFilter(key)}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${attFilter === key ? 'bg-ncc-navy text-white border-ncc-navy shadow' : 'bg-white text-gray-600 border-gray-200 hover:border-ncc-navy'}`}>
+                    {label}
+                    <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold ${attFilter === key ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>{count}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* ── Records List ── */}
+              {attFiltered.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-xl border border-dashed text-gray-400">
+                  <i className="fas fa-calendar-times text-4xl mb-3 block opacity-30"></i>
+                  No attendance records found for this category.
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b">
+                      <tr>
+                        <th className="px-6 py-3 text-left">Date</th>
+                        <th className="px-6 py-3 text-left">Activity</th>
+                        <th className="px-6 py-3 text-left hidden md:table-cell">Type</th>
+                        <th className="px-6 py-3 text-left hidden md:table-cell">Session / Detail</th>
+                        <th className="px-6 py-3 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {attFiltered.map((r, i) => {
+                        const ev = r.event!;
+                        const [h] = ev.startTime.split(':').map(Number);
+                        const session = ev.type === 'Parade' ? (h < 12 ? 'Morning' : 'Evening') : null;
+                        const statusStyle: Record<string, string> = { Present: 'bg-green-100 text-green-700', Late: 'bg-yellow-100 text-yellow-700', Permission: 'bg-blue-100 text-blue-700', Absent: 'bg-red-100 text-red-700' };
+                        const statusIcon: Record<string, string>  = { Present: 'fa-check-circle', Late: 'fa-clock', Permission: 'fa-file-signature', Absent: 'fa-times-circle' };
+                        return (
+                          <tr key={i} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 font-mono text-xs text-gray-500 whitespace-nowrap">
+                              {new Date(ev.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-semibold text-gray-800">{ev.title}</div>
+                              <div className="text-[10px] text-gray-400">{ev.location}</div>
+                            </td>
+                            <td className="px-6 py-4 hidden md:table-cell">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${ev.type === 'Parade' ? 'bg-red-100 text-red-700' : ev.type === 'Event' ? 'bg-purple-100 text-purple-700' : ev.type === 'Camp' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>{ev.type}</span>
+                            </td>
+                            <td className="px-6 py-4 hidden md:table-cell text-xs text-gray-500">
+                              {session ? (
+                                <span className={`flex items-center gap-1 font-medium ${session === 'Morning' ? 'text-orange-500' : 'text-indigo-500'}`}>
+                                  <i className={`fas fa-${session === 'Morning' ? 'sun' : 'moon'} text-[10px]`}></i> {session}
+                                </span>
+                              ) : <span>{ev.startTime} – {ev.endTime}</span>}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${statusStyle[r.status] || 'bg-gray-100 text-gray-600'}`}>
+                                <i className={`fas ${statusIcon[r.status] || 'fa-question-circle'}`}></i>
+                                {r.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+        )}
+
+
       </main>
     </div>
   );

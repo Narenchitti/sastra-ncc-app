@@ -31,6 +31,15 @@ export async function loginAction(formData: FormData) {
 
     try {
         const result = await apiClient.post('/auth/login', { email, password });
+        if (result.success && result.accessToken) {
+            const { cookies } = await import('next/headers');
+            cookies().set('access_token', result.accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+            });
+        }
         return result;
     } catch (error: any) {
         return { success: false, message: error.message || 'Invalid Credentials' };
@@ -40,10 +49,23 @@ export async function loginAction(formData: FormData) {
 // --- DASHBOARD DATA ---
 export async function getDashboardData() {
     try {
-        return await apiClient.get('/dashboard');
-    } catch (error) {
+        const data = await apiClient.get('/dashboard');
+        return data;
+    } catch (error: any) {
         console.error("Dashboard Data Fetch Error:", error);
-        return { events: [], permissions: [], achievements: [], attendance: [], users: [] };
+        return { events: [], permissions: [], achievements: [], attendance: [], users: [], permissionManagerId: null, fetchError: error.message || 'Unknown fetch error' };
+    }
+}
+
+// --- UNIT CONFIG: Assign Permission Manager (ANO only) ---
+export async function updatePermissionManager(formData: FormData) {
+    const managerId = formData.get('managerId') as string;
+    if (!managerId) return { success: false, message: 'No manager selected' };
+    try {
+        await apiClient.put('/unit-config', { permissionManagerId: managerId });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to update manager' };
     }
 }
 
@@ -104,9 +126,8 @@ export async function submitPermission(formData: FormData) {
     */
 
     const data = await getDashboardData();
-    const requester = data.users.find((u: any) => u.id === cadetId);
-    const isSuo = requester?.rank === 'SUO' || requester?.rank === 'CUO';
-    const initialStatus = isSuo ? 'FORWARDED_TO_ANO' : 'PENDING_SUO';
+    // Always start as PENDING_REVIEW so both ANO and Manager (SUO/CUO) see it immediately
+    const initialStatus = 'PENDING_REVIEW';
 
     const newPermission = {
         id: crypto.randomUUID(),
@@ -203,18 +224,24 @@ export async function verifyAchievement(formData: FormData) {
 
 export async function deletePermission(formData: FormData) {
     const id = formData.get('id') as string;
-    // TODO: Implement DELETE endpoint in backend
-    // await apiClient.delete(`/permissions/${id}`);
-    revalidatePath('/dashboard');
-    return { success: true, message: 'Permission Request Withdrawn' };
+    try {
+        await apiClient.delete(`/permissions/${id}`);
+        revalidatePath('/dashboard');
+        return { success: true, message: 'Permission Request Withdrawn' };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to withdraw permission' };
+    }
 }
 
 export async function deleteAchievement(formData: FormData) {
     const id = formData.get('id') as string;
-    // TODO: Implement DELETE endpoint in backend
-    // await apiClient.delete(`/achievements/${id}`);
-    revalidatePath('/dashboard');
-    return { success: true, message: 'Achievement Deleted' };
+    try {
+        await apiClient.delete(`/achievements/${id}`);
+        revalidatePath('/dashboard');
+        return { success: true, message: 'Achievement Deleted' };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to delete achievement' };
+    }
 }
 
 // --- ANO/SUO ACTIONS ---
@@ -240,9 +267,13 @@ export async function updatePermissionStatus(formData: FormData) {
 
 export async function deleteEvent(formData: FormData) {
     const id = formData.get('id') as string;
-    // TODO: Implement DELETE endpoint in backend
-    revalidatePath('/dashboard');
-    return { success: true, message: 'Event Deleted' };
+    try {
+        await apiClient.delete(`/events/${id}`);
+        revalidatePath('/dashboard');
+        return { success: true, message: 'Event Deleted' };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to delete event' };
+    }
 }
 
 export async function createEvent(formData: FormData) {
