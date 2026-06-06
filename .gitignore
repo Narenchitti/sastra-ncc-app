@@ -12,6 +12,7 @@ pip-delete-this-directory.txt
 .env
 .env.*
 !.env.example
+backend/.env
 backend/app/db.sqlite3
 
 # Next.js
