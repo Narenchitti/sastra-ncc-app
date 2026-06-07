@@ -215,7 +215,7 @@ export default function Home() {
 
                     <h1 className="font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold mb-6 tracking-tight leading-none animate-fade-up delay-100 uppercase">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-sky via-[#e8f4fd] to-white">Unity and</span><br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-red via-red-500 to-[#ffb3b3] animate-pulse-glow">Discipline</span>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-red via-red-500 to-[#ffb3b3] animate-text-glow">Discipline</span>
                     </h1>
 
                     <p className="text-sm md:text-lg text-gray-300 font-medium mb-10 tracking-widest uppercase animate-fade-up delay-300 max-w-2xl mx-auto">
@@ -247,11 +247,14 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── FLOATING STAT BAR ── */}
-            <section className="relative -mt-16 z-20 max-w-6xl mx-auto px-4 md:px-6">
-                <div className="glass-navy rounded-3xl p-8 md:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
+            {/* ── STAT COUNTERS BAR ── */}
+            <section className="bg-ncc-navy border-t border-b border-white/5 py-12 md:py-16 relative overflow-hidden z-20">
+                <div className="absolute inset-0 opacity-10">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+                <div className="max-w-6xl mx-auto px-6 relative z-10">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                         <AnimatedCounter end={200} suffix="+" label="Cadets Trained" icon="fas fa-users" />
                         <AnimatedCounter end={15} suffix="+" label="Camps Attended" icon="fas fa-campground" />
                         <AnimatedCounter end={7} suffix="" label="Years of Excellence" icon="fas fa-award" />
