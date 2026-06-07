@@ -25,13 +25,13 @@ const GALLERY_IMAGES = [
 const GALLERY_CATEGORIES = ['All', 'Camps', 'Parades', 'Cultural', 'Training', 'Special Events'];
 
 const TIMELINE_DATA = [
-    { year: '2019', batch: 'Batch 1', title: 'The Beginning', description: 'SASTRA NCC Army Wing was established under 06/34 (TN) INDEP COY, Thanjavur. The first cadets enrolled, laying the foundation.' },
-    { year: '2020', batch: 'Batch 2', title: 'Building Resilience', description: 'Despite COVID-19 challenges, the contingent continued with virtual training and adapted to new norms.' },
-    { year: '2021', batch: 'Batch 3', title: 'Rising Strong', description: 'First set of cadets completed B & C certificates. Representation in state-level camps increased.' },
-    { year: '2022', batch: 'Batch 4', title: 'Growing Glory', description: 'Cadets participated in Republic Day Camp selections and various national integration camps.' },
-    { year: '2023', batch: 'Batch 5', title: 'Digital Leap', description: 'The batch that built this digital platform for the contingent. Multiple camp participations and increased visibility.' },
-    { year: '2024', batch: 'Batch 6', title: 'Expanding Horizons', description: 'Record number of camp participations. Cadets excelled in drill, shooting, and cultural competitions.' },
-    { year: '2025–26', batch: 'Batch 7', title: 'The Current Legacy', description: 'The current serving batch continues the tradition of excellence, discipline, and national service.' },
+    { year: '2019', batch: 'Batch 1', title: 'The Beginning', image: '/assets/images/ncc_drill_parade.png', description: 'SASTRA NCC Army Wing was established under 06/34 (TN) INDEP COY, Thanjavur. The first cadets enrolled, laying the foundation.' },
+    { year: '2020', batch: 'Batch 2', title: 'Building Resilience', image: '/assets/images/ncc_camp_training.png', description: 'Despite COVID-19 challenges, the contingent continued with virtual training and adapted to new norms.' },
+    { year: '2021', batch: 'Batch 3', title: 'Rising Strong', image: '/assets/images/ncc_guard_honour.png', description: 'First set of cadets completed B & C certificates. Representation in state-level camps increased.' },
+    { year: '2022', batch: 'Batch 4', title: 'Growing Glory', image: '/assets/images/ncc_social_service.png', description: 'Cadets participated in Republic Day Camp selections and various national integration camps.' },
+    { year: '2023', batch: 'Batch 5', title: 'Digital Leap', image: '/assets/images/ncc_camp_training.png', description: 'The batch that built this digital platform for the contingent. Multiple camp participations and increased visibility.' },
+    { year: '2024', batch: 'Batch 6', title: 'Expanding Horizons', image: '/assets/images/ncc_drill_parade.png', description: 'Record number of camp participations. Cadets excelled in drill, shooting, and cultural competitions.' },
+    { year: '2025–26', batch: 'Batch 7', title: 'The Current Legacy', image: '/assets/images/ncc_guard_honour.png', description: 'The current serving batch continues the tradition of excellence, discipline, and national service.' },
 ];
 
 const UPCOMING_EVENTS = [
@@ -421,28 +421,47 @@ export default function Home() {
                     </div>
 
                     {/* Active Content Card */}
-                    <div className="max-w-3xl mx-auto">
-                        <div className="bg-white p-8 md:p-12 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden transition-all duration-500 transform hover:scale-[1.005]">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="bg-white p-8 md:p-10 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden transition-all duration-500 transform hover:scale-[1.005]">
                             {/* Accent stripe */}
                             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
                             
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-                                <div>
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-ncc-red bg-red-50 border border-red-100 px-3.5 py-1 rounded-full">
-                                        {TIMELINE_DATA[activeBatchIndex].batch}
-                                    </span>
-                                    <h3 className="font-heading text-2xl font-extrabold text-ncc-navy mt-4 leading-tight">
+                            <div className="flex flex-col md:flex-row gap-8 items-center">
+                                {/* Left Side: Text Details */}
+                                <div className="flex-grow">
+                                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-ncc-red bg-red-50 border border-red-100 px-3.5 py-1 rounded-full">
+                                            {TIMELINE_DATA[activeBatchIndex].batch}
+                                        </span>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-ncc-gold bg-amber-50 border border-amber-100 px-3.5 py-1 rounded-full">
+                                            {TIMELINE_DATA[activeBatchIndex].year}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-heading text-2xl md:text-3xl font-extrabold text-ncc-navy mb-4 leading-tight">
                                         {TIMELINE_DATA[activeBatchIndex].title}
                                     </h3>
+                                    <p className="text-gray-500 text-xs md:text-sm leading-relaxed transition-all duration-300">
+                                        {TIMELINE_DATA[activeBatchIndex].description}
+                                    </p>
                                 </div>
-                                <div className="text-5xl md:text-6xl font-heading font-black text-slate-100/80 tracking-tighter select-none">
-                                    {TIMELINE_DATA[activeBatchIndex].year}
+
+                                {/* Right Side: Glowing Octagonal Image Preview */}
+                                <div className="w-full md:w-64 flex-shrink-0 flex items-center justify-center">
+                                    <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-ncc-gold/60 shadow-xl group/legacy-img">
+                                        <img 
+                                            src={TIMELINE_DATA[activeBatchIndex].image} 
+                                            alt={TIMELINE_DATA[activeBatchIndex].title} 
+                                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        <div className="absolute bottom-4 left-4 right-4 text-center">
+                                            <span className="text-white font-heading font-black text-3xl md:text-4xl tracking-tighter select-none opacity-80">
+                                                {TIMELINE_DATA[activeBatchIndex].year}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <p className="text-gray-500 text-xs md:text-sm leading-relaxed transition-all duration-300">
-                                {TIMELINE_DATA[activeBatchIndex].description}
-                            </p>
                         </div>
                     </div>
                 </div>
