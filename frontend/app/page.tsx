@@ -120,55 +120,54 @@ export default function Home() {
             {/* ═══════════════════════════════════
           SECTION 1: STICKY NAVBAR
       ═══════════════════════════════════ */}
+
+
             <nav
-                className={`fixed w-full z-50 transition-all duration-500 ${scrolled
-                    ? 'bg-white/95 backdrop-blur-md shadow-lg'
-                    : 'bg-transparent shadow-none'
-                    }`}
+                className={`fixed w-full z-50 transition-all duration-500 ${
+                    scrolled
+                        ? 'bg-ncc-navy/95 border-b border-white/5 backdrop-blur-md shadow-xl py-2'
+                        : 'bg-transparent shadow-none py-4'
+                }`}
             >
-                <div className="w-full px-0 py-3 flex justify-between items-center">
+                <div className="w-full px-4 md:px-8 flex justify-between items-center">
                     {/* Logos + Branding */}
-                    <Link href="/" className="flex items-center gap-2 md:gap-3 group ml-2 md:ml-4">
-                        <img src="/assets/images/sastra-logo.png" alt="SASTRA Logo" className="h-10 md:h-14 drop-shadow-sm group-hover:scale-105 transition-transform" />
-                        <img src="/assets/images/sastra-40-logo.png" alt="SASTRA 40 Years" className="h-10 md:h-14 drop-shadow-sm group-hover:scale-105 transition-transform" />
-                        <img src="/assets/images/ncc-logo.png" alt="NCC Logo" className="h-10 md:h-14 drop-shadow-sm group-hover:scale-105 transition-transform" />
+                    <Link href="/" className="flex items-center gap-2 md:gap-3 group">
+                        <img src="/assets/images/sastra-logo.png" alt="SASTRA Logo" className="h-10 md:h-12 drop-shadow-sm group-hover:scale-105 transition-transform" />
+                        <img src="/assets/images/sastra-40-logo.png" alt="SASTRA 40 Years" className="h-10 md:h-12 drop-shadow-sm group-hover:scale-105 transition-transform" />
+                        <img src="/assets/images/ncc-logo.png" alt="NCC Logo" className="h-10 md:h-12 drop-shadow-sm group-hover:scale-105 transition-transform" />
                         <div className="flex flex-col ml-1">
-                            <span className={`font-heading font-bold text-lg md:text-2xl leading-none transition-colors duration-500 ${scrolled ? 'text-ncc-navy' : 'text-white'}`}>
+                            <span className="font-heading font-bold text-lg md:text-xl leading-none text-white">
                                 SASTRA <span className="text-ncc-red">NCC</span>
                             </span>
-                            <span className={`text-[9px] md:text-xs font-bold tracking-[0.15em] uppercase transition-colors duration-500 ${scrolled ? 'text-ncc-sky' : 'text-ncc-gold'}`}>
+                            <span className="text-[8px] md:text-[10px] font-bold tracking-[0.15em] uppercase text-ncc-gold mt-0.5">
                                 Army Wing
                             </span>
                         </div>
                     </Link>
 
                     {/* Desktop Nav */}
-                    <div className="hidden lg:flex items-center gap-6 xl:gap-8 mr-4 md:mr-6">
+                    <div className="hidden lg:flex items-center gap-6 xl:gap-8">
                         {NAV_ITEMS.map((item) => (
                             <a
                                 key={item.label}
                                 href={item.href}
-                                className={`font-medium text-sm tracking-wide uppercase relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-ncc-red after:transition-all hover:after:w-full transition-colors ${scrolled ? 'text-ncc-navy hover:text-ncc-red' : 'text-white/80 hover:text-white'
-                                    }`}
+                                className="font-heading text-xs font-semibold uppercase tracking-wider text-white/80 hover:text-ncc-gold relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-ncc-red after:transition-all hover:after:w-full transition-colors"
                             >
                                 {item.label}
                             </a>
                         ))}
                         <Link
                             href="/login"
-                            className={`px-5 py-2 border-2 rounded font-heading font-bold uppercase tracking-wider text-sm transition-all hover:-translate-y-0.5 ${scrolled
-                                ? 'border-ncc-red text-ncc-red hover:bg-ncc-red hover:text-white'
-                                : 'border-white text-white hover:bg-white hover:text-ncc-navy'
-                                }`}
+                            className="px-5 py-2 border border-ncc-red bg-ncc-red/10 text-white rounded font-heading font-bold uppercase tracking-wider text-xs transition-all hover:bg-ncc-red hover:scale-105 active:scale-95"
                         >
-                            Login
+                            Portal Login
                         </Link>
                     </div>
 
                     {/* Mobile Hamburger */}
                     <button
                         onClick={() => setMobileMenuOpen(true)}
-                        className={`lg:hidden text-2xl transition-colors ${scrolled ? 'text-ncc-navy' : 'text-white'}`}
+                        className="lg:hidden text-white hover:text-ncc-red text-2xl transition-colors"
                     >
                         <i className="fas fa-bars"></i>
                     </button>
@@ -287,32 +286,38 @@ export default function Home() {
 
                     {/* Cards Row */}
                     <div className="grid md:grid-cols-3 gap-8 mb-20">
-                        <div className="bg-white p-8 md:p-10 rounded-xl shadow-xl border-t-4 border-ncc-red hover:-translate-y-2 transition-transform duration-300 reveal">
-                            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-3xl text-ncc-red mb-6 mx-auto">
+                        {/* Aim Card */}
+                        <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 flex flex-col items-center text-center relative overflow-hidden group reveal">
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-red"></div>
+                            <div className="w-16 h-16 rounded-2xl bg-ncc-red/5 text-ncc-red flex items-center justify-center text-3xl mb-6 mx-auto group-hover:bg-ncc-red group-hover:text-white transition-all duration-500">
                                 <i className="fas fa-bullseye"></i>
                             </div>
-                            <h3 className="font-heading text-xl md:text-2xl font-bold text-ncc-navy mb-4 text-center">The Aim</h3>
-                            <p className="text-gray-600 text-center leading-relaxed text-sm md:text-base">
+                            <h3 className="font-heading text-xl md:text-2xl font-bold text-ncc-navy mb-4">The Aim</h3>
+                            <p className="text-gray-600 leading-relaxed text-sm md:text-base">
                                 To develop character, comradeship, discipline, leadership, secular outlook, spirit of adventure, and ideals of selfless service amongst the youth of the country.
                             </p>
                         </div>
 
-                        <div className="bg-white p-8 md:p-10 rounded-xl shadow-xl border-t-4 border-ncc-navy hover:-translate-y-2 transition-transform duration-300 reveal delay-100">
-                            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-3xl text-ncc-navy mb-6 mx-auto">
+                        {/* Vision Card */}
+                        <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 flex flex-col items-center text-center relative overflow-hidden group reveal delay-100">
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-navy"></div>
+                            <div className="w-16 h-16 rounded-2xl bg-ncc-navy/5 text-ncc-navy flex items-center justify-center text-3xl mb-6 mx-auto group-hover:bg-ncc-navy group-hover:text-white transition-all duration-500">
                                 <i className="fas fa-eye"></i>
                             </div>
-                            <h3 className="font-heading text-xl md:text-2xl font-bold text-ncc-navy mb-4 text-center">The Vision</h3>
-                            <p className="text-gray-600 text-center leading-relaxed text-sm md:text-base">
+                            <h3 className="font-heading text-xl md:text-2xl font-bold text-ncc-navy mb-4">The Vision</h3>
+                            <p className="text-gray-600 leading-relaxed text-sm md:text-base">
                                 To create a human resource of organized, trained, and motivated youth to provide leadership in all walks of life and be always available for the service of the nation.
                             </p>
                         </div>
 
-                        <div className="bg-white p-8 md:p-10 rounded-xl shadow-xl border-t-4 border-ncc-gold hover:-translate-y-2 transition-transform duration-300 reveal delay-200">
-                            <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center text-3xl text-ncc-gold mb-6 mx-auto">
+                        {/* Motto Card */}
+                        <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 flex flex-col items-center text-center relative overflow-hidden group reveal delay-200">
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-gold"></div>
+                            <div className="w-16 h-16 rounded-2xl bg-ncc-gold/5 text-ncc-gold flex items-center justify-center text-3xl mb-6 mx-auto group-hover:bg-ncc-gold group-hover:text-white transition-all duration-500">
                                 <i className="fas fa-flag"></i>
                             </div>
-                            <h3 className="font-heading text-xl md:text-2xl font-bold text-ncc-navy mb-4 text-center">The Motto</h3>
-                            <p className="text-gray-600 text-center leading-relaxed text-sm md:text-base">
+                            <h3 className="font-heading text-xl md:text-2xl font-bold text-ncc-navy mb-4">The Motto</h3>
+                            <p className="text-gray-600 leading-relaxed text-sm md:text-base">
                                 <strong>&quot;Unity and Discipline&quot;</strong> (एकता और अनुशासन) — adopted on 12th October 1980 during the 12th Central Advisory Committee meeting.
                             </p>
                         </div>
@@ -456,14 +461,14 @@ export default function Home() {
                         ].map((ach, i) => (
                             <div
                                 key={ach.title}
-                                className="glass rounded-xl p-6 hover:-translate-y-2 transition-all duration-300 group reveal"
+                                className="glass rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 border border-white/5 hover:border-white/20 hover:shadow-lg hover:shadow-black/10 group reveal relative overflow-hidden"
                                 style={{ transitionDelay: `${i * 100}ms` }}
                             >
-                                <div className="w-12 h-12 rounded-full bg-ncc-red/20 flex items-center justify-center text-ncc-red mb-4 group-hover:bg-ncc-red group-hover:text-white transition-colors">
+                                <div className="w-14 h-14 rounded-2xl bg-white/5 text-ncc-gold flex items-center justify-center text-2xl mb-6 group-hover:bg-ncc-red group-hover:text-white transition-all duration-500 shadow-inner">
                                     <i className={ach.icon}></i>
                                 </div>
-                                <span className="text-ncc-gold text-[10px] font-bold uppercase tracking-[0.2em]">{ach.cat}</span>
-                                <h3 className="font-heading text-lg font-bold text-white mt-1 mb-2">{ach.title}</h3>
+                                <span className="text-ncc-gold text-xs font-bold uppercase tracking-[0.2em]">{ach.cat}</span>
+                                <h3 className="font-heading text-xl font-bold text-white mt-2 mb-3">{ach.title}</h3>
                                 <p className="text-gray-400 text-sm leading-relaxed">{ach.desc}</p>
                             </div>
                         ))}
@@ -504,20 +509,27 @@ export default function Home() {
                             <div
                                 key={`${img.alt}-${i}`}
                                 onClick={() => setLightboxIndex(i)}
-                                className="relative group cursor-pointer rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 reveal"
+                                className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 reveal border border-gray-100"
                             >
-                                <div className={`bg-gradient-to-br from-ncc-navy/90 to-ncc-dark flex items-center justify-center ${i % 3 === 0 ? 'h-64' : i % 3 === 1 ? 'h-48' : 'h-56'
-                                    }`}>
+                                <div className={`bg-gradient-to-br from-ncc-navy to-ncc-dark flex items-center justify-center overflow-hidden ${
+                                    i % 3 === 0 ? 'h-64' : i % 3 === 1 ? 'h-48' : 'h-56'
+                                }`}>
                                     <img
                                         src={img.src}
                                         alt={img.alt}
-                                        className="w-16 md:w-20 opacity-30 group-hover:opacity-60 transition-opacity"
+                                        className="w-16 md:w-20 opacity-30 group-hover:opacity-10 group-hover:scale-110 transition-all duration-500"
                                     />
+                                    {/* Icon in center */}
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="w-12 h-12 rounded-full bg-ncc-red flex items-center justify-center text-white text-lg shadow-lg">
+                                            <i className="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                                     <div>
-                                        <p className="text-white font-medium text-sm">{img.alt}</p>
-                                        <p className="text-ncc-gold text-[10px] uppercase tracking-[0.2em] mt-1">{img.category}</p>
+                                        <p className="text-white font-heading font-bold text-lg tracking-wide uppercase">{img.category}</p>
+                                        <p className="text-gray-300 text-xs mt-1 leading-snug">{img.alt}</p>
                                     </div>
                                 </div>
                             </div>
@@ -557,25 +569,27 @@ export default function Home() {
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {/* ANO Card */}
-                        <div className="glass rounded-2xl p-8 text-center hover:-translate-y-2 transition-all duration-300 reveal">
-                            <div className="w-28 h-28 mx-auto rounded-full bg-ncc-navy border-4 border-ncc-gold flex items-center justify-center mb-6">
-                                <i className="fas fa-user-tie text-4xl text-ncc-gold"></i>
+                        <div className="glass-navy rounded-2xl p-10 text-center border border-white/10 hover:border-white/20 hover:-translate-y-2 transition-all duration-500 reveal shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-gold"></div>
+                            <div className="w-24 h-24 mx-auto rounded-full bg-ncc-navy/50 border-4 border-ncc-gold/80 flex items-center justify-center mb-6 shadow-lg group-hover:scale-105 transition-transform duration-300">
+                                <i className="fas fa-user-tie text-4xl text-ncc-gold animate-float"></i>
                             </div>
                             <span className="text-ncc-red text-xs font-bold uppercase tracking-[0.2em]">Associate NCC Officer</span>
-                            <h3 className="font-heading text-2xl font-bold text-white mt-2">ANO — Placeholder</h3>
-                            <p className="text-gray-400 text-sm mt-3 leading-relaxed italic">
+                            <h3 className="font-heading text-2xl font-bold text-white mt-3">Capt. ANO Officer</h3>
+                            <p className="text-gray-300 text-sm mt-4 leading-relaxed italic border-t border-white/5 pt-4">
                                 &ldquo;NCC teaches you the values that shape your entire life — discipline, service, and love for the nation.&rdquo;
                             </p>
                         </div>
 
                         {/* SUO Card */}
-                        <div className="glass rounded-2xl p-8 text-center hover:-translate-y-2 transition-all duration-300 reveal delay-100">
-                            <div className="w-28 h-28 mx-auto rounded-full bg-ncc-navy border-4 border-ncc-sky flex items-center justify-center mb-6">
-                                <i className="fas fa-user-shield text-4xl text-ncc-sky"></i>
+                        <div className="glass-navy rounded-2xl p-10 text-center border border-white/10 hover:border-white/20 hover:-translate-y-2 transition-all duration-500 reveal delay-100 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-sky"></div>
+                            <div className="w-24 h-24 mx-auto rounded-full bg-ncc-navy/50 border-4 border-ncc-sky/80 flex items-center justify-center mb-6 shadow-lg group-hover:scale-105 transition-transform duration-300">
+                                <i className="fas fa-user-shield text-4xl text-ncc-sky animate-float"></i>
                             </div>
                             <span className="text-ncc-sky text-xs font-bold uppercase tracking-[0.2em]">Senior Under Officer</span>
-                            <h3 className="font-heading text-2xl font-bold text-white mt-2">SUO — Placeholder</h3>
-                            <p className="text-gray-400 text-sm mt-3 leading-relaxed italic">
+                            <h3 className="font-heading text-2xl font-bold text-white mt-3">SUO Command Team</h3>
+                            <p className="text-gray-300 text-sm mt-4 leading-relaxed italic border-t border-white/5 pt-4">
                                 &ldquo;Leading from the front, serving with pride. NCC is not just an activity — it&apos;s a way of life.&rdquo;
                             </p>
                         </div>
