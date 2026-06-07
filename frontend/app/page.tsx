@@ -56,6 +56,7 @@ export default function Home() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [galleryFilter, setGalleryFilter] = useState('All');
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const [activeBatchIndex, setActiveBatchIndex] = useState(TIMELINE_DATA.length - 1);
 
     // Scroll detection for navbar
     useEffect(() => {
@@ -371,44 +372,78 @@ export default function Home() {
             {/* ── LEGACY TIMELINE ── */}
             <section id="legacy" className="py-24 md:py-32 bg-gradient-to-b from-gray-50 to-white">
                 <div className="max-w-5xl mx-auto px-6">
-                    <div className="text-center mb-20 reveal">
+                    <div className="text-center mb-16 reveal">
                         <span className="block text-ncc-red font-bold uppercase tracking-[0.2em] text-xs mb-2">Our Journey</span>
                         <h2 className="font-heading text-4xl md:text-5xl font-extrabold text-ncc-navy uppercase">Contingent Legacy</h2>
                         <p className="text-gray-500 text-xs mt-3 max-w-lg mx-auto">From the inaugural Batch 1 to our active serving Batch 7, maintaining a proud heritage of academic-military service.</p>
                         <div className="w-20 h-1 bg-ncc-red mx-auto mt-4 rounded-full"></div>
                     </div>
 
-                    <div className="relative">
-                        {/* Timeline Center Line */}
-                        <div className="timeline-line"></div>
+                    {/* Step Track */}
+                    <div className="relative max-w-3xl mx-auto mb-16 px-4">
+                        {/* Background track line */}
+                        <div className="absolute top-5 left-4 right-4 h-0.5 bg-gray-200 z-0"></div>
+                        {/* Progress line */}
+                        <div 
+                            className="absolute top-5 left-4 h-0.5 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky z-0 transition-all duration-700 ease-out" 
+                            style={{ width: `calc(${(activeBatchIndex / (TIMELINE_DATA.length - 1)) * 100}% - ${(activeBatchIndex / (TIMELINE_DATA.length - 1)) * 32}px)` }}
+                        ></div>
 
-                        {TIMELINE_DATA.map((item, i) => (
-                            <div
-                                key={item.batch}
-                                className={`relative flex items-center mb-12 md:mb-16 ${
-                                    i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                                } flex-row`}
-                            >
-                                {/* Card Content */}
-                                <div className={`w-full md:w-5/12 ${i % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12'} pl-12 md:pl-0 reveal`}>
-                                    <span className="inline-block bg-ncc-red text-white text-[10px] font-bold px-3 py-1 rounded-full mb-3 tracking-wider uppercase">
-                                        {item.batch}
+                        {/* Interactive Step Buttons */}
+                        <div className="flex justify-between items-center relative z-10 overflow-x-auto scrollbar-none gap-2">
+                            {TIMELINE_DATA.map((item, idx) => {
+                                const isActive = idx === activeBatchIndex;
+                                const isPassed = idx < activeBatchIndex;
+                                return (
+                                    <button
+                                        key={item.batch}
+                                        onClick={() => setActiveBatchIndex(idx)}
+                                        className="flex flex-col items-center group focus:outline-none flex-shrink-0"
+                                    >
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-heading font-extrabold text-xs transition-all duration-300 border-2 ${
+                                            isActive 
+                                                ? 'bg-ncc-navy border-ncc-gold text-ncc-gold scale-110 shadow-lg shadow-ncc-gold/15' 
+                                                : isPassed 
+                                                    ? 'bg-white border-ncc-red text-ncc-red' 
+                                                    : 'bg-white border-gray-300 text-gray-400 group-hover:border-gray-500'
+                                        }`}>
+                                            {item.year.split('–')[0]}
+                                        </div>
+                                        <span className={`text-[9px] font-bold uppercase tracking-wider mt-2 transition-colors duration-300 ${
+                                            isActive ? 'text-ncc-navy font-extrabold' : 'text-gray-400 group-hover:text-gray-600'
+                                        }`}>
+                                            {item.batch.split(' ')[1] ? `B${item.batch.split(' ')[1]}` : item.batch}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Active Content Card */}
+                    <div className="max-w-3xl mx-auto">
+                        <div className="bg-white p-8 md:p-12 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden transition-all duration-500 transform hover:scale-[1.005]">
+                            {/* Accent stripe */}
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+                            
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+                                <div>
+                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-ncc-red bg-red-50 border border-red-100 px-3.5 py-1 rounded-full">
+                                        {TIMELINE_DATA[activeBatchIndex].batch}
                                     </span>
-                                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow relative">
-                                        <h3 className="font-heading text-lg md:text-xl font-bold text-ncc-navy mb-2">{item.title}</h3>
-                                        <p className="text-gray-500 text-xs leading-relaxed">{item.description}</p>
-                                    </div>
+                                    <h3 className="font-heading text-2xl font-extrabold text-ncc-navy mt-4 leading-tight">
+                                        {TIMELINE_DATA[activeBatchIndex].title}
+                                    </h3>
                                 </div>
-
-                                {/* Center Dot */}
-                                <div className="absolute left-[20px] md:left-1/2 md:-translate-x-1/2 w-12 h-12 bg-ncc-navy border-4 border-ncc-gold rounded-full flex items-center justify-center z-10 shadow-lg transition-all hover:scale-110">
-                                    <span className="text-ncc-gold font-heading font-extrabold text-[10px]">{item.year}</span>
+                                <div className="text-5xl md:text-6xl font-heading font-black text-slate-100/80 tracking-tighter select-none">
+                                    {TIMELINE_DATA[activeBatchIndex].year}
                                 </div>
-
-                                {/* Spacer for opposite side */}
-                                <div className="hidden md:block w-5/12"></div>
                             </div>
-                        ))}
+                            
+                            <p className="text-gray-500 text-xs md:text-sm leading-relaxed transition-all duration-300">
+                                {TIMELINE_DATA[activeBatchIndex].description}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
