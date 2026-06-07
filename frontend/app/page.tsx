@@ -315,11 +315,16 @@ export default function Home() {
                     {/* About Detail */}
                     <div className="grid md:grid-cols-2 gap-16 items-center">
                         <div className="reveal-left">
-                            <div className="bg-gradient-to-br from-[#002147] to-[#051122] rounded-3xl p-8 md:p-12 flex items-center justify-center relative overflow-hidden border border-white/5 shadow-2xl">
-                                <div className="absolute inset-0 opacity-10">
-                                    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:2rem_2rem]"></div>
-                                </div>
-                                <img src="/assets/images/ncc-logo.png" alt="NCC Crest" className="w-48 md:w-56 drop-shadow-[0_0_35px_rgba(210,16,52,0.3)] animate-float relative z-10" />
+                            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 h-80 md:h-[400px]">
+                                <img 
+                                    src="/assets/images/ncc_drill_parade.png" 
+                                    alt="NCC Cadets Parade" 
+                                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                                />
+                                {/* Tricolor top border highlight */}
+                                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+                                {/* Subtle dark gradient overlay at the bottom */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                             </div>
                         </div>
                         <div className="reveal-right">
