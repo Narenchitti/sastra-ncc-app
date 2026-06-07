@@ -14,6 +14,16 @@ export async function getArmyNews() {
     }
 }
 
+// --- PUBLIC EVENTS ACTION ---
+export async function getPublicEvents() {
+    try {
+        return await apiClient.get('/events/public');
+    } catch (error) {
+        console.error("Public Events Fetch Error:", error);
+        return [];
+    }
+}
+
 // --- HELPER: FILE UPLOAD (Mocked/Placeholder for now as Storage needs backend handling) ---
 // In a real 2026 standard, file uploads would go through a backend endpoint with signed URLs
 async function saveFile(file: File, folder: string): Promise<string | undefined> {

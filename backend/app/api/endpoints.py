@@ -139,6 +139,13 @@ async def get_news():
     return await news.get_army_news()
 
 
+# ── Events (public) ──────────────────────────────────────────────────────────
+
+@router.get("/events/public", response_model=List[EventBase])
+async def get_public_events():
+    return await database.get_events()
+
+
 # ── Events (protected) ────────────────────────────────────────────────────
 
 @router.get("/events", response_model=List[EventBase])

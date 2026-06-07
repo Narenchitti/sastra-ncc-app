@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import GalleryLightbox from '@/components/GalleryLightbox';
 import MobileNav from '@/components/MobileNav';
+import { getPublicEvents } from '@/app/actions';
 
 /* ═══════════════════════════════════════════════
    MEMBER AND GALLERY DATA
@@ -34,13 +35,6 @@ const TIMELINE_DATA = [
     { year: '2025–26', batch: 'Batch 7', title: 'The Current Legacy', image: '/assets/images/ncc_guard_honour.png', description: 'The current serving batch continues the tradition of excellence, discipline, and national service.' },
 ];
 
-const UPCOMING_EVENTS = [
-    { id: 1, title: 'Annual Training Camp (ATC)', date: '2026-03-15', location: 'NCC Campsite, Thanjavur', type: 'Camp', status: 'Upcoming' },
-    { id: 2, title: 'Combined Annual Training Camp (CATC)', date: '2026-04-01', location: 'NCC Group HQ, Trichy', type: 'Camp', status: 'Upcoming' },
-    { id: 3, title: 'Republic Day Rehearsal Parade', date: '2026-01-20', location: 'SASTRA Main Ground', type: 'Parade', status: 'Completed' },
-    { id: 4, title: 'NCC Day Celebrations', date: '2025-11-22', location: 'SASTRA Auditorium', type: 'Event', status: 'Completed' },
-];
-
 const NAV_ITEMS = [
     { label: 'Home', href: '#home' },
     { label: 'About', href: '#about' },
@@ -57,6 +51,25 @@ export default function Home() {
     const [galleryFilter, setGalleryFilter] = useState('All');
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
     const [activeBatchIndex, setActiveBatchIndex] = useState(TIMELINE_DATA.length - 1);
+    const [events, setEvents] = useState<any[]>([]);
+    const [loadingEvents, setLoadingEvents] = useState(true);
+
+    // Fetch public events from backend
+    useEffect(() => {
+        async function fetchEvents() {
+            try {
+                const data = await getPublicEvents();
+                if (Array.isArray(data)) {
+                    setEvents(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch public events:", err);
+            } finally {
+                setLoadingEvents(false);
+            }
+        }
+        fetchEvents();
+    }, []);
 
     // Scroll detection for navbar
     useEffect(() => {
@@ -664,43 +677,102 @@ export default function Home() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
-                        {UPCOMING_EVENTS.map((ev) => {
-                            const dateObj = new Date(ev.date);
-                            const day = dateObj.getDate();
-                            const month = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
-                            const year = dateObj.getFullYear();
-                            return (
+                        {loadingEvents ? (
+                            Array.from({ length: 4 }).map((_, idx) => (
                                 <div
-                                    key={ev.id}
-                                    className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 reveal group flex flex-col sm:flex-row"
+                                    key={idx}
+                                    className="bg-white rounded-3xl border border-gray-100 overflow-hidden flex flex-col sm:flex-row animate-pulse shadow-sm"
                                 >
-                                    {/* Calendar Sheet Date Badge */}
                                     <div className="w-full sm:w-32 bg-slate-50 border-r border-gray-100 flex flex-col justify-center items-center p-6 relative">
-                                        <div className="absolute top-0 left-0 right-0 h-1 bg-ncc-red"></div>
-                                        <span className="text-[10px] font-bold text-gray-400 tracking-widest">{month}</span>
-                                        <span className="text-4xl font-heading font-extrabold text-ncc-navy leading-none my-1">{day}</span>
-                                        <span className="text-[10px] font-bold text-gray-400 tracking-wider">{year}</span>
+                                        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
+                                        <div className="h-3 w-10 bg-gray-200 rounded mb-2"></div>
+                                        <div className="h-8 w-12 bg-gray-300 rounded mb-2"></div>
+                                        <div className="h-3 w-12 bg-gray-200 rounded"></div>
                                     </div>
-
-                                    {/* Event Details */}
                                     <div className="p-6 flex-grow flex flex-col justify-between">
                                         <div>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
-                                                    ev.status === 'Upcoming' ? 'bg-red-100 text-ncc-red' : 'bg-gray-100 text-gray-500'
-                                                }`}>{ev.status}</span>
-                                                <span className="text-gray-400 text-[10px] font-semibold uppercase">{ev.type}</span>
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                                                <div className="h-3 w-12 bg-gray-100 rounded"></div>
                                             </div>
-                                            <h3 className="font-heading text-lg font-bold text-ncc-navy mb-3 group-hover:text-ncc-red transition-colors">{ev.title}</h3>
+                                            <div className="h-6 w-3/4 bg-gray-200 rounded mb-2"></div>
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 mt-2">
-                                            <i className="fas fa-map-marker-alt text-ncc-red"></i>
-                                            <span>{ev.location}</span>
-                                        </div>
+                                        <div className="h-4 w-1/3 bg-gray-200 rounded mt-4"></div>
                                     </div>
                                 </div>
-                            );
-                        })}
+                            ))
+                        ) : (() => {
+                            const localDate = new Date();
+                            const year = localDate.getFullYear();
+                            const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(localDate.getDate()).padStart(2, '0');
+                            const todayStr = `${year}-${month}-${day}`;
+
+                            const upcomingEvents = events
+                                .filter(ev => ev.date >= todayStr)
+                                .sort((a, b) => a.date.localeCompare(b.date));
+                                
+                            const completedEvents = events
+                                .filter(ev => ev.date < todayStr)
+                                .sort((a, b) => b.date.localeCompare(a.date));
+                                
+                            const orderedEvents = [...upcomingEvents, ...completedEvents];
+
+                            if (orderedEvents.length === 0) {
+                                return (
+                                    <div className="col-span-full py-16 text-center glass-card rounded-3xl border border-gray-200/50 shadow-sm max-w-lg mx-auto bg-white">
+                                        <div className="w-16 h-16 bg-ncc-navy/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-ncc-navy">
+                                            <i className="fas fa-calendar-times text-3xl text-ncc-red"></i>
+                                        </div>
+                                        <h3 className="text-xl font-heading font-extrabold text-ncc-navy mb-2">No Training Events Scheduled</h3>
+                                        <p className="text-gray-500 text-sm max-w-sm mx-auto px-4">
+                                            There are currently no events or camps on the training calendar. Please check back later for updates from the ANO.
+                                        </p>
+                                    </div>
+                                );
+                            }
+
+                            return orderedEvents.map((ev) => {
+                                const dateObj = new Date(ev.date);
+                                const dayNum = dateObj.getDate();
+                                const monthName = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
+                                const yearNum = dateObj.getFullYear();
+                                const isUpcoming = ev.date >= todayStr;
+                                const status = isUpcoming ? 'Upcoming' : 'Completed';
+
+                                return (
+                                    <div
+                                        key={ev.id}
+                                        className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 reveal group flex flex-col sm:flex-row"
+                                    >
+                                        {/* Calendar Sheet Date Badge */}
+                                        <div className="w-full sm:w-32 bg-slate-50 border-r border-gray-100 flex flex-col justify-center items-center p-6 relative">
+                                            <div className="absolute top-0 left-0 right-0 h-1 bg-ncc-red"></div>
+                                            <span className="text-[10px] font-bold text-gray-400 tracking-widest">{monthName}</span>
+                                            <span className="text-4xl font-heading font-extrabold text-ncc-navy leading-none my-1">{dayNum}</span>
+                                            <span className="text-[10px] font-bold text-gray-400 tracking-wider">{yearNum}</span>
+                                        </div>
+
+                                        {/* Event Details */}
+                                        <div className="p-6 flex-grow flex flex-col justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                                                        isUpcoming ? 'bg-red-100 text-ncc-red' : 'bg-gray-100 text-gray-500'
+                                                    }`}>{status}</span>
+                                                    <span className="text-gray-400 text-[10px] font-semibold uppercase">{ev.type}</span>
+                                                </div>
+                                                <h3 className="font-heading text-lg font-bold text-ncc-navy mb-3 group-hover:text-ncc-red transition-colors">{ev.title}</h3>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 mt-2">
+                                                <i className="fas fa-map-marker-alt text-ncc-red"></i>
+                                                <span>{ev.location}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            });
+                        })()}
                     </div>
                 </div>
             </section>
