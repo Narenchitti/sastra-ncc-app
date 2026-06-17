@@ -54,6 +54,7 @@ export default function Home() {
     const [activeBatchIndex, setActiveBatchIndex] = useState(TIMELINE_DATA.length - 1);
     const [events, setEvents] = useState<any[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
+    const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
 
     // Fetch public events from backend
     useEffect(() => {
@@ -77,6 +78,36 @@ export default function Home() {
         const handleScroll = () => setScrolled(window.scrollY > 80);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Live terminal log generator
+    useEffect(() => {
+        const logTemplates = [
+            'SAT_LINK: Uplink established with INSAT-3DR.',
+            'TELEMETRY: Loading tactical map grid Sector_4.',
+            'SYSTEM: AIR_DEFENSE_RADAR is scanning active sectors.',
+            'TACTICAL: Friendly armored convoy ALPHA dispatched on Path_Green.',
+            'ALERT: Unidentified aerial trajectory detected in sector Bravo-2.',
+            'SYS: Calibrating GPS locks... Accuracy: +/- 1.4m.',
+            'UNIT: Platoon Charlie established defensive perimeter at OP_BRAVO.',
+            'COMM: Frequency hopping cipher active (AES-256).',
+            'WAR_ROOM: Tactical threat assessment completed. Status: STABLE.',
+        ];
+
+        setTerminalLogs([
+            'SYS: SYSTEM_BOOT_SEQUENCE_OK',
+            'SYS: NET_SHIELD: STABLE',
+            'SYS: TACTICAL_GRID: ENGAGED',
+        ]);
+
+        const interval = setInterval(() => {
+            setTerminalLogs((prev) => {
+                const nextLog = logTemplates[Math.floor(Math.random() * logTemplates.length)];
+                return [...prev.slice(-3), `[${new Date().toLocaleTimeString()}] ${nextLog}`];
+            });
+        }, 4000);
+
+        return () => clearInterval(interval);
     }, []);
 
     // Intersection Observer for reveal animations
@@ -117,6 +148,11 @@ export default function Home() {
 
     return (
         <main className="min-h-screen bg-[#0c1008] text-gray-200 overflow-x-hidden font-body relative tacops-grid">
+            {/* Global Holographic Tactical Battle Map Simulation Background */}
+            <div className="fixed inset-0 z-0 pointer-events-none bg-[#090d06]/35">
+                <TacticalBattleMap />
+            </div>
+
             <div className="hud-scanner"></div>
 
             {/* Ambient Aurora Spots */}
@@ -181,14 +217,10 @@ export default function Home() {
             <MobileNav isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} navItems={NAV_ITEMS} />
 
             {/* ── CINEMATIC HERO SECTION ── */}
-            <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-[#090d06]">
-                {/* Tactical Battle Map Background */}
-                <div className="absolute inset-0 z-0 bg-[#090d06]">
-                    <TacticalBattleMap />
-                    {/* Immersive overlay gradients & patterns */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#0c1008]"></div>
-                    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(74,93,35,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(74,93,35,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
-                </div>
+            <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-transparent">
+                {/* Immersive overlay gradients & patterns */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#0c1008] pointer-events-none z-0"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(74,93,35,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(74,93,35,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none z-0"></div>
 
                 {/* Compass target reticle inside background */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 z-0 select-none">
@@ -221,33 +253,21 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="relative z-10 text-center max-w-5xl px-4 flex flex-col items-center">
-                    <div className="inline-flex items-center gap-2 glass-tactical px-6 md:px-8 py-3.5 rounded-full text-ncc-gold font-bold text-xs md:text-sm mb-8 animate-fade-up tracking-wider shadow-lg">
+                    <div className="inline-flex items-center gap-2 glass-tactical px-6 md:px-8 py-3.5 rounded-full text-ncc-gold font-bold text-xs md:text-sm mb-12 animate-fade-up tracking-wider shadow-lg">
                         <i className="fas fa-star text-ncc-red animate-pulse"></i>
                         <span className="font-heading uppercase tracking-widest text-[10px] md:text-xs">06/34 (TN) INDEP COY, NCC (ARMY), THANJAVUR</span>
                         <i className="fas fa-star text-ncc-red animate-pulse"></i>
                     </div>
 
-                    {/* HUD Targeting Box wrapping main titles */}
-                    <div className="relative border border-ncc-olive/25 bg-black/40 backdrop-blur-[2px] px-8 sm:px-12 py-10 md:py-14 rounded-2xl max-w-4xl mx-auto shadow-2xl mb-10 animate-fade-up delay-100">
-                        {/* Gold HUD Corner Brackets */}
-                        <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-ncc-gold rounded-tl-lg"></div>
-                        <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-ncc-gold rounded-tr-lg"></div>
-                        <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-ncc-gold rounded-bl-lg"></div>
-                        <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-ncc-gold rounded-br-lg"></div>
+                    {/* Sizing & spacing makeover: removed targeting card box wrapper */}
+                    <h1 className="font-heading text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 tracking-tight leading-none uppercase animate-fade-up delay-100">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-olive via-ncc-khaki to-white">Unity and</span><br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-gold via-amber-500 to-yellow-200 animate-text-glow">Discipline</span>
+                    </h1>
 
-                        {/* Extra crosshair coordinate ticks */}
-                        <div className="absolute top-1/2 -left-3 w-3 h-[1px] bg-ncc-gold/45"></div>
-                        <div className="absolute top-1/2 -right-3 w-3 h-[1px] bg-ncc-gold/45"></div>
-
-                        <h1 className="font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold mb-6 tracking-tight leading-none uppercase">
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-olive via-ncc-khaki to-white">Unity and</span><br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-gold via-amber-500 to-yellow-200 animate-text-glow">Discipline</span>
-                        </h1>
-
-                        <p className="text-xs md:text-base text-gray-300 font-medium tracking-widest uppercase max-w-2xl mx-auto">
-                            Forging Leaders for Tomorrow at SASTRA Deemed University
-                        </p>
-                    </div>
+                    <p className="text-xs md:text-base text-gray-300 font-medium tracking-widest uppercase max-w-2xl mx-auto mb-14 animate-fade-up delay-200">
+                        Forging Leaders for Tomorrow at SASTRA Deemed University
+                    </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-400">
                         <a
@@ -265,6 +285,28 @@ export default function Home() {
                     </div>
                 </div>
 
+                {/* Bottom Left HUD active logs ticker (nested in Hero container) */}
+                <div className="absolute bottom-16 left-6 z-10 hidden md:block w-[340px] font-mono text-[9px] uppercase tracking-wider text-ncc-gold/45 bg-[#0e130a]/80 p-3 rounded-lg border border-ncc-olive/20 backdrop-blur-md shadow-md select-none">
+                    <div className="flex items-center gap-2 mb-2 pb-1 border-b border-ncc-olive/20 text-ncc-gold/60 font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-ncc-red animate-pulse" />
+                        <span>TACTICAL TELEMETRY FEED</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        {terminalLogs.map((log, index) => (
+                            <div key={index} className="truncate font-medium leading-none">
+                                {log}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Bottom Right coordinates indicator (nested in Hero container) */}
+                <div className="absolute bottom-16 right-6 z-10 hidden md:flex flex-col items-end gap-0.5 font-mono text-[9px] uppercase tracking-wider text-ncc-gold/40 select-none">
+                    <span className="font-bold text-ncc-gold/50">GRID REF: IN-TN_34</span>
+                    <span>ZONE: SEC_INDIA_IV</span>
+                    <span>COORD: 10°44&apos;38&quot;N 79°08&apos;20&quot;E</span>
+                </div>
+
                 {/* Scroll Indicator */}
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-scroll-bounce">
                     <a href="#about" className="text-white/40 hover:text-white/80 transition-colors flex flex-col items-center gap-2">
@@ -275,7 +317,7 @@ export default function Home() {
             </section>
 
             {/* ── STAT COUNTERS BAR ── */}
-            <section className="bg-[#10160d]/80 border-t border-b border-ncc-olive/20 py-12 md:py-16 relative overflow-hidden z-20 backdrop-blur-sm">
+            <section className="bg-[#0c1008]/55 border-t border-b border-ncc-olive/20 py-12 md:py-16 relative overflow-hidden z-20 backdrop-blur-md">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(74,93,35,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(74,93,35,0.12)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
                 </div>
@@ -547,7 +589,7 @@ export default function Home() {
             </section>
 
             {/* ── ACHIEVEMENTS SECTION ── */}
-            <section id="achievements" className="py-24 md:py-32 bg-[#10160d]/90 border-t border-b border-ncc-olive/20 relative overflow-hidden z-20 backdrop-blur-sm">
+            <section id="achievements" className="py-24 md:py-32 bg-[#0c1008]/65 border-t border-b border-ncc-olive/20 relative overflow-hidden z-20 backdrop-blur-md">
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(74,93,35,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(74,93,35,0.12)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
                 </div>
@@ -703,7 +745,7 @@ export default function Home() {
             )}
 
             {/* ── COMMAND TEAM (LEADERSHIP) ── */}
-            <section className="py-24 md:py-32 bg-[#10160d]/90 border-t border-ncc-olive/20 relative overflow-hidden z-20 backdrop-blur-sm">
+            <section className="py-24 md:py-32 bg-[#0c1008]/65 border-t border-ncc-olive/20 relative overflow-hidden z-20 backdrop-blur-md">
                 <div className="absolute inset-0 opacity-15">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(74,93,35,0.25)_0%,transparent_50%),radial-gradient(circle_at_70%_30%,rgba(212,175,55,0.15)_0%,transparent_50%)]"></div>
                 </div>

@@ -232,7 +232,7 @@ export default function TacticalBattleMap() {
 
             // 1. DRAW SUBTLE MILITARY COORDINATES GRID
             ctx.save();
-            ctx.strokeStyle = 'rgba(74, 93, 35, 0.08)'; // Muted military green
+            ctx.strokeStyle = 'rgba(74, 93, 35, 0.16)'; // Muted military green
             ctx.lineWidth = 1;
             ctx.setLineDash([4, 12]);
 
@@ -247,7 +247,7 @@ export default function TacticalBattleMap() {
                 ctx.stroke();
 
                 // Draw small vertical index ticks
-                ctx.fillStyle = 'rgba(74, 93, 35, 0.25)';
+                ctx.fillStyle = 'rgba(74, 93, 35, 0.45)';
                 ctx.font = '8px monospace';
                 if (Math.round(x) % (gridSize * 2) === 0) {
                     ctx.fillText(`LNG ${(79.13 + (x / 20000)).toFixed(4)}E`, x + 5, 12);
@@ -261,7 +261,7 @@ export default function TacticalBattleMap() {
                 ctx.stroke();
 
                 // Draw small horizontal index ticks
-                ctx.fillStyle = 'rgba(74, 93, 35, 0.25)';
+                ctx.fillStyle = 'rgba(74, 93, 35, 0.45)';
                 ctx.font = '8px monospace';
                 if (Math.round(y) % (gridSize * 2) === 0) {
                     ctx.fillText(`LAT ${(10.42 + (y / 20000)).toFixed(4)}N`, 8, y - 4);
@@ -271,7 +271,7 @@ export default function TacticalBattleMap() {
 
             // Draw crosshair '+' markers at grid intersections
             ctx.save();
-            ctx.strokeStyle = 'rgba(74, 93, 35, 0.12)';
+            ctx.strokeStyle = 'rgba(74, 93, 35, 0.24)';
             ctx.lineWidth = 1;
             ctx.setLineDash([]);
             for (let x = startX + gridSize; x < w; x += gridSize * 2) {
@@ -290,7 +290,7 @@ export default function TacticalBattleMap() {
 
             // 2. DRAW ELEVATION CONTOURS (Subtle battlefield terrain topography)
             ctx.save();
-            ctx.strokeStyle = 'rgba(74, 93, 35, 0.06)';
+            ctx.strokeStyle = 'rgba(74, 93, 35, 0.14)';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([20, 15]);
 
@@ -329,7 +329,7 @@ export default function TacticalBattleMap() {
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(rCoords.x, rCoords.y, radarRadius, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(74, 93, 35, 0.05)';
+                ctx.strokeStyle = 'rgba(74, 93, 35, 0.12)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
 
@@ -347,8 +347,8 @@ export default function TacticalBattleMap() {
                 ctx.rotate(radarAngle);
 
                 const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, radarRadius);
-                grad.addColorStop(0, 'rgba(74, 93, 35, 0.08)');
-                grad.addColorStop(0.8, 'rgba(74, 93, 35, 0.03)');
+                grad.addColorStop(0, 'rgba(74, 93, 35, 0.18)');
+                grad.addColorStop(0.8, 'rgba(74, 93, 35, 0.08)');
                 grad.addColorStop(1, 'rgba(74, 93, 35, 0)');
 
                 ctx.fillStyle = grad;
@@ -360,7 +360,7 @@ export default function TacticalBattleMap() {
                 ctx.fill();
 
                 // Sweeper edge line
-                ctx.strokeStyle = 'rgba(212, 175, 55, 0.12)'; // Faint gold sweeper edge
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.26)'; // Faint gold sweeper edge
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
@@ -380,11 +380,11 @@ export default function TacticalBattleMap() {
                 // Outer reticle indicator
                 ctx.lineWidth = 1;
                 if (node.status === 'contested') {
-                    ctx.strokeStyle = 'rgba(220, 38, 38, 0.25)'; // Red glow for contested
-                    ctx.fillStyle = 'rgba(220, 38, 38, 0.02)';
+                    ctx.strokeStyle = 'rgba(220, 38, 38, 0.45)'; // Red glow for contested
+                    ctx.fillStyle = 'rgba(220, 38, 38, 0.06)';
                 } else {
-                    ctx.strokeStyle = 'rgba(212, 175, 55, 0.18)'; // Gold outline
-                    ctx.fillStyle = 'rgba(212, 175, 55, 0.01)';
+                    ctx.strokeStyle = 'rgba(212, 175, 55, 0.38)'; // Gold outline
+                    ctx.fillStyle = 'rgba(212, 175, 55, 0.06)';
                 }
 
                 // Draw symbol shape based on type
@@ -403,7 +403,7 @@ export default function TacticalBattleMap() {
                     ctx.stroke();
 
                     // Inner dot
-                    ctx.fillStyle = node.status === 'contested' ? 'rgba(220, 38, 38, 0.4)' : 'rgba(212, 175, 55, 0.4)';
+                    ctx.fillStyle = node.status === 'contested' ? 'rgba(220, 38, 38, 0.65)' : 'rgba(212, 175, 55, 0.65)';
                     ctx.beginPath();
                     ctx.arc(nX, nY, 3, 0, Math.PI * 2);
                     ctx.fill();
@@ -432,12 +432,12 @@ export default function TacticalBattleMap() {
                 }
 
                 // Node text telemetry logs
-                ctx.fillStyle = node.status === 'contested' ? 'rgba(220, 38, 38, 0.4)' : 'rgba(212, 175, 55, 0.4)';
+                ctx.fillStyle = node.status === 'contested' ? 'rgba(220, 38, 38, 0.65)' : 'rgba(212, 175, 55, 0.65)';
                 ctx.font = '8.5px monospace';
                 ctx.fillText(node.name, nX + 16, nY - 2);
 
                 // Small grid tag
-                ctx.fillStyle = 'rgba(74, 93, 35, 0.3)';
+                ctx.fillStyle = 'rgba(74, 93, 35, 0.5)';
                 ctx.font = '7.5px monospace';
                 ctx.fillText(`SEC_${node.x.toFixed(0)}:${node.y.toFixed(0)}`, nX + 16, nY + 7);
 
@@ -479,7 +479,7 @@ export default function TacticalBattleMap() {
 
                 // Draw path line (Dotted connection vector)
                 ctx.save();
-                ctx.strokeStyle = 'rgba(74, 93, 35, 0.08)';
+                ctx.strokeStyle = 'rgba(74, 93, 35, 0.2)';
                 ctx.lineWidth = 1;
                 ctx.setLineDash([4, 6]);
                 ctx.beginPath();
@@ -493,7 +493,7 @@ export default function TacticalBattleMap() {
                 ctx.translate(currentX, currentY);
 
                 // Box boundaries
-                ctx.strokeStyle = unit.color === '#D4AF37' ? 'rgba(212, 175, 55, 0.3)' : 'rgba(74, 93, 35, 0.3)';
+                ctx.strokeStyle = unit.color === '#D4AF37' ? 'rgba(212, 175, 55, 0.5)' : 'rgba(74, 93, 35, 0.5)';
                 ctx.fillStyle = 'rgba(12, 16, 8, 0.7)'; // solid background to hide grid underneath
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
@@ -502,7 +502,7 @@ export default function TacticalBattleMap() {
                 ctx.stroke();
 
                 // NATO contents
-                ctx.strokeStyle = unit.color === '#D4AF37' ? 'rgba(212, 175, 55, 0.35)' : 'rgba(74, 93, 35, 0.35)';
+                ctx.strokeStyle = unit.color === '#D4AF37' ? 'rgba(212, 175, 55, 0.55)' : 'rgba(74, 93, 35, 0.55)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 if (unit.type === 'infantry') {
@@ -521,10 +521,10 @@ export default function TacticalBattleMap() {
                 ctx.stroke();
 
                 // Telemetry tag next to unit
-                ctx.fillStyle = 'rgba(212, 175, 55, 0.35)';
+                ctx.fillStyle = 'rgba(212, 175, 55, 0.55)';
                 ctx.font = '7.5px monospace';
                 ctx.fillText(unit.label, 14, -2);
-                ctx.fillStyle = 'rgba(74, 93, 35, 0.4)';
+                ctx.fillStyle = 'rgba(74, 93, 35, 0.6)';
                 ctx.fillText(`DIR: ${(unit.progress * 360).toFixed(0)}°`, 14, 6);
 
                 ctx.restore();
@@ -551,7 +551,7 @@ export default function TacticalBattleMap() {
 
                 // Draw parabolic path
                 ctx.save();
-                ctx.strokeStyle = arc.color === '#dc2626' ? 'rgba(220, 38, 38, 0.12)' : 'rgba(212, 175, 55, 0.12)';
+                ctx.strokeStyle = arc.color === '#dc2626' ? 'rgba(220, 38, 38, 0.28)' : 'rgba(212, 175, 55, 0.28)';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([3, 5]);
 
@@ -591,7 +591,7 @@ export default function TacticalBattleMap() {
                 }
 
                 ctx.save();
-                ctx.strokeStyle = `rgba(220, 38, 38, ${ripple.alpha * 0.45})`; // Fading red ring
+                ctx.strokeStyle = `rgba(220, 38, 38, ${ripple.alpha * 0.65})`;
                 ctx.lineWidth = 1.5;
 
                 // Outer ripple
@@ -601,7 +601,7 @@ export default function TacticalBattleMap() {
 
                 // Secondary internal ripple
                 if (ripple.radius > 15) {
-                    ctx.strokeStyle = `rgba(212, 175, 55, ${ripple.alpha * 0.25})`; // Fading gold ring
+                    ctx.strokeStyle = `rgba(212, 175, 55, ${ripple.alpha * 0.45})`;
                     ctx.beginPath();
                     ctx.arc(ripple.x, ripple.y, ripple.radius - 12, 0, Math.PI * 2);
                     ctx.stroke();
@@ -634,28 +634,6 @@ export default function TacticalBattleMap() {
         <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none select-none z-0">
             {/* Main simulation Canvas */}
             <canvas ref={canvasRef} className="block w-full h-full opacity-65 mix-blend-screen" />
-
-            {/* Bottom Left HUD active logs ticker */}
-            <div className="absolute bottom-6 left-6 z-10 hidden md:block max-w-[340px] font-mono text-[9px] uppercase tracking-wider text-ncc-gold/45 bg-[#0e130a]/80 p-3 rounded-lg border border-ncc-olive/20 backdrop-blur-md shadow-md">
-                <div className="flex items-center gap-2 mb-2 pb-1 border-b border-ncc-olive/20 text-ncc-gold/60 font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-ncc-red animate-pulse" />
-                    <span>TACTICAL TELEMETRY FEED</span>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                    {terminalLogs.map((log, index) => (
-                        <div key={index} className="truncate select-none font-medium leading-none">
-                            {log}
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Bottom Right coordinates indicator */}
-            <div className="absolute bottom-6 right-6 z-10 hidden md:flex flex-col items-end gap-0.5 font-mono text-[9px] uppercase tracking-wider text-ncc-gold/40">
-                <span className="font-bold text-ncc-gold/50">GRID REF: IN-TN_34</span>
-                <span>ZONE: SEC_INDIA_IV</span>
-                <span>COORD: 10°44&apos;38&quot;N 79°08&apos;20&quot;E</span>
-            </div>
         </div>
     );
 }
