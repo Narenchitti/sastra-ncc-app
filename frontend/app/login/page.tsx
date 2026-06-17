@@ -132,7 +132,7 @@ export default function LoginPage() {
         <div className="relative z-10 w-full max-w-sm">
           
           {/* Card Body */}
-          <div className="relative border border-white/[0.08] bg-[#050912]/80 backdrop-blur-xl px-7 py-9 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-500 hover:border-white/[0.12]">
+          <div className="relative border-y border-x-0 border-white/[0.08] bg-[#050912]/80 backdrop-blur-xl px-7 py-9 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-500 hover:border-y-white/[0.12]">
             
             {/* Top Tricolor Accent Line */}
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#D21034] via-[#E0A926] to-[#5D9BCE]"></div>

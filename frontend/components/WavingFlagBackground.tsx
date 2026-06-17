@@ -24,7 +24,7 @@ export default function WavingFlagBackground() {
             if (!sctx) return;
             sctx.clearRect(0, 0, 600, 400);
 
-            // 1. Draw official Indian flag horizontal tricolor stripes
+            // Draw a high-quality fallback immediately while the image loads
             sctx.fillStyle = '#FF9933'; // Saffron
             sctx.fillRect(0, 0, 600, 133.33);
 
@@ -34,53 +34,56 @@ export default function WavingFlagBackground() {
             sctx.fillStyle = '#138808'; // India Green
             sctx.fillRect(0, 266.67, 600, 133.33);
 
-            // 2. Draw Navy Blue Ashoka Chakra in the center (Center = 300, 200)
+            // Draw Navy Blue Ashoka Chakra
             const cx = 300;
             const cy = 200;
             const chakraRadius = 45;
 
-            sctx.strokeStyle = '#000080'; // Navy Blue
+            sctx.strokeStyle = '#000080';
             sctx.fillStyle = '#000080';
-
-            // Outer ring of Chakra
             sctx.lineWidth = 2.5;
             sctx.beginPath();
             sctx.arc(cx, cy, chakraRadius, 0, Math.PI * 2);
             sctx.stroke();
 
-            // Inner hub (center circle)
             sctx.beginPath();
             sctx.arc(cx, cy, 6, 0, Math.PI * 2);
             sctx.fill();
 
-            // 24 spokes
             sctx.lineWidth = 1.2;
             for (let i = 0; i < 24; i++) {
                 const angle = (i * 360 / 24) * Math.PI / 180;
-                const sx = cx + Math.cos(angle) * 6;
-                const sy = cy + Math.sin(angle) * 6;
-                const ex = cx + Math.cos(angle) * (chakraRadius - 2);
-                const ey = cy + Math.sin(angle) * (chakraRadius - 2);
-
                 sctx.beginPath();
-                sctx.moveTo(sx, sy);
-                sctx.lineTo(ex, ey);
+                sctx.moveTo(cx + Math.cos(angle) * 6, cy + Math.sin(angle) * 6);
+                sctx.lineTo(cx + Math.cos(angle) * (chakraRadius - 2), cy + Math.sin(angle) * (chakraRadius - 2));
                 sctx.stroke();
             }
 
-            // 24 small rim dots/half-circles
             for (let i = 0; i < 24; i++) {
                 const angle = ((i + 0.5) * 360 / 24) * Math.PI / 180;
-                const px = cx + Math.cos(angle) * (chakraRadius - 4);
-                const py = cy + Math.sin(angle) * (chakraRadius - 4);
-
                 sctx.beginPath();
-                sctx.arc(px, py, 2.2, 0, Math.PI * 2);
+                sctx.arc(cx + Math.cos(angle) * (chakraRadius - 4), cy + Math.sin(angle) * (chakraRadius - 4), 2.2, 0, Math.PI * 2);
                 sctx.fill();
             }
         };
 
         drawStaticTexture();
+
+        // Load the HD Flag Image
+        const flagImg = new Image();
+        flagImg.src = '/assets/images/india_flag.jpg';
+        const handleImageLoad = () => {
+            if (sctx) {
+                sctx.clearRect(0, 0, 600, 400);
+                sctx.drawImage(flagImg, 0, 0, 600, 400);
+            }
+        };
+
+        if (flagImg.complete) {
+            handleImageLoad();
+        } else {
+            flagImg.onload = handleImageLoad;
+        }
 
         const resizeCanvas = () => {
             canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
@@ -95,16 +98,35 @@ export default function WavingFlagBackground() {
             time += 0.85;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const flagWidth = canvas.width;
-            const flagHeight = canvas.height;
+            const baseWidth = canvas.width;
+            const baseHeight = canvas.height + 120; // Height with top/bottom wave padding
+            const flagAspectRatio = 1.6; // Width to Height ratio of India_Flag.jpg
+
+            let renderWidth = baseWidth;
+            let renderHeight = baseHeight;
+            let offsetX = 0;
+            let offsetY = -60;
+
+            // Apply aspect-ratio-aware container covering (similar to CSS object-cover)
+            if (baseWidth / baseHeight < flagAspectRatio) {
+                renderWidth = baseHeight * flagAspectRatio;
+                renderHeight = baseHeight;
+                offsetX = (canvas.width - renderWidth) / 2;
+                offsetY = -60;
+            } else {
+                renderWidth = baseWidth;
+                renderHeight = baseWidth / flagAspectRatio;
+                offsetX = 0;
+                offsetY = (canvas.height - renderHeight) / 2;
+            }
 
             const sliceCount = 180;
-            const sliceWidth = flagWidth / sliceCount;
+            const sliceWidth = renderWidth / sliceCount;
 
             for (let i = 0; i < sliceCount; i++) {
                 const srcX = (i / sliceCount) * textureCanvas.width;
                 const srcWidth = textureCanvas.width / sliceCount;
-                const destX = i * sliceWidth;
+                const destX = offsetX + i * sliceWidth;
 
                 // Flag waves rippling to the right (anchored on the left)
                 const anchorMultiplier = 0.3 + 0.7 * (i / sliceCount); // Less wave at left hoist
@@ -112,8 +134,8 @@ export default function WavingFlagBackground() {
                 
                 // Ripple calculation with enough height overlap to avoid top/bottom black borders
                 const yOffset = Math.sin(angle) * 35 * anchorMultiplier;
-                const destHeight = canvas.height + 120;
-                const destY = -60 + yOffset;
+                const destHeight = renderHeight;
+                const destY = offsetY + yOffset;
 
                 // Draw texture slice
                 ctx.drawImage(
