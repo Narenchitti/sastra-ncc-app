@@ -24,15 +24,60 @@ export default function WavingFlagBackground() {
             if (!sctx) return;
             sctx.clearRect(0, 0, 600, 400);
 
-            // 1. Draw NCC Tricolor Stripes (Equal widths of 200px each) - Official Hex Colors
-            sctx.fillStyle = '#EF1C24'; // Red
-            sctx.fillRect(0, 0, 200, 400);
+            // 1. Draw official Indian flag horizontal tricolor stripes
+            sctx.fillStyle = '#FF9933'; // Saffron
+            sctx.fillRect(0, 0, 600, 133.33);
 
-            sctx.fillStyle = '#2C3092'; // Navy Blue
-            sctx.fillRect(200, 0, 200, 400);
+            sctx.fillStyle = '#FFFFFF'; // White
+            sctx.fillRect(0, 133.33, 600, 133.34);
 
-            sctx.fillStyle = '#00AEEF'; // Sky Blue
-            sctx.fillRect(400, 0, 200, 400);
+            sctx.fillStyle = '#138808'; // India Green
+            sctx.fillRect(0, 266.67, 600, 133.33);
+
+            // 2. Draw Navy Blue Ashoka Chakra in the center (Center = 300, 200)
+            const cx = 300;
+            const cy = 200;
+            const chakraRadius = 45;
+
+            sctx.strokeStyle = '#000080'; // Navy Blue
+            sctx.fillStyle = '#000080';
+
+            // Outer ring of Chakra
+            sctx.lineWidth = 2.5;
+            sctx.beginPath();
+            sctx.arc(cx, cy, chakraRadius, 0, Math.PI * 2);
+            sctx.stroke();
+
+            // Inner hub (center circle)
+            sctx.beginPath();
+            sctx.arc(cx, cy, 6, 0, Math.PI * 2);
+            sctx.fill();
+
+            // 24 spokes
+            sctx.lineWidth = 1.2;
+            for (let i = 0; i < 24; i++) {
+                const angle = (i * 360 / 24) * Math.PI / 180;
+                const sx = cx + Math.cos(angle) * 6;
+                const sy = cy + Math.sin(angle) * 6;
+                const ex = cx + Math.cos(angle) * (chakraRadius - 2);
+                const ey = cy + Math.sin(angle) * (chakraRadius - 2);
+
+                sctx.beginPath();
+                sctx.moveTo(sx, sy);
+                sctx.lineTo(ex, ey);
+                sctx.stroke();
+            }
+
+            // 24 small rim dots/half-circles
+            for (let i = 0; i < 24; i++) {
+                const angle = ((i + 0.5) * 360 / 24) * Math.PI / 180;
+                const px = cx + Math.cos(angle) * (chakraRadius - 4);
+                const py = cy + Math.sin(angle) * (chakraRadius - 4);
+
+                sctx.beginPath();
+                sctx.arc(px, py, 2.2, 0, Math.PI * 2);
+                sctx.fill();
+            }
         };
 
         drawStaticTexture();
