@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import GalleryLightbox from '@/components/GalleryLightbox';
 import MobileNav from '@/components/MobileNav';
+import TacticalBattleMap from '@/components/TacticalBattleMap';
 import { getPublicEvents } from '@/app/actions';
 
 /* ═══════════════════════════════════════════════
@@ -98,17 +99,7 @@ export default function Home() {
         return () => observer.disconnect();
     }, []);
 
-    // Parallax effect for hero
-    useEffect(() => {
-        const handleParallax = () => {
-            const hero = document.getElementById('hero-video');
-            if (hero) {
-                hero.style.transform = `translateY(${window.scrollY * 0.4}px)`;
-            }
-        };
-        window.addEventListener('scroll', handleParallax);
-        return () => window.removeEventListener('scroll', handleParallax);
-    }, []);
+
 
     const filteredGallery =
         galleryFilter === 'All'
@@ -191,21 +182,12 @@ export default function Home() {
 
             {/* ── CINEMATIC HERO SECTION ── */}
             <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-[#090d06]">
-                {/* Video Background with Parallax */}
-                <div className="absolute inset-0 z-0">
-                    <video
-                        id="hero-video"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="absolute inset-0 w-full h-[120%] object-cover opacity-[0.35] mix-blend-luminosity"
-                    >
-                        <source src="/assets/videos/drill.mp4" type="video/mp4" />
-                    </video>
+                {/* Tactical Battle Map Background */}
+                <div className="absolute inset-0 z-0 bg-[#090d06]">
+                    <TacticalBattleMap />
                     {/* Immersive overlay gradients & patterns */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-[#0e140a]/50 to-[#0c1008]"></div>
-                    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(74,93,35,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(74,93,35,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#0c1008]"></div>
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(74,93,35,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(74,93,35,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
                 </div>
 
                 {/* Compass target reticle inside background */}
@@ -238,21 +220,34 @@ export default function Home() {
                 </div>
 
                 {/* Hero Content */}
-                <div className="relative z-10 text-center max-w-5xl px-4">
-                    <div className="inline-flex items-center gap-2 glass-tactical px-6 md:px-8 py-3.5 rounded-full text-ncc-gold font-bold text-xs md:text-sm mb-6 animate-fade-up tracking-wider shadow-lg">
+                <div className="relative z-10 text-center max-w-5xl px-4 flex flex-col items-center">
+                    <div className="inline-flex items-center gap-2 glass-tactical px-6 md:px-8 py-3.5 rounded-full text-ncc-gold font-bold text-xs md:text-sm mb-8 animate-fade-up tracking-wider shadow-lg">
                         <i className="fas fa-star text-ncc-red animate-pulse"></i>
                         <span className="font-heading uppercase tracking-widest text-[10px] md:text-xs">06/34 (TN) INDEP COY, NCC (ARMY), THANJAVUR</span>
                         <i className="fas fa-star text-ncc-red animate-pulse"></i>
                     </div>
 
-                    <h1 className="font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold mb-6 tracking-tight leading-none animate-fade-up delay-100 uppercase">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-olive via-ncc-khaki to-white">Unity and</span><br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-gold via-amber-500 to-yellow-200 animate-text-glow">Discipline</span>
-                    </h1>
+                    {/* HUD Targeting Box wrapping main titles */}
+                    <div className="relative border border-ncc-olive/25 bg-black/40 backdrop-blur-[2px] px-8 sm:px-12 py-10 md:py-14 rounded-2xl max-w-4xl mx-auto shadow-2xl mb-10 animate-fade-up delay-100">
+                        {/* Gold HUD Corner Brackets */}
+                        <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-ncc-gold rounded-tl-lg"></div>
+                        <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-ncc-gold rounded-tr-lg"></div>
+                        <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-ncc-gold rounded-bl-lg"></div>
+                        <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-ncc-gold rounded-br-lg"></div>
 
-                    <p className="text-xs md:text-base text-gray-300 font-medium mb-10 tracking-widest uppercase animate-fade-up delay-300 max-w-2xl mx-auto">
-                        Forging Leaders for Tomorrow at SASTRA Deemed University
-                    </p>
+                        {/* Extra crosshair coordinate ticks */}
+                        <div className="absolute top-1/2 -left-3 w-3 h-[1px] bg-ncc-gold/45"></div>
+                        <div className="absolute top-1/2 -right-3 w-3 h-[1px] bg-ncc-gold/45"></div>
+
+                        <h1 className="font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold mb-6 tracking-tight leading-none uppercase">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-olive via-ncc-khaki to-white">Unity and</span><br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-ncc-gold via-amber-500 to-yellow-200 animate-text-glow">Discipline</span>
+                        </h1>
+
+                        <p className="text-xs md:text-base text-gray-300 font-medium tracking-widest uppercase max-w-2xl mx-auto">
+                            Forging Leaders for Tomorrow at SASTRA Deemed University
+                        </p>
+                    </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-400">
                         <a
