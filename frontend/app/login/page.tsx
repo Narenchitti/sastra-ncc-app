@@ -48,20 +48,16 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#040810] overflow-hidden font-sans select-none">
       
-      {/* 1. Animated Waving NCC Tricolor Flag Canvas */}
+      {/* 1. Animated Waving NCC Tricolor Flag Canvas (100% Brightness/Opacity) */}
       <WavingFlagBackground />
 
-      {/* 2. Frosted Ambient Overlay with Tricolor Glow Centers */}
+      {/* 2. Light translucent overlays for premium texture, no black backing overlay */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#D21034]/8 blur-[130px]"></div>
-        <div className="absolute top-[30%] left-[60%] w-[60%] h-[60%] rounded-full bg-[#0b162a]/20 blur-[150px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#5D9BCE]/8 blur-[130px]"></div>
-        
-        {/* Deep navy glass backing to control flag transparency and text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#040811]/88 via-[#071021]/94 to-[#02050b]/98"></div>
+        {/* Very subtle glow highlights just to add depth to the colors */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white/5 blur-[120px]"></div>
         
         {/* Subtle grid overlay to tie it back to the military system look */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(93,155,206,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(93,155,206,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
       </div>
 
       {/* 3. Floating Tricolor Particles */}
@@ -90,20 +86,21 @@ export default function LoginPage() {
       {/* 4. Main Login Container */}
       <div className="relative z-10 w-full max-w-md px-6 py-12">
         
-        {/* Glassmorphic Login Card */}
-        <div className="relative border border-white/[0.08] bg-[#0a1224]/55 backdrop-blur-2xl px-8 py-10 md:px-10 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500 hover:border-white/[0.15]">
+        {/* Frosted Dark Card for High Text Contrast */}
+        <div className="relative border border-white/[0.08] bg-[#050912]/88 backdrop-blur-3xl px-8 py-10 md:px-10 rounded-3xl shadow-[0_30px_70px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-500 hover:border-white/[0.15]">
           
           {/* Top Tricolor Accent Line */}
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#D21034] via-[#E0A926] to-[#5D9BCE]"></div>
 
           {/* Insignia / Logos Header */}
           <div className="text-center mb-8">
-            <div className="flex justify-center items-center gap-5 mb-5">
-              <Link href="/" title="Back to Contingent Home" className="transition-transform duration-300 hover:scale-105">
-                <img src="/assets/images/sastra-logo.png" alt="SASTRA Deemed University" className="h-10 object-contain drop-shadow" />
+            <div className="flex justify-center items-center gap-4 mb-5">
+              <Link href="/" title="Back to Contingent Home" className="transition-transform duration-300 hover:scale-105 flex items-center gap-3">
+                <img src="/assets/images/sastra_logo.png" alt="SASTRA Deemed University" className="h-10 object-contain drop-shadow" />
+                <img src="/assets/images/40_years_logo.png" alt="SASTRA 40 Years" className="h-10 object-contain drop-shadow" />
               </Link>
               <div className="w-[1px] h-6 bg-white/10"></div>
-              <img src="/assets/images/ncc-logo.png" alt="National Cadet Corps" className="h-12 object-contain animate-float drop-shadow-[0_4px_12px_rgba(224,169,38,0.25)]" />
+              <img src="/assets/images/ncc_logo.png" alt="National Cadet Corps" className="h-12 object-contain drop-shadow" />
             </div>
 
             <h1 className="font-heading text-2xl font-black text-white tracking-widest uppercase">

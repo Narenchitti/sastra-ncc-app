@@ -181,7 +181,7 @@ export default function Home() {
                 <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
                     {/* Brand Identifier */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <img src="/assets/images/ncc-logo.png" alt="NCC Logo" className="h-10 transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300" />
+                        <img src="/assets/images/ncc_logo.png" alt="NCC Logo" className="h-10 transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300" />
                         <div className="flex flex-col">
                             <span className="font-sans font-extrabold text-sm sm:text-base text-white leading-none tracking-wider uppercase">
                                 SASTRA <span className="text-ncc-red">NCC</span>
@@ -387,10 +387,13 @@ export default function Home() {
                             </div>
 
                             <div className="md:col-span-4 flex flex-col justify-center items-center bg-[#070b04]/70 border border-ncc-olive/20 p-6 rounded-xl relative shadow-inner">
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 bg-[#0c1008] border border-ncc-olive/20 rounded-full text-[8.5px] font-bold text-ncc-gold uppercase tracking-widest whitespace-nowrap">COMMAND CREST</div>
-                                <img src="/assets/images/sastra-logo.png" alt="SASTRA Crest" className="h-24 object-contain opacity-85 hover:opacity-100 transition-opacity duration-300" />
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center mt-4 font-heading">SASTRA Deemed University</span>
-                                <span className="text-[8px] text-ncc-olive font-bold mt-1 font-mono uppercase tracking-wider">AN ISO 9001 UNIT</span>
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 bg-[#0c1008] border border-ncc-olive/20 rounded-full text-[8.5px] font-bold text-ncc-gold uppercase tracking-widest whitespace-nowrap">COMMAND CRESTS</div>
+                                <div className="flex gap-4 items-center justify-center mb-2">
+                                    <img src="/assets/images/sastra_logo.png" alt="SASTRA Crest" className="h-20 object-contain opacity-85 hover:opacity-100 transition-opacity duration-300" />
+                                    <img src="/assets/images/40_years_logo.png" alt="SASTRA 40 Years" className="h-20 object-contain opacity-85 hover:opacity-100 transition-opacity duration-300" />
+                                </div>
+                                <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center mt-2 font-heading">SASTRA Deemed University</span>
+                                <span className="text-[8px] text-ncc-olive font-bold mt-1 font-mono uppercase tracking-wider">40 YEARS OF EXCELLENCE</span>
                             </div>
 
                         </div>

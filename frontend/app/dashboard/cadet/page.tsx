@@ -315,7 +315,7 @@ export default function CadetDashboard() {
         <div className="p-8 border-b border-white/5 relative">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
           <div className="flex items-center gap-3">
-            <img src="/assets/images/ncc-logo.png" alt="NCC" className="h-10 animate-float" />
+            <img src="/assets/images/ncc_logo.png" alt="NCC" className="h-10 animate-float" />
             <div>
               <h2 className="font-heading text-2xl font-bold tracking-tight leading-none">SASTRA NCC</h2>
               <p className="text-[10px] text-ncc-sky font-bold tracking-[0.2em] uppercase mt-1">Cadet Portal</p>

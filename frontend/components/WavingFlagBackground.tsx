@@ -64,14 +64,13 @@ export default function WavingFlagBackground() {
             sctx.arc(cx + 15, cy + 28, 3.5, 0, Math.PI * 2); // Right OTA dot
             sctx.fill();
 
-            // Draw small golden stars or details inside
+            // Draw motto text detail
             sctx.font = '6px sans-serif';
             sctx.fillText('UNITY & DISCIPLINE', cx, cy + 42);
 
             // Draw wreath of 17 lotus flowers encircling the crest
             const wreathRadius = 78;
             for (let j = 0; j < 17; j++) {
-                // Space them out evenly around the circle
                 const angle = (j / 17) * Math.PI * 2 - Math.PI / 2;
                 const lx = cx + Math.cos(angle) * wreathRadius;
                 const ly = cy + Math.sin(angle) * wreathRadius;
@@ -107,10 +106,8 @@ export default function WavingFlagBackground() {
             time += 0.85;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const flagWidth = Math.min(canvas.width * 1.2, 1100);
-            const flagHeight = flagWidth * (400 / 600); // Maintain 3:2 ratio
-            const flagLeft = (canvas.width - flagWidth) / 2;
-            const flagTop = (canvas.height - flagHeight) / 2;
+            const flagWidth = canvas.width;
+            const flagHeight = canvas.height;
 
             const sliceCount = 180;
             const sliceWidth = flagWidth / sliceCount;
@@ -118,16 +115,16 @@ export default function WavingFlagBackground() {
             for (let i = 0; i < sliceCount; i++) {
                 const srcX = (i / sliceCount) * textureCanvas.width;
                 const srcWidth = textureCanvas.width / sliceCount;
-                const destX = flagLeft + (i * sliceWidth);
+                const destX = i * sliceWidth;
 
                 // Flag waves rippling to the right (anchored on the left)
-                const anchorMultiplier = 0.2 + 0.8 * (i / sliceCount); // Less wave at left hoist
-                const angle = (i * 0.055) - (time * 0.035);
+                const anchorMultiplier = 0.3 + 0.7 * (i / sliceCount); // Less wave at left hoist
+                const angle = (i * 0.05) - (time * 0.035);
                 
-                // Real-time wave position calculations
-                const yOffset = Math.sin(angle) * 25 * anchorMultiplier;
-                const destHeight = flagHeight - (Math.abs(Math.sin(angle)) * 12 * anchorMultiplier);
-                const destY = flagTop + yOffset + (flagHeight - destHeight) / 2;
+                // Ripple calculation with enough height overlap to avoid top/bottom black borders
+                const yOffset = Math.sin(angle) * 35 * anchorMultiplier;
+                const destHeight = canvas.height + 120;
+                const destY = -60 + yOffset;
 
                 // Draw texture slice
                 ctx.drawImage(
@@ -138,18 +135,18 @@ export default function WavingFlagBackground() {
                     textureCanvas.height,
                     destX,
                     destY,
-                    sliceWidth + 0.5, // 0.5 pixel overlap to eliminate hairline gaps
+                    sliceWidth + 0.8, // Overlap to prevent hairline gaps
                     destHeight
                 );
 
                 // Dynamic 3D lighting/shading based on slope (cosine of angle)
                 const slope = Math.cos(angle);
                 if (slope > 0) {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${slope * 0.1 * anchorMultiplier})`;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${slope * 0.08 * anchorMultiplier})`;
                 } else {
-                    ctx.fillStyle = `rgba(0, 0, 0, ${-slope * 0.22 * anchorMultiplier})`;
+                    ctx.fillStyle = `rgba(0, 0, 0, ${-slope * 0.18 * anchorMultiplier})`;
                 }
-                ctx.fillRect(destX, destY, sliceWidth + 0.5, destHeight);
+                ctx.fillRect(destX, destY, sliceWidth + 0.8, destHeight);
             }
 
             animationFrameId = requestAnimationFrame(render);
@@ -166,7 +163,7 @@ export default function WavingFlagBackground() {
     return (
         <canvas 
             ref={canvasRef} 
-            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-[0.28] filter saturate-[1.15] brightness-[0.9]"
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-100 filter saturate-[1.1] brightness-[0.88]"
         />
     );
 }
