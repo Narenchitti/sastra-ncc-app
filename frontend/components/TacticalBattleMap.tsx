@@ -231,15 +231,19 @@ export default function TacticalBattleMap() {
             ctx.clearRect(0, 0, w, h);
 
             // 1. DRAW CAMOUFLAGE GRADIENT BACKGROUNDS
-            ctx.fillStyle = '#080b06';
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, '#060c04');
+            bgGrad.addColorStop(0.5, '#0b1809');
+            bgGrad.addColorStop(1, '#050b03');
+            ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, w, h);
 
             const camoBlobs = [
-                { x: w * 0.2, y: h * 0.3, r: Math.min(w, h) * 0.38, color: 'rgba(28, 45, 18, 0.8)' },
-                { x: w * 0.75, y: h * 0.25, r: Math.min(w, h) * 0.48, color: 'rgba(38, 62, 25, 0.75)' },
-                { x: w * 0.45, y: h * 0.75, r: Math.min(w, h) * 0.42, color: 'rgba(48, 80, 32, 0.65)' },
-                { x: w * 0.1, y: h * 0.8, r: Math.min(w, h) * 0.32, color: 'rgba(38, 62, 25, 0.7)' },
-                { x: w * 0.85, y: h * 0.8, r: Math.min(w, h) * 0.38, color: 'rgba(28, 45, 18, 0.75)' },
+                { x: w * 0.2, y: h * 0.3, r: Math.min(w, h) * 0.45, color: 'rgba(28, 55, 18, 0.88)' },
+                { x: w * 0.75, y: h * 0.25, r: Math.min(w, h) * 0.55, color: 'rgba(38, 72, 25, 0.85)' },
+                { x: w * 0.45, y: h * 0.75, r: Math.min(w, h) * 0.5, color: 'rgba(48, 90, 32, 0.78)' },
+                { x: w * 0.1, y: h * 0.8, r: Math.min(w, h) * 0.38, color: 'rgba(38, 72, 25, 0.82)' },
+                { x: w * 0.85, y: h * 0.8, r: Math.min(w, h) * 0.45, color: 'rgba(28, 55, 18, 0.85)' },
             ];
 
             camoBlobs.forEach((blob) => {
@@ -264,9 +268,9 @@ export default function TacticalBattleMap() {
 
             // 3. DRAW TACTICAL GRID OVERLAY (Grid ticks)
             ctx.save();
-            ctx.strokeStyle = 'rgba(74, 93, 35, 0.12)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 12]);
+            ctx.strokeStyle = 'rgba(80, 220, 100, 0.35)'; // More prominent green grid lines
+            ctx.lineWidth = 0.8;
+            ctx.setLineDash([2, 8]);
 
             const gridSize = 100;
             for (let x = 0; x < w; x += gridSize) {

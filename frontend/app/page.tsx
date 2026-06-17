@@ -309,7 +309,7 @@ export default function Home() {
             </section>
 
             {/* ── SECTOR 02: COMPANY BRIEF (ABOUT & HISTORY) ── */}
-            <section id="sector-brief" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-[#080c05]/90">
+            <section id="sector-brief" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-transparent">
                 <div className="max-w-4xl mx-auto">
                     
                     {/* Header */}
@@ -355,7 +355,7 @@ export default function Home() {
             </section>
 
             {/* ── SECTOR 03: TRAINING FIELDS (INTERACTIVE COORDINATES) ── */}
-            <section id="sector-training" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-black/60">
+            <section id="sector-training" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-transparent">
                 <div className="max-w-6xl mx-auto">
                     
                     {/* Header */}
@@ -536,7 +536,7 @@ export default function Home() {
             </section>
 
             {/* ── SECTOR 04: ENLISTMENT BENEFITS (WHY JOIN?) ── */}
-            <section id="sector-benefits" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-[#080c05]/95">
+            <section id="sector-benefits" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-transparent">
                 <div className="max-w-6xl mx-auto">
                     
                     {/* Header */}
@@ -614,7 +614,7 @@ export default function Home() {
             </section>
 
             {/* ── SECTOR 05: PERSONNEL ROLL (CHAIN OF COMMAND) ── */}
-            <section id="sector-roll" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-black/60">
+            <section id="sector-roll" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-transparent">
                 <div className="max-w-6xl mx-auto">
                     
                     {/* Header */}
@@ -687,7 +687,7 @@ export default function Home() {
             </section>
 
             {/* ── SECTOR 06: RECONNAISSANCE GALLERY (OPERATIONAL GALLERY) ── */}
-            <section id="sector-recon" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-[#080c05]/95">
+            <section id="sector-recon" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-transparent">
                 <div className="max-w-6xl mx-auto">
                     
                     {/* Header */}
@@ -774,7 +774,7 @@ export default function Home() {
             </section>
 
             {/* ── SECTOR 07: COMMAND TERMINAL (REGISTRATION & CONTACT) ── */}
-            <section id="sector-terminal" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-black/70">
+            <section id="sector-terminal" className="py-24 px-6 relative z-10 border-t border-ncc-olive/15 bg-transparent">
                 <div className="max-w-5xl mx-auto">
                     
                     {/* Header */}
