@@ -10,6 +10,8 @@ export default function Home() {
     const [soundMuted, setSoundMuted] = useState(true);
     const [activeSector, setActiveSector] = useState<'alpha' | 'bravo' | 'charlie' | 'delta'>('alpha');
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+    const [headerVisible, setHeaderVisible] = useState(true);
+    const lastScrollY = useRef(0);
 
     // Terminal/Enlistment Form States
     const [name, setName] = useState('');
@@ -61,10 +63,29 @@ export default function Home() {
         }
     };
 
-    // Scroll listener for sticky navigation styling
+    // Scroll listener for smart show/hide header navigation
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 40);
-        window.addEventListener('scroll', handleScroll);
+        if (typeof window === 'undefined') return;
+
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Apply glassmorphism styling if scrolled past 40px
+            setScrolled(currentScrollY > 40);
+
+            // Hide/show logic based on scroll direction
+            if (currentScrollY < 80) {
+                setHeaderVisible(true);
+            } else if (currentScrollY > lastScrollY.current) {
+                setHeaderVisible(false); // Scrolling down -> Hide header
+            } else if (currentScrollY < lastScrollY.current) {
+                setHeaderVisible(true); // Scrolling up -> Show header
+            }
+
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -133,10 +154,12 @@ export default function Home() {
             <div className="hud-scanner z-30"></div>
 
             {/* ── HEADER NAVIGATION BAR (COMM-LINK STATUS BAR) ── */}
-            <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+            <header className={`fixed top-0 w-full z-50 transition-all duration-300 ease-in-out border-b ${
+                headerVisible ? 'translate-y-0' : '-translate-y-full'
+            } ${
                 scrolled 
-                    ? 'bg-[#0b0e07]/90 border-b border-ncc-olive/35 backdrop-blur-md py-3.5 shadow-xl shadow-black/35'
-                    : 'bg-transparent py-6'
+                    ? 'bg-[#0b0e07]/90 border-ncc-olive/35 backdrop-blur-md py-3.5 shadow-xl shadow-black/35'
+                    : 'bg-transparent border-ncc-olive/0 py-6'
             }`}>
                 <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
                     {/* Brand Identifier */}
