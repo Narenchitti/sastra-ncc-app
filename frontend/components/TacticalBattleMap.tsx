@@ -41,7 +41,7 @@ interface PatrolRoute {
 export default function TacticalBattleMap() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const mousePosRef = useRef({ x: 0, y: 0 });
 
     // Primary topographic elevation centers (Hills) matching the military references
     const hills: Hill[] = [
@@ -79,10 +79,10 @@ export default function TacticalBattleMap() {
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (typeof window === 'undefined') return;
-            setMousePos({
+            mousePosRef.current = {
                 x: e.clientX,
                 y: e.clientY,
-            });
+            };
         };
 
         window.addEventListener('mousemove', handleMouseMove);
@@ -235,11 +235,11 @@ export default function TacticalBattleMap() {
             ctx.fillRect(0, 0, w, h);
 
             const camoBlobs = [
-                { x: w * 0.2, y: h * 0.3, r: Math.min(w, h) * 0.35, color: 'rgba(13, 19, 9, 0.7)' },
-                { x: w * 0.75, y: h * 0.25, r: Math.min(w, h) * 0.45, color: 'rgba(18, 26, 13, 0.65)' },
-                { x: w * 0.45, y: h * 0.75, r: Math.min(w, h) * 0.4, color: 'rgba(24, 34, 18, 0.6)' },
-                { x: w * 0.1, y: h * 0.8, r: Math.min(w, h) * 0.3, color: 'rgba(18, 26, 13, 0.7)' },
-                { x: w * 0.85, y: h * 0.8, r: Math.min(w, h) * 0.35, color: 'rgba(13, 19, 9, 0.65)' },
+                { x: w * 0.2, y: h * 0.3, r: Math.min(w, h) * 0.38, color: 'rgba(28, 45, 18, 0.8)' },
+                { x: w * 0.75, y: h * 0.25, r: Math.min(w, h) * 0.48, color: 'rgba(38, 62, 25, 0.75)' },
+                { x: w * 0.45, y: h * 0.75, r: Math.min(w, h) * 0.42, color: 'rgba(48, 80, 32, 0.65)' },
+                { x: w * 0.1, y: h * 0.8, r: Math.min(w, h) * 0.32, color: 'rgba(38, 62, 25, 0.7)' },
+                { x: w * 0.85, y: h * 0.8, r: Math.min(w, h) * 0.38, color: 'rgba(28, 45, 18, 0.75)' },
             ];
 
             camoBlobs.forEach((blob) => {
@@ -302,13 +302,13 @@ export default function TacticalBattleMap() {
                     
                     // Style rings differently from outer to inner peaks
                     if (l === 11) {
-                        ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)'; // Peak center marker
+                        ctx.strokeStyle = 'rgba(212, 175, 55, 0.65)'; // Peak center marker
                     } else if (l % 3 === 0) {
-                        ctx.strokeStyle = 'rgba(80, 200, 120, 0.38)'; // Highlight contour line
-                        ctx.lineWidth = 1.25;
+                        ctx.strokeStyle = 'rgba(80, 220, 100, 0.65)'; // Highlight contour line
+                        ctx.lineWidth = 1.5;
                     } else {
-                        ctx.strokeStyle = 'rgba(80, 200, 120, 0.16)'; // Normal contour line
-                        ctx.lineWidth = 0.8;
+                        ctx.strokeStyle = 'rgba(80, 220, 100, 0.3)'; // Normal contour line
+                        ctx.lineWidth = 1.0;
                     }
 
                     ctx.beginPath();
@@ -419,7 +419,7 @@ export default function TacticalBattleMap() {
             }
 
             // Draw tracking pointer following Y coordinates of mouse
-            const currentPointerY = Math.max(startY, Math.min(endY, mousePos.y));
+            const currentPointerY = Math.max(startY, Math.min(endY, mousePosRef.current.y));
             ctx.fillStyle = 'rgba(212, 175, 55, 0.8)';
             ctx.beginPath();
             ctx.moveTo(rulerX, currentPointerY);
@@ -523,7 +523,7 @@ export default function TacticalBattleMap() {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('click', handleWindowClick);
         };
-    }, [mousePos]);
+    }, []);
 
     return (
         <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none select-none z-0">

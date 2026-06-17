@@ -122,7 +122,7 @@ export default function Home() {
             <TargetCursor />
 
             {/* Tactical Grid Background & animated topographic Canvas */}
-            <div className="fixed inset-0 z-0 pointer-events-none opacity-40 md:opacity-50">
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-85 md:opacity-95">
                 <div className="absolute inset-0 bg-[#080b06] z-[-2]"></div>
                 <TacticalBattleMap />
                 {/* Visual grid overlay details */}
@@ -205,7 +205,7 @@ export default function Home() {
                     
                     {/* Left side HUD statistics */}
                     <div className="col-span-1 lg:col-span-3 order-2 lg:order-1 flex flex-row lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-4 rounded-lg flex-1 min-w-[200px] relative">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Telemetry Status</div>
                             <div className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -218,7 +218,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-4 rounded-lg flex-1 min-w-[200px] relative">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Coordinates Grid</div>
                             <div className="text-[11px] font-bold text-ncc-gold font-mono uppercase tracking-wider">
@@ -227,7 +227,7 @@ export default function Home() {
                             <div className="text-[8px] text-gray-500 mt-1 uppercase font-mono">SASTRA University, Thanjavur</div>
                         </div>
 
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-4 rounded-lg flex-1 min-w-[200px] relative">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Company Strength</div>
                             <div className="text-xl font-black text-white tracking-widest font-heading">
@@ -247,7 +247,7 @@ export default function Home() {
                         <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-ncc-gold rounded-bl-lg"></div>
                         <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-ncc-gold rounded-br-lg"></div>
 
-                        <div className="p-6 md:p-10 bg-[#0c1008]/75 backdrop-blur-sm rounded-xl">
+                        <div className="p-6 md:p-10 bg-[#0c1008]/45 border border-ncc-olive/20 backdrop-blur-md rounded-xl">
                             {/* Grid alignment tag */}
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-ncc-olive/20 border border-ncc-olive/35 text-ncc-gold text-[9px] font-bold tracking-[0.2em] uppercase mb-6">
                                 <i className="fa-solid fa-satellite animate-pulse"></i> COMMAND INTERNET TERMINAL v1.0
@@ -281,14 +281,14 @@ export default function Home() {
 
                     {/* Right side HUD status and system feeds */}
                     <div className="col-span-1 lg:col-span-3 order-3 flex flex-row lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-4 rounded-lg flex-1 min-w-[200px] relative">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-ncc-gold"></div>
                             <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">BATTALION ID</div>
                             <div className="text-[12px] font-bold text-white uppercase tracking-wider">4 TN BN NCC, Trichy</div>
                             <div className="text-[8px] text-ncc-khaki mt-1 font-mono uppercase">TN, P & AN Directorate</div>
                         </div>
 
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-4 rounded-lg flex-1 min-w-[200px] relative">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-ncc-gold"></div>
                             <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Motto of NCC</div>
                             <div className="text-[12px] font-black text-ncc-red uppercase tracking-widest font-heading">
@@ -297,7 +297,7 @@ export default function Home() {
                             <div className="text-[8px] text-gray-500 mt-1 uppercase font-mono">Ekta aur Anushasan</div>
                         </div>
 
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-4 rounded-lg flex-1 min-w-[200px] relative">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-ncc-gold"></div>
                             <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">OFFICER IN COMMAND</div>
                             <div className="text-[11px] font-bold text-white uppercase tracking-wider">Capt. Dr. R. Sridhar</div>
@@ -320,7 +320,7 @@ export default function Home() {
                     </div>
 
                     {/* About Content Slate */}
-                    <div className="relative border border-ncc-olive/30 bg-[#0c1008]/85 p-8 sm:p-10 rounded-2xl shadow-xl">
+                    <div className="relative border border-ncc-olive/30 bg-[#0c1008]/50 backdrop-blur-lg p-8 sm:p-10 rounded-2xl shadow-xl">
                         {/* Brackets */}
                         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-ncc-gold rounded-tl-md"></div>
                         <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-ncc-gold rounded-tr-md"></div>
@@ -374,7 +374,7 @@ export default function Home() {
                                 className={`w-full p-4 border rounded-xl text-left transition-all duration-300 relative ${
                                     activeSector === 'alpha' 
                                         ? 'border-ncc-gold bg-ncc-gold/10 text-white shadow-md shadow-ncc-gold/5' 
-                                        : 'border-ncc-olive/20 bg-[#0c1008]/70 hover:border-ncc-olive/50 text-gray-400'
+                                        : 'border-ncc-olive/20 bg-[#0c1008]/50 backdrop-blur-sm hover:border-ncc-olive/50 text-gray-400'
                                 }`}
                             >
                                 <div className="absolute top-3 right-4 font-mono text-[9px] font-bold text-ncc-gold">COORD-A</div>
@@ -388,7 +388,7 @@ export default function Home() {
                                 className={`w-full p-4 border rounded-xl text-left transition-all duration-300 relative ${
                                     activeSector === 'bravo' 
                                         ? 'border-ncc-gold bg-ncc-gold/10 text-white shadow-md shadow-ncc-gold/5' 
-                                        : 'border-ncc-olive/20 bg-[#0c1008]/70 hover:border-ncc-olive/50 text-gray-400'
+                                        : 'border-ncc-olive/20 bg-[#0c1008]/50 backdrop-blur-sm hover:border-ncc-olive/50 text-gray-400'
                                 }`}
                             >
                                 <div className="absolute top-3 right-4 font-mono text-[9px] font-bold text-ncc-gold">COORD-B</div>
@@ -402,7 +402,7 @@ export default function Home() {
                                 className={`w-full p-4 border rounded-xl text-left transition-all duration-300 relative ${
                                     activeSector === 'charlie' 
                                         ? 'border-ncc-gold bg-ncc-gold/10 text-white shadow-md shadow-ncc-gold/5' 
-                                        : 'border-ncc-olive/20 bg-[#0c1008]/70 hover:border-ncc-olive/50 text-gray-400'
+                                        : 'border-ncc-olive/20 bg-[#0c1008]/50 backdrop-blur-sm hover:border-ncc-olive/50 text-gray-400'
                                 }`}
                             >
                                 <div className="absolute top-3 right-4 font-mono text-[9px] font-bold text-ncc-gold">COORD-C</div>
@@ -416,7 +416,7 @@ export default function Home() {
                                 className={`w-full p-4 border rounded-xl text-left transition-all duration-300 relative ${
                                     activeSector === 'delta' 
                                         ? 'border-ncc-gold bg-ncc-gold/10 text-white shadow-md shadow-ncc-gold/5' 
-                                        : 'border-ncc-olive/20 bg-[#0c1008]/70 hover:border-ncc-olive/50 text-gray-400'
+                                        : 'border-ncc-olive/20 bg-[#0c1008]/50 backdrop-blur-sm hover:border-ncc-olive/50 text-gray-400'
                                 }`}
                             >
                                 <div className="absolute top-3 right-4 font-mono text-[9px] font-bold text-ncc-gold">COORD-D</div>
@@ -427,7 +427,7 @@ export default function Home() {
                         </div>
 
                         {/* Interactive Viewer Screen (Holographic HUD Panel) */}
-                        <div className="lg:col-span-8 border border-ncc-olive/30 bg-[#0c1008]/85 rounded-2xl p-6 relative flex flex-col justify-between shadow-2xl">
+                        <div className="lg:col-span-8 border border-ncc-olive/30 bg-[#0c1008]/40 backdrop-blur-lg rounded-2xl p-6 relative flex flex-col justify-between shadow-2xl">
                             {/* Tech Details Corner Brackets */}
                             <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-ncc-gold"></div>
                             <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-ncc-gold"></div>
@@ -549,7 +549,7 @@ export default function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         
                         {/* Benefit Card 1 */}
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div>
                                 <div className="w-10 h-10 rounded bg-ncc-gold/10 border border-ncc-gold/20 flex items-center justify-center text-ncc-gold mb-4 group-hover:scale-110 transition-transform">
@@ -564,7 +564,7 @@ export default function Home() {
                         </div>
 
                         {/* Benefit Card 2 */}
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div>
                                 <div className="w-10 h-10 rounded bg-ncc-gold/10 border border-ncc-gold/20 flex items-center justify-center text-ncc-gold mb-4 group-hover:scale-110 transition-transform">
@@ -579,7 +579,7 @@ export default function Home() {
                         </div>
 
                         {/* Benefit Card 3 */}
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div>
                                 <div className="w-10 h-10 rounded bg-ncc-gold/10 border border-ncc-gold/20 flex items-center justify-center text-ncc-gold mb-4 group-hover:scale-110 transition-transform">
@@ -594,7 +594,7 @@ export default function Home() {
                         </div>
 
                         {/* Benefit Card 4 */}
-                        <div className="border border-ncc-olive/25 bg-[#0e130a]/80 p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
+                        <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-6 rounded-xl relative hover:border-ncc-gold transition-all duration-300 flex flex-col justify-between group">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
                             <div>
                                 <div className="w-10 h-10 rounded bg-ncc-gold/10 border border-ncc-gold/20 flex items-center justify-center text-ncc-gold mb-4 group-hover:scale-110 transition-transform">
@@ -627,7 +627,7 @@ export default function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         
                         {/* Personnel ANO */}
-                        <div className="border border-ncc-olive/20 bg-[#0c1008]/80 p-5 rounded-xl text-center relative flex flex-col items-center">
+                        <div className="border border-ncc-olive/20 bg-[#0c1008]/55 backdrop-blur-sm p-5 rounded-xl text-center relative flex flex-col items-center">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-ncc-gold text-black text-[8px] font-black uppercase tracking-widest rounded-b font-mono">
                                 COMMANDER
                             </div>
@@ -643,7 +643,7 @@ export default function Home() {
                         </div>
 
                         {/* Personnel SUO */}
-                        <div className="border border-ncc-olive/20 bg-[#0c1008]/80 p-5 rounded-xl text-center relative flex flex-col items-center">
+                        <div className="border border-ncc-olive/20 bg-[#0c1008]/55 backdrop-blur-sm p-5 rounded-xl text-center relative flex flex-col items-center">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-ncc-red text-white text-[8px] font-black uppercase tracking-widest rounded-b font-mono">
                                 CADET HQ
                             </div>
@@ -658,7 +658,7 @@ export default function Home() {
                         </div>
 
                         {/* Personnel JUO 1 */}
-                        <div className="border border-ncc-olive/20 bg-[#0c1008]/80 p-5 rounded-xl text-center relative flex flex-col items-center">
+                        <div className="border border-ncc-olive/20 bg-[#0c1008]/55 backdrop-blur-sm p-5 rounded-xl text-center relative flex flex-col items-center">
                             <div className="w-20 h-20 bg-ncc-olive/20 border border-ncc-olive/30 rounded-full flex items-center justify-center text-ncc-gold text-2xl mb-4 font-bold font-mono">
                                 JUO
                             </div>
@@ -670,7 +670,7 @@ export default function Home() {
                         </div>
 
                         {/* Personnel JUO 2 */}
-                        <div className="border border-ncc-olive/20 bg-[#0c1008]/80 p-5 rounded-xl text-center relative flex flex-col items-center">
+                        <div className="border border-ncc-olive/20 bg-[#0c1008]/55 backdrop-blur-sm p-5 rounded-xl text-center relative flex flex-col items-center">
                             <div className="w-20 h-20 bg-ncc-olive/20 border border-ncc-olive/30 rounded-full flex items-center justify-center text-ncc-gold text-2xl mb-4 font-bold font-mono">
                                 JUO
                             </div>
@@ -703,7 +703,7 @@ export default function Home() {
                         {/* Image 1 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_camp_training.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/80 p-2.5 rounded-xl overflow-hidden group text-left relative"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative"
                         >
                             <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7.5px] font-mono px-1.5 py-0.5 rounded z-10">
                                 LOC: CAMP_TRG
@@ -720,7 +720,7 @@ export default function Home() {
                         {/* Image 2 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_drill_parade.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/80 p-2.5 rounded-xl overflow-hidden group text-left relative"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative"
                         >
                             <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7.5px] font-mono px-1.5 py-0.5 rounded z-10">
                                 LOC: PARADE_GRD
@@ -737,7 +737,7 @@ export default function Home() {
                         {/* Image 3 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_guard_honour.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/80 p-2.5 rounded-xl overflow-hidden group text-left relative"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative"
                         >
                             <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7.5px] font-mono px-1.5 py-0.5 rounded z-10">
                                 LOC: GD_HONOUR
@@ -754,7 +754,7 @@ export default function Home() {
                         {/* Image 4 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_social_service.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/80 p-2.5 rounded-xl overflow-hidden group text-left relative"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative"
                         >
                             <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7.5px] font-mono px-1.5 py-0.5 rounded z-10">
                                 LOC: DIS_MGT
@@ -787,7 +787,7 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                         
                         {/* Terminal input console Form */}
-                        <div className="lg:col-span-7 border border-ncc-olive/30 bg-[#0c1008]/85 p-6 rounded-2xl relative shadow-2xl">
+                        <div className="lg:col-span-7 border border-ncc-olive/30 bg-[#0c1008]/45 backdrop-blur-md p-6 rounded-2xl relative shadow-2xl">
                             {/* Brackets */}
                             <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-ncc-gold"></div>
                             <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-ncc-gold"></div>
@@ -875,7 +875,7 @@ export default function Home() {
                         </div>
 
                         {/* Terminal telemetry output log box */}
-                        <div className="lg:col-span-5 border border-ncc-olive/30 bg-[#060904]/90 p-5 rounded-2xl flex flex-col justify-between shadow-inner relative font-mono text-[10px]">
+                        <div className="lg:col-span-5 border border-ncc-olive/30 bg-[#060904]/70 backdrop-blur-sm p-5 rounded-2xl flex flex-col justify-between shadow-inner relative font-mono text-[10px]">
                             {/* Terminal Top bars */}
                             <div className="flex justify-between items-center border-b border-ncc-olive/15 pb-2 mb-3">
                                 <span className="text-ncc-gold font-bold tracking-widest uppercase">// SECURE_LOG_STREAM</span>
