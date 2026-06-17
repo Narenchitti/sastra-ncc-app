@@ -278,12 +278,80 @@ body {
     width: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #0e130a;
 }
 ::-webkit-scrollbar-thumb {
-    background: #002147;
+    background: #4A5D23;
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: #D21034;
+}
+
+/* ── Tactical Operations (TacOps) Makeover Classes ── */
+
+@keyframes hud-scan {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 0.12; }
+    90% { opacity: 0.12; }
+    100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes aurora-pulse {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+    33% { transform: translate(30px, -50px) scale(1.1); opacity: 0.5; }
+    66% { transform: translate(-20px, 20px) scale(0.95); opacity: 0.4; }
+}
+
+@keyframes compass-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes radar-sweep {
+    0% { transform: rotate(0deg); opacity: 0.1; }
+    50% { opacity: 0.25; }
+    100% { transform: rotate(360deg); opacity: 0.1; }
+}
+
+.tacops-grid {
+    background-size: 45px 45px;
+    background-image: 
+        linear-gradient(to right, rgba(74, 93, 35, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(74, 93, 35, 0.05) 1px, transparent 1px);
+}
+
+.hud-scanner {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    background: linear-gradient(to bottom, transparent, rgba(74, 93, 35, 0.08) 50%, transparent);
+    height: 5px;
+    animation: hud-scan 14s linear infinite;
+}
+
+.animate-aurora {
+    animation: aurora-pulse 18s ease-in-out infinite alternate;
+}
+
+.animate-compass {
+    animation: compass-rotate 50s linear infinite;
+}
+
+.animate-radar {
+    animation: radar-sweep 10s linear infinite;
+}
+
+.glass-tactical {
+    background: rgba(12, 17, 10, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(74, 93, 35, 0.25);
+    box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glass-tactical:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.08);
 }

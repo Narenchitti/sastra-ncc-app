@@ -55,14 +55,24 @@ export default function AnimatedCounter({
     }, [started, end, duration]);
 
     return (
-        <div ref={ref} className="text-center group">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center text-2xl text-ncc-gold group-hover:scale-110 transition-transform">
+        <div ref={ref} className="text-center group p-6 relative bg-[#131b0f]/30 border border-ncc-olive/20 rounded-2xl backdrop-blur-sm shadow-inner overflow-hidden">
+            {/* L-shaped corner indicators */}
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-ncc-gold/50" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-ncc-gold/50" />
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b-2 border-l-2 border-ncc-gold/50" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-ncc-gold/50" />
+            
+            <span className="absolute top-2 right-2 text-[7px] text-ncc-gold/30 font-mono tracking-widest uppercase select-none">
+                [Telemetry.Active]
+            </span>
+
+            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-ncc-olive/10 border border-ncc-olive/30 flex items-center justify-center text-xl text-ncc-gold group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(74,93,35,0.15)]">
                 <i className={icon}></i>
             </div>
-            <div className="font-heading text-4xl md:text-5xl font-bold text-white mb-2">
+            <div className="font-heading text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tight group-hover:text-ncc-gold transition-colors duration-300">
                 {prefix}{count}{suffix}
             </div>
-            <div className="text-ncc-sky text-sm uppercase tracking-[0.2em] font-bold">
+            <div className="text-gray-400 text-[10px] md:text-xs uppercase tracking-[0.2em] font-extrabold">
                 {label}
             </div>
         </div>
