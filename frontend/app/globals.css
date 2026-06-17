@@ -358,7 +358,15 @@ body {
 
 /* Hide default cursor on desktop when target cursor is active */
 @media (pointer: fine) {
-    html, body, a, button, input, textarea, select, [role="button"], .cursor-pointer {
+    .target-cursor-active,
+    .target-cursor-active body,
+    .target-cursor-active a,
+    .target-cursor-active button,
+    .target-cursor-active input,
+    .target-cursor-active textarea,
+    .target-cursor-active select,
+    .target-cursor-active [role="button"],
+    .target-cursor-active .cursor-pointer {
         cursor: none !important;
     }
 }

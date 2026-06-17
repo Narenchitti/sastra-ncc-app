@@ -15,6 +15,7 @@ export default function TargetCursor() {
         if (!mediaQuery.matches) return;
 
         setIsVisible(true);
+        document.documentElement.classList.add('target-cursor-active');
 
         const handleMouseMove = (e: MouseEvent) => {
             setPosition({ x: e.clientX, y: e.clientY });
@@ -49,6 +50,7 @@ export default function TargetCursor() {
         document.body.addEventListener('mouseenter', handleMouseEnter);
 
         return () => {
+            document.documentElement.classList.remove('target-cursor-active');
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mousedown', handleMouseDown);
             window.removeEventListener('mouseup', handleMouseUp);

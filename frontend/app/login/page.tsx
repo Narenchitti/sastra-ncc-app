@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginAction } from '@/app/actions';
 import Link from 'next/link';
+import WavingFlagBackground from '@/components/WavingFlagBackground';
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeField, setActiveField] = useState<'email' | 'password' | null>(null);
 
   async function clientAction(formData: FormData) {
     setError('');
@@ -29,141 +31,175 @@ export default function LoginPage() {
     }
   }
 
-  // Generate particles for background animation
+  // Floating ambient light particles
   const [particles, setParticles] = useState<any[]>([]);
   useEffect(() => {
     setParticles(
-      Array.from({ length: 20 }, (_, i) => ({
+      Array.from({ length: 15 }, (_, i) => ({
         id: i,
         left: Math.random() * 100,
-        delay: Math.random() * 8,
-        duration: 6 + Math.random() * 10,
-        size: 2 + Math.random() * 2,
+        delay: Math.random() * 5,
+        duration: 8 + Math.random() * 12,
+        size: 1.5 + Math.random() * 2,
       }))
     );
   }, []);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-ncc-dark overflow-hidden font-body">
-      {/* Background Gradients */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-ncc-navy/30 blur-[120px]"></div>
-        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-ncc-red/10 blur-[120px]"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#060a13] via-[#091122] to-ncc-dark opacity-95"></div>
+    <div className="relative min-h-screen flex items-center justify-center bg-[#040810] overflow-hidden font-sans select-none">
+      
+      {/* 1. Animated Waving NCC Tricolor Flag Canvas */}
+      <WavingFlagBackground />
+
+      {/* 2. Frosted Ambient Overlay with Tricolor Glow Centers */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#D21034]/8 blur-[130px]"></div>
+        <div className="absolute top-[30%] left-[60%] w-[60%] h-[60%] rounded-full bg-[#0b162a]/20 blur-[150px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#5D9BCE]/8 blur-[130px]"></div>
+        
+        {/* Deep navy glass backing to control flag transparency and text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#040811]/88 via-[#071021]/94 to-[#02050b]/98"></div>
+        
+        {/* Subtle grid overlay to tie it back to the military system look */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(93,155,206,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(93,155,206,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
       </div>
 
-      {/* Floating Particles */}
-      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
-        {particles.map((p) => (
-          <div
-            key={p.id}
-            className="particle"
-            style={{
-              left: `${p.left}%`,
-              bottom: '-10px',
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              animationDelay: `${p.delay}s`,
-              animationDuration: `${p.duration}s`,
-            }}
-          />
-        ))}
+      {/* 3. Floating Tricolor Particles */}
+      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none opacity-40">
+        {particles.map((p) => {
+          // Assign random tricolor colors to particles
+          const colors = ['bg-[#D21034]', 'bg-[#E0A926]', 'bg-[#5D9BCE]'];
+          const colorClass = colors[p.id % 3];
+          return (
+            <div
+              key={p.id}
+              className={`absolute rounded-full opacity-0 animate-[particle-float_infinite_linear] ${colorClass}`}
+              style={{
+                left: `${p.left}%`,
+                bottom: '-10px',
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                animationDelay: `${p.delay}s`,
+                animationDuration: `${p.duration}s`,
+              }}
+            />
+          );
+        })}
       </div>
 
-      {/* Login Card Container */}
-      <div className="relative z-10 w-full max-w-lg px-4 md:px-6">
-        <div className="glass-dark rounded-2xl p-8 md:p-12 border border-white/10 shadow-2xl relative overflow-hidden">
+      {/* 4. Main Login Container */}
+      <div className="relative z-10 w-full max-w-md px-6 py-12">
+        
+        {/* Glassmorphic Login Card */}
+        <div className="relative border border-white/[0.08] bg-[#0a1224]/55 backdrop-blur-2xl px-8 py-10 md:px-10 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500 hover:border-white/[0.15]">
           
-          {/* Top Tricolor Bar Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+          {/* Top Tricolor Accent Line */}
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#D21034] via-[#E0A926] to-[#5D9BCE]"></div>
 
-          {/* Insignia & Header */}
-          <div className="text-center mb-10">
-            <div className="flex justify-center items-center gap-4 mb-6">
-              <Link href="/">
-                <img src="/assets/images/sastra-logo.png" alt="SASTRA" className="h-12 hover:scale-105 transition-transform drop-shadow" />
+          {/* Insignia / Logos Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center items-center gap-5 mb-5">
+              <Link href="/" title="Back to Contingent Home" className="transition-transform duration-300 hover:scale-105">
+                <img src="/assets/images/sastra-logo.png" alt="SASTRA Deemed University" className="h-10 object-contain drop-shadow" />
               </Link>
-              <img src="/assets/images/ncc-logo.png" alt="NCC" className="h-14 animate-float drop-shadow-lg" />
+              <div className="w-[1px] h-6 bg-white/10"></div>
+              <img src="/assets/images/ncc-logo.png" alt="National Cadet Corps" className="h-12 object-contain animate-float drop-shadow-[0_4px_12px_rgba(224,169,38,0.25)]" />
             </div>
-            
-            <h1 className="font-heading text-3xl font-bold text-white tracking-wide uppercase">
+
+            <h1 className="font-heading text-2xl font-black text-white tracking-widest uppercase">
               Command Portal
             </h1>
-            <p className="text-gray-400 text-sm mt-2 font-light">
-              Sign in with your contingent credentials
+            <p className="text-gray-400 text-[11px] font-mono tracking-widest mt-1 uppercase">
+              06/34 (TN) INDEP COY NCC (ARMY)
             </p>
           </div>
 
           {/* Login Form */}
-          <form action={clientAction} className="space-y-6">
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-2">
-                Email Address
+          <form action={clientAction} className="space-y-5">
+            
+            {/* Email Field Group */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 font-mono">
+                Security Link Identity (Email)
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
-                  <i className="fas fa-envelope"></i>
+              <div className="relative group">
+                <span className={`absolute inset-y-0 left-0 flex items-center pl-4 transition-colors duration-300 ${
+                  activeField === 'email' ? 'text-[#5D9BCE]' : 'text-gray-500'
+                }`}>
+                  <i className="fas fa-user-shield"></i>
                 </span>
                 <input
                   name="email"
                   type="email"
-                  className="w-full pl-11 pr-4 py-3.5 rounded-lg bg-white/5 border border-white/10 outline-none text-white placeholder-white/30 text-sm focus:border-ncc-red focus:ring-1 focus:ring-ncc-red transition-all"
                   required
-                  placeholder="cadet@sastra.ncc"
+                  placeholder="cadet@sastra.edu"
                   disabled={isLoading}
+                  onFocus={() => setActiveField('email')}
+                  onBlur={() => setActiveField(null)}
+                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-black/40 border border-white/10 outline-none text-white placeholder-white/20 text-xs font-mono transition-all duration-300 focus:border-[#5D9BCE]/60 focus:ring-1 focus:ring-[#5D9BCE]/35"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-widest mb-2">
-                Password
+            {/* Password Field Group */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 font-mono">
+                Command Key (Password)
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
-                  <i className="fas fa-lock"></i>
+              <div className="relative group">
+                <span className={`absolute inset-y-0 left-0 flex items-center pl-4 transition-colors duration-300 ${
+                  activeField === 'password' ? 'text-[#D21034]' : 'text-gray-500'
+                }`}>
+                  <i className="fas fa-key"></i>
                 </span>
                 <input
                   name="password"
                   type="password"
-                  className="w-full pl-11 pr-4 py-3.5 rounded-lg bg-white/5 border border-white/10 outline-none text-white placeholder-white/30 text-sm focus:border-ncc-red focus:ring-1 focus:ring-ncc-red transition-all"
                   required
-                  placeholder="Password (Registration Number)"
+                  placeholder="Registration Number"
                   disabled={isLoading}
+                  onFocus={() => setActiveField('password')}
+                  onBlur={() => setActiveField(null)}
+                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-black/40 border border-white/10 outline-none text-white placeholder-white/20 text-xs font-mono transition-all duration-300 focus:border-[#D21034]/60 focus:ring-1 focus:ring-[#D21034]/35"
                 />
               </div>
             </div>
 
+            {/* Error Alert Display */}
             {error && (
-              <div className="flex items-center gap-2 text-ncc-red text-xs bg-ncc-red/10 border border-ncc-red/20 py-3 px-4 rounded-lg animate-fade-in justify-center">
-                <i className="fas fa-exclamation-circle"></i>
-                <span>{error}</span>
+              <div className="flex items-center gap-2.5 text-[11px] text-[#D21034] bg-[#D21034]/8 border border-[#D21034]/20 py-3 px-4 rounded-xl font-mono animate-fade-in justify-center">
+                <i className="fas fa-shield-halved animate-pulse"></i>
+                <span>{error.toUpperCase()}</span>
               </div>
             )}
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-ncc-red text-white text-sm font-heading font-bold py-3.5 rounded-lg hover:bg-red-700 active:translate-y-px transition-all shadow-lg shadow-ncc-red/20 tracking-wider uppercase flex justify-center items-center gap-2"
+              className="w-full relative overflow-hidden bg-gradient-to-r from-[#D21034] to-[#a80c26] text-white text-xs font-mono font-bold py-3.5 rounded-xl hover:shadow-[0_0_20px_rgba(210,16,52,0.3)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2"
             >
               {isLoading ? (
                 <>
                   <i className="fas fa-spinner animate-spin"></i>
-                  <span>Authenticating...</span>
+                  <span>Authenticating Credentials...</span>
                 </>
               ) : (
                 <>
-                  <i className="fas fa-sign-in-alt"></i>
-                  <span>Login</span>
+                  <i className="fas fa-lock-open"></i>
+                  <span>Establish Secure Link</span>
                 </>
               )}
             </button>
           </form>
 
-          {/* Footer Backlink */}
-          <div className="text-center mt-8 pt-6 border-t border-white/5">
-            <Link href="/" className="text-xs text-gray-500 hover:text-ncc-sky transition-colors flex items-center justify-center gap-2">
-              <i className="fas fa-arrow-left"></i>
+          {/* Footer Navigation Backlink */}
+          <div className="text-center mt-8 pt-5 border-t border-white/5">
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-gray-500 hover:text-[#5D9BCE] transition-colors duration-300 group"
+            >
+              <i className="fas fa-arrow-left transition-transform group-hover:-translate-x-1 duration-200"></i>
               <span>Back to Contingent Home</span>
             </Link>
           </div>
@@ -173,4 +209,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
