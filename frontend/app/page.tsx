@@ -105,7 +105,9 @@ export default function Home() {
 
     // Scroll to bottom of terminal logs
     useEffect(() => {
-        logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (terminalLogs.length > 3) {
+            logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [terminalLogs]);
 
     const handleTerminalSubmit = (e: React.FormEvent) => {
