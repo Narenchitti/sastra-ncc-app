@@ -181,6 +181,105 @@ export default function TacticalBattleMap() {
         window.addEventListener('resize', handleResize);
         handleResize();
 
+        // Web Audio API Synthesizer for Retro Military HUD Sounds
+        const playSynthSound = (type: 'laser' | 'explosion' | 'beep') => {
+            if (typeof window === 'undefined') return;
+            const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
+            if (isMuted) return;
+
+            try {
+                const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'laser') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.22);
+                    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.22);
+                } else if (type === 'explosion') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(10, audioCtx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'beep') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(650, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.08);
+                }
+            } catch (err) {
+                // Ignore autoplay block errors
+            }
+        };
+
+        // Click handler to shoot target and create explosion
+        const handleWindowClick = (e: MouseEvent) => {
+            // Prevent custom click effect on inputs, buttons, and links
+            const target = e.target as HTMLElement;
+            if (
+                !target ||
+                target.closest('button') ||
+                target.closest('a') ||
+                target.closest('input') ||
+                target.closest('textarea') ||
+                target.closest('select') ||
+                target.closest('label') ||
+                target.getAttribute('role') === 'button' ||
+                target.classList.contains('cursor-pointer')
+            ) {
+                playSynthSound('beep');
+                return;
+            }
+
+            const w = canvas.width / (window.devicePixelRatio || 1);
+            const h = canvas.height / (window.devicePixelRatio || 1);
+
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+
+            // Find closest base node
+            let closestNode = nodes[0];
+            let minDist = Infinity;
+            nodes.forEach((node) => {
+                const nodeX = (node.x / 100) * w;
+                const nodeY = (node.y / 100) * h;
+                const dist = Math.hypot(clickX - nodeX, clickY - nodeY);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestNode = node;
+                }
+            });
+
+            const startX = (closestNode.x / 100) * w;
+            const startY = (closestNode.y / 100) * h;
+
+            playSynthSound('laser');
+
+            activeArcs.push({
+                id: Math.random().toString(),
+                startX: startX,
+                startY: startY,
+                endX: clickX,
+                endY: clickY,
+                progress: 0,
+                color: '#50C878', // Tactical Green
+                height: Math.min(130, Math.hypot(clickX - startX, clickY - startY) * 0.35),
+            });
+        };
+
+        window.addEventListener('click', handleWindowClick);
+
         // Combat fire generator (periodically triggers artillery arcs)
         const triggerCombatFire = () => {
             // Pick a random source node and target node
@@ -535,6 +634,7 @@ export default function TacticalBattleMap() {
                 arc.progress += 0.007; // Speed of trajectory shell
 
                 if (arc.progress >= 1) {
+                    playSynthSound('explosion');
                     // Remove arc and register impact ripple
                     activeRipples.push({
                         id: Math.random().toString(),
@@ -627,6 +727,7 @@ export default function TacticalBattleMap() {
             cancelAnimationFrame(animationFrameId);
             clearInterval(combatInterval);
             window.removeEventListener('resize', handleResize);
+            window.removeEventListener('click', handleWindowClick);
         };
     }, [mousePos]);
 

@@ -19,8 +19,9 @@ const config: Config = {
                 'ncc-khaki': '#C3B091',    // Army khaki
             },
             fontFamily: {
-                heading: ['Oswald', 'sans-serif'],
-                body: ['Inter', 'sans-serif'],
+                heading: ['var(--font-oswald)', 'sans-serif'],
+                body: ['var(--font-inter)', 'sans-serif'],
+                mono: ['Fira Code', 'Courier New', 'Courier', 'monospace'],
             },
             animation: {
                 'fade-up': 'fadeUp 0.8s ease-out both',

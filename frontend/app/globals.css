@@ -354,4 +354,11 @@ body {
 .glass-tactical:hover {
     border-color: rgba(212, 175, 55, 0.4);
     box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.08);
+}
+
+/* Hide default cursor on desktop when target cursor is active */
+@media (pointer: fine) {
+    html, body, a, button, input, textarea, select, [role="button"], .cursor-pointer {
+        cursor: none !important;
+    }
 }
