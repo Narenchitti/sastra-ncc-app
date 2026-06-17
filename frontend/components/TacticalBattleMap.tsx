@@ -10,6 +10,7 @@ interface Hill {
     peak: number; // Peak elevation in meters (e.g., 283)
     radius: number; // Size of the hill base
     speedMult: number; // Speed offset for animation
+    opacityMult?: number; // Opacity scaler for minor background hills
 }
 
 interface FiringArc {
@@ -45,10 +46,16 @@ export default function TacticalBattleMap() {
 
     // Primary topographic elevation centers (Hills) matching the military references
     const hills: Hill[] = [
-        { id: 'h1', name: 'PEAK_ALPHA_283', x: 25, y: 35, peak: 283, radius: 190, speedMult: 1.0 },
-        { id: 'h2', name: 'PEAK_BRAVO_291', x: 72, y: 30, peak: 291, radius: 240, speedMult: 0.8 },
-        { id: 'h3', name: 'ELEV_CHARLIE_200', x: 45, y: 75, peak: 200, radius: 170, speedMult: 1.2 },
-        { id: 'h4', name: 'SEC_DELTA_250', x: 80, y: 80, peak: 250, radius: 200, speedMult: 0.9 },
+        // Primary prominent peaks
+        { id: 'h1', name: 'PEAK_ALPHA_283', x: 25, y: 35, peak: 283, radius: 190, speedMult: 1.0, opacityMult: 1.0 },
+        { id: 'h2', name: 'PEAK_BRAVO_291', x: 72, y: 30, peak: 291, radius: 240, speedMult: 0.8, opacityMult: 1.0 },
+        { id: 'h3', name: 'ELEV_CHARLIE_200', x: 45, y: 75, peak: 200, radius: 170, speedMult: 1.2, opacityMult: 1.0 },
+        { id: 'h4', name: 'SEC_DELTA_250', x: 80, y: 80, peak: 250, radius: 200, speedMult: 0.9, opacityMult: 1.0 },
+        // Secondary minor/faint contour fills (Hybrid approach)
+        { id: 'm1', name: 'RIDGE_I', x: 8, y: 65, peak: 140, radius: 155, speedMult: 1.1, opacityMult: 0.22 },
+        { id: 'm2', name: 'PLATEAU_II', x: 50, y: 15, peak: 180, radius: 165, speedMult: 0.7, opacityMult: 0.22 },
+        { id: 'm3', name: 'RIDGE_III', x: 95, y: 52, peak: 160, radius: 185, speedMult: 1.3, opacityMult: 0.22 },
+        { id: 'm4', name: 'VALLEY_IV', x: 12, y: 95, peak: 120, radius: 145, speedMult: 1.0, opacityMult: 0.22 },
     ];
 
     // Scrolling patrol routes
@@ -301,17 +308,18 @@ export default function TacticalBattleMap() {
                 ctx.lineWidth = 1.0;
 
                 // Render 10 contour elevation levels
+                const alphaMult = hill.opacityMult ?? 1.0;
                 for (let l = 1; l <= 11; l++) {
                     const R_base = hill.radius * (l / 11);
                     
                     // Style rings differently from outer to inner peaks
                     if (l === 11) {
-                        ctx.strokeStyle = 'rgba(212, 175, 55, 0.65)'; // Peak center marker
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${0.65 * alphaMult})`; // Peak center marker
                     } else if (l % 3 === 0) {
-                        ctx.strokeStyle = 'rgba(80, 220, 100, 0.65)'; // Highlight contour line
+                        ctx.strokeStyle = `rgba(80, 220, 100, ${0.65 * alphaMult})`; // Highlight contour line
                         ctx.lineWidth = 1.5;
                     } else {
-                        ctx.strokeStyle = 'rgba(80, 220, 100, 0.3)'; // Normal contour line
+                        ctx.strokeStyle = `rgba(80, 220, 100, ${0.3 * alphaMult})`; // Normal contour line
                         ctx.lineWidth = 1.0;
                     }
 
@@ -333,7 +341,7 @@ export default function TacticalBattleMap() {
                     ctx.stroke();
 
                     // Render elevation text labels along contour lines
-                    if (l % 3 === 0 && l < 11) {
+                    if (l % 3 === 0 && l < 11 && alphaMult > 0.4) {
                         const labelAngle = Math.PI * 0.25 + (l * 0.04);
                         const labelWobble = 1 + 
                             0.065 * Math.sin(3 * labelAngle + phase3) + 
@@ -361,10 +369,12 @@ export default function TacticalBattleMap() {
                 }
 
                 // Peak coordinates marker text label
-                ctx.fillStyle = 'rgba(80, 200, 120, 0.45)';
-                ctx.font = '7px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(`▲ ${hill.name}`, cx, cy - 6);
+                if (alphaMult > 0.4) {
+                    ctx.fillStyle = 'rgba(80, 200, 120, 0.45)';
+                    ctx.font = '7px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`▲ ${hill.name}`, cx, cy - 6);
+                }
 
                 ctx.restore();
             });
