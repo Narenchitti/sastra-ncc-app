@@ -1,9 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi.staticfiles import StaticFiles
+import os
+
 from .api.endpoints import router as api_router
 
 app = FastAPI(title="SASTRA NCC App API", version="1.0.0")
+
+# Mount static files folder
+os.makedirs("static", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(api_router, prefix="/api")
 

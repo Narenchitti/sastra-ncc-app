@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from typing import List, Dict, Any
 
 from ..services import database, news
@@ -359,3 +359,16 @@ async def update_unit_config(data: Dict[str, Any], current_user: dict = Depends(
         raise HTTPException(status_code=400, detail="permissionManagerId is required")
     await database.set_permission_manager(manager_id, current_user.get("sub"))
     return {"success": True}
+
+
+# ── File Upload ────────────────────────────────────────────────────────────
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    import os
+    import shutil
+    os.makedirs("static/uploads", exist_ok=True)
+    file_path = f"static/uploads/{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return {"url": f"http://127.0.0.1:8000/static/uploads/{file.filename}"}

@@ -12,7 +12,7 @@ export default function ANODashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[], users: User[], attendance: Attendance[], permissionManagerId?: string | null, fetchError?: string }>({ events: [], permissions: [], achievements: [], users: [], attendance: [] });
   const [selectedManagerId, setSelectedManagerId] = useState('');
-  const [actionComment, setActionComment] = useState('');
+  const [actionComments, setActionComments] = useState<Record<string, string>>({});
 
   // Event Creation / Editing State
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -409,7 +409,7 @@ export default function ANODashboard() {
               <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-ncc-navy"></div>
                 <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Strength</h3>
-                <div className="text-4xl font-heading font-bold text-gray-800 mt-3">52</div>
+                <div className="text-4xl font-heading font-bold text-gray-800 mt-3">{data.users.filter(u => u.role === 'CADET').length}</div>
                 <div className="text-[10px] text-gray-400 font-semibold mt-1">Active Cadets</div>
               </div>
 
@@ -579,23 +579,24 @@ export default function ANODashboard() {
                           <div>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Remarks</label>
                             <textarea 
-                              onChange={(e) => setActionComment(e.target.value)} 
+                              value={actionComments[p.id] || ''}
+                              onChange={(e) => setActionComments(prev => ({ ...prev, [p.id]: e.target.value }))} 
                               className="military-input h-24 py-2 resize-none" 
                               placeholder="Enter remarks..."
                             ></textarea>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComment); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
                               <button className="w-full bg-green-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-green-700 shadow shadow-green-600/10 transition-colors">
                                 Approve
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComment); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
                               <button className="w-full bg-red-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-red-700 shadow shadow-red-600/10 transition-colors">
                                 Decline
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'MEET_ANO'); fd.append('comment', actionComment || 'Please report to ANO office.'); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }} className="col-span-2">
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'MEET_ANO'); fd.append('comment', actionComments[p.id] || 'Please report to ANO office.'); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }} className="col-span-2">
                               <button className="w-full bg-amber-500 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-amber-600 shadow shadow-amber-500/10 transition-colors flex items-center justify-center gap-1.5">
                                 <i className="fas fa-user-clock text-xs"></i> Call for Meeting
                               </button>
@@ -643,14 +644,19 @@ export default function ANODashboard() {
                       </div>
                       {isANO && (
                         <div className="flex items-center gap-3 self-center w-full md:w-auto">
-                          <textarea onChange={(e) => setActionComment(e.target.value)} className="military-input h-14 w-40 text-xs py-2" placeholder="Override remark..."></textarea>
+                          <textarea 
+                            value={actionComments[p.id] || ''}
+                            onChange={(e) => setActionComments(prev => ({ ...prev, [p.id]: e.target.value }))} 
+                            className="military-input h-14 w-40 text-xs py-2" 
+                            placeholder="Override remark..."
+                          ></textarea>
                           <div className="flex flex-col gap-1 w-24">
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComment); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
                               <button className="bg-green-600 text-white px-3 py-2 rounded-lg font-heading font-bold text-[10px] uppercase tracking-wider hover:bg-green-700 w-full transition-colors">
                                 Approve
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComment); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
                               <button className="bg-red-600 text-white px-3 py-2 rounded-lg font-heading font-bold text-[10px] uppercase tracking-wider hover:bg-red-700 w-full transition-colors">
                                 Decline
                               </button>
@@ -721,18 +727,19 @@ export default function ANODashboard() {
                           <div>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Remarks</label>
                             <textarea 
-                              onChange={(e) => setActionComment(e.target.value)} 
+                              value={actionComments[a.id] || ''}
+                              onChange={(e) => setActionComments(prev => ({ ...prev, [a.id]: e.target.value }))} 
                               className="military-input h-24 py-2 resize-none" 
                               placeholder="Rejection Reason..."
                             ></textarea>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
-                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'VERIFIED'); fd.append('comment', actionComment); await verifyAchievement(fd); refreshData(); }}>
+                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'VERIFIED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); refreshData(); }}>
                               <button className="w-full bg-green-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-green-700 shadow shadow-green-600/10 transition-colors">
                                 Verify
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'REJECTED'); fd.append('comment', actionComment); await verifyAchievement(fd); refreshData(); }}>
+                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'REJECTED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); refreshData(); }}>
                               <button className="w-full bg-red-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-red-700 shadow shadow-red-600/10 transition-colors">
                                 Reject
                               </button>

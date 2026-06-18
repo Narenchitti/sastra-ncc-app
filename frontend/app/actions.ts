@@ -24,14 +24,44 @@ export async function getPublicEvents() {
     }
 }
 
-// --- HELPER: FILE UPLOAD (Mocked/Placeholder for now as Storage needs backend handling) ---
-// In a real 2026 standard, file uploads would go through a backend endpoint with signed URLs
+// --- HELPER: FILE UPLOAD ---
 async function saveFile(file: File, folder: string): Promise<string | undefined> {
-    // For now, keeping it as is but it should eventually be moved to backend
-    // Since we removed supabase from frontend, this will need a backend endpoint
-    // For the initial shift, we'll mark this as a TODO or implement a simple backend upload
-    console.warn("File upload needs backend implementation for full decoupling");
-    return undefined;
+    if (!file || file.size === 0) return undefined;
+    
+    let token: string | null = null;
+    try {
+        const { cookies } = await import('next/headers');
+        const cookieStore = cookies();
+        token = cookieStore.get('access_token')?.value || null;
+    } catch (e) {
+        console.error("Token retrieval failed in saveFile", e);
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const headers: Record<string, string> = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    
+    try {
+        const res = await fetch(`${API_URL}/upload`, {
+            method: 'POST',
+            body: formData,
+            headers,
+        });
+        if (!res.ok) {
+            throw new Error(`Upload failed with status: ${res.status}`);
+        }
+        const data = await res.json();
+        return data.url;
+    } catch (error) {
+        console.error("File upload error:", error);
+        return undefined;
+    }
 }
 
 // --- AUTH ---
@@ -128,12 +158,9 @@ export async function submitPermission(formData: FormData) {
     const evidenceFile = formData.get('evidence') as File | null;
 
     let evidenceUrl = undefined;
-    // TODO: Implement backend file upload
-    /*
     if (evidenceFile && evidenceFile.size > 0) {
         evidenceUrl = await saveFile(evidenceFile, 'uploads');
     }
-    */
 
     const data = await getDashboardData();
     // Always start as PENDING_REVIEW so both ANO and Manager (SUO/CUO) see it immediately
@@ -169,7 +196,9 @@ export async function submitAchievement(formData: FormData) {
     const certFile = formData.get('certificate') as File | null;
 
     let certificateUrl = undefined;
-    // TODO: Implement backend file upload
+    if (certFile && certFile.size > 0) {
+        certificateUrl = await saveFile(certFile, 'uploads');
+    }
 
     let finalCertUrl = certificateUrl;
     let currentStatus: any = 'DRAFT';
@@ -178,7 +207,7 @@ export async function submitAchievement(formData: FormData) {
         const achs = await apiClient.get('/achievements');
         const existing = achs.find((a: any) => a.id === id);
         if (existing) {
-            if (!finalCertUrl) finalCertUrl = existing.certificate_url;
+            if (!finalCertUrl) finalCertUrl = existing.certificateUrl;
             currentStatus = 'DRAFT';
         }
     }
@@ -224,8 +253,8 @@ export async function verifyAchievement(formData: FormData) {
     if (!ach) return { success: false, message: 'Not found' };
 
     ach.status = status;
-    ach.is_verified = (status === 'VERIFIED');
-    ach.ano_comment = comment;
+    ach.isVerified = (status === 'VERIFIED');
+    ach.anoComment = comment;
 
     await apiClient.post('/achievements', ach);
     revalidatePath('/dashboard');
@@ -267,8 +296,8 @@ export async function updatePermissionStatus(formData: FormData) {
 
     const p = perms[index];
     p.status = status;
-    if (role === 'SUO') p.suo_comment = comment;
-    if (role === 'ANO') p.ano_comment = comment;
+    if (role === 'SUO') p.suoComment = comment;
+    if (role === 'ANO') p.anoComment = comment;
 
     await apiClient.post('/permissions', p);
     revalidatePath('/dashboard');

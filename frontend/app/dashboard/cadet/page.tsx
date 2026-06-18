@@ -425,6 +425,20 @@ export default function CadetDashboard() {
     return Math.round(recs.filter(r => r.status === 'Present' || r.status === 'Late').length / recs.length * 100);
   };
 
+  const now = currentTime || new Date();
+  const futureEvents = (data.events || []).filter(ev => {
+    const eventTimeStr = ev.startTime ? `${ev.date}T${ev.startTime}` : `${ev.date}T00:00:00`;
+    const endTimeStr = ev.endTime ? `${ev.date}T${ev.endTime}` : `${ev.date}T23:59:59`;
+    const eventEndTime = new Date(endTimeStr);
+    return eventEndTime.getTime() >= now.getTime();
+  });
+  futureEvents.sort((a, b) => {
+    const timeA = new Date(a.startTime ? `${a.date}T${a.startTime}` : `${a.date}T00:00:00`).getTime();
+    const timeB = new Date(b.startTime ? `${b.date}T${b.startTime}` : `${b.date}T00:00:00`).getTime();
+    return timeA - timeB;
+  });
+  const upcomingEvent = futureEvents[0] || null;
+
   return (
     <div className="min-h-screen bg-slate-50 flex font-body">
       
@@ -553,12 +567,17 @@ export default function CadetDashboard() {
               
               <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-ncc-navy"></div>
-                <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Contingent Attendance</h3>
+                <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Personal Attendance</h3>
                 <div className="flex items-baseline gap-2 mt-3">
-                  <span className="text-4xl font-heading font-bold text-gray-800">85%</span>
+                  <span className="text-4xl font-heading font-bold text-gray-800">
+                    {attPct(attMyRecords) !== null ? `${attPct(attMyRecords)}%` : '100%'}
+                  </span>
                 </div>
                 <div className="w-full bg-gray-100 h-1.5 mt-5 rounded-full overflow-hidden">
-                  <div className="bg-ncc-navy w-[85%] h-full rounded-full"></div>
+                  <div 
+                    className="bg-ncc-navy h-full rounded-full transition-all duration-500"
+                    style={{ width: `${attPct(attMyRecords) !== null ? attPct(attMyRecords) : 100}%` }}
+                  ></div>
                 </div>
               </div>
 
@@ -596,26 +615,52 @@ export default function CadetDashboard() {
             )}
 
             {/* Upcoming Event Hero card */}
-            <div className="bg-white border border-gray-200/70 text-gray-800 p-8 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden group hover:border-ncc-red/30 transition-all duration-300">
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-red"></div>
-              <div className="z-10">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-red-100 text-ncc-red px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Upcoming</span>
-                  <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Mandatory Attendance</span>
+            {upcomingEvent ? (
+              <div className="bg-white border border-gray-200/70 text-gray-800 p-8 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden group hover:border-ncc-red/30 transition-all duration-300">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-ncc-red"></div>
+                <div className="z-10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-red-100 text-ncc-red px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Upcoming</span>
+                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Mandatory Attendance</span>
+                  </div>
+                  <h2 className="text-3xl font-heading font-bold text-ncc-navy leading-none">{upcomingEvent.title}</h2>
+                  <div className="flex gap-5 mt-4 text-xs font-semibold text-gray-500">
+                    <span className="flex items-center gap-1.5">
+                      <i className="far fa-calendar text-ncc-red"></i> 
+                      {new Date(upcomingEvent.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <i className="far fa-clock text-ncc-red"></i> 
+                      {upcomingEvent.startTime}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <i className="fas fa-map-marker-alt text-ncc-red"></i> 
+                      {upcomingEvent.location}
+                    </span>
+                  </div>
                 </div>
-                <h2 className="text-3xl font-heading font-bold text-ncc-navy leading-none">Morning Drill Parade</h2>
-                <div className="flex gap-5 mt-4 text-xs font-semibold text-gray-500">
-                  <span className="flex items-center gap-1.5"><i className="far fa-calendar text-ncc-red"></i> 02 Feb 2026</span>
-                  <span className="flex items-center gap-1.5"><i className="far fa-clock text-ncc-red"></i> 06:00 AM</span>
-                  <span className="flex items-center gap-1.5"><i className="fas fa-map-marker-alt text-ncc-red"></i> Main Ground</span>
+                <div className="flex gap-3 z-10">
+                  <button onClick={() => setActiveTab('schedule')} className="px-6 py-3 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-gray-700 font-heading font-bold rounded-xl transition-all text-xs uppercase tracking-wider">
+                    Schedule
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-3 z-10">
-                <button onClick={() => setActiveTab('schedule')} className="px-6 py-3 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-gray-700 font-heading font-bold rounded-xl transition-all text-xs uppercase tracking-wider">
-                  Schedule
-                </button>
+            ) : (
+              <div className="bg-white border border-gray-200/70 text-gray-800 p-8 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden group transition-all duration-300">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gray-300"></div>
+                <div className="z-10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">No Upcoming Events</span>
+                  </div>
+                  <h2 className="text-2xl font-heading font-bold text-gray-400 leading-none">No training events scheduled currently</h2>
+                </div>
+                <div className="flex gap-3 z-10">
+                  <button onClick={() => setActiveTab('schedule')} className="px-6 py-3 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-gray-700 font-heading font-bold rounded-xl transition-all text-xs uppercase tracking-wider">
+                    View Schedule
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* News Feed Widget */}
