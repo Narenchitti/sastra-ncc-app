@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation';
 import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
+import TacticalBattleMap from '@/components/TacticalBattleMap';
+import TargetCursor from '@/components/TargetCursor';
+
+function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
+  try {
+    const ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if (type === 'confirm') { osc.type = 'sine'; osc.frequency.setValueAtTime(660, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); gain.gain.setValueAtTime(0.035, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2); osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, ctx.currentTime); gain.gain.setValueAtTime(0.035, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18); osc.start(); osc.stop(ctx.currentTime + 0.18);
+    } else { osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime); gain.gain.setValueAtTime(0.025, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1); osc.start(); osc.stop(ctx.currentTime + 0.1); }
+  } catch (_) {}
+}
 
 export default function ANODashboard() {
   const router = useRouter();
@@ -164,12 +177,12 @@ export default function ANODashboard() {
     }).sort((a, b) => a.startTime.localeCompare(b.startTime));
 
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden">
+      <div className="tac-card overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-slate-50/50">
+        <div className="p-5 border-b border-ncc-olive/15 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h3 className="font-heading text-lg font-bold text-gray-800">Weekly Schedule</h3>
-            <p className="text-ncc-red font-bold uppercase text-[10px] tracking-widest mt-0.5">{rangeLabel}</p>
+            <h3 className="font-heading text-lg font-bold text-white uppercase tracking-wider">Weekly Schedule</h3>
+            <p className="text-ncc-gold font-bold uppercase text-[10px] tracking-widest mt-0.5 font-mono">{rangeLabel}</p>
           </div>
           {/* Week Navigation */}
           <div className="flex items-center gap-1.5 self-start sm:self-auto">
@@ -181,7 +194,7 @@ export default function ANODashboard() {
                   return d;
                 });
               }}
-              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-slate-50 transition-colors text-gray-500"
+              className="w-7 h-7 rounded-md border border-ncc-olive/25 flex items-center justify-center hover:border-ncc-gold/40 transition-colors text-ncc-olive/70 hover:text-ncc-gold"
               title="Previous Week"
             >
               <i className="fas fa-chevron-left text-[10px]"></i>
@@ -195,9 +208,9 @@ export default function ANODashboard() {
                 monday.setHours(0, 0, 0, 0);
                 setCurrentWeekStart(monday);
               }}
-              className="px-2.5 h-7 rounded-lg border border-gray-200 text-[10px] font-semibold hover:bg-slate-50 transition-colors text-gray-600"
+              className="px-2.5 h-7 rounded-md border border-ncc-olive/25 text-[10px] font-mono font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
             >
-              Today
+              TODAY
             </button>
             <button 
               onClick={() => {
@@ -207,7 +220,7 @@ export default function ANODashboard() {
                   return d;
                 });
               }}
-              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-slate-50 transition-colors text-gray-500"
+              className="w-7 h-7 rounded-md border border-ncc-olive/25 flex items-center justify-center hover:border-ncc-gold/40 transition-colors text-ncc-olive/70 hover:text-ncc-gold"
               title="Next Week"
             >
               <i className="fas fa-chevron-right text-[10px]"></i>
@@ -216,18 +229,18 @@ export default function ANODashboard() {
         </div>
 
         {/* Filter Pills */}
-        <div className="flex gap-1.5 p-3 bg-slate-50/20 border-b border-gray-100 overflow-x-auto">
+        <div className="flex gap-1.5 p-3 border-b border-ncc-olive/10 overflow-x-auto">
           {(['All', 'Parade', 'Theory', 'Camp', 'Event'] as const).map(f => {
             const isActive = scheduleFilter === f;
             const label = f === 'Theory' ? 'Theory' : f === 'Event' ? 'Other' : f === 'All' ? 'All' : `${f}s`;
             return (
               <button
                 key={f}
-                onClick={() => setScheduleFilter(f)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all border ${
+                onClick={() => { setScheduleFilter(f); playTacClick(); }}
+                className={`px-3 py-1 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all border ${
                   isActive 
-                    ? 'bg-ncc-navy border-ncc-navy text-white shadow-sm' 
-                    : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                    ? 'bg-ncc-gold/15 border-ncc-gold/50 text-ncc-gold' 
+                    : 'bg-transparent border-ncc-olive/20 text-ncc-olive/70 hover:border-ncc-olive/40 hover:text-gray-300'
                 }`}
               >
                 {label}
@@ -237,7 +250,7 @@ export default function ANODashboard() {
         </div>
 
         {/* 1. Mini Visual Grid (Quick Glance) */}
-        <div className="grid grid-cols-7 gap-px bg-slate-200/50 border-b border-gray-100">
+        <div className="grid grid-cols-7 gap-px bg-ncc-olive/10 border-b border-ncc-olive/10">
           {weekDates.map((dateObj, i) => {
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dateObj.toLocaleDateString('default', { weekday: 'short' });
@@ -250,11 +263,15 @@ export default function ANODashboard() {
                 key={i} 
                 onClick={() => {
                   setEventDate(dateStr);
-                  // Scroll smoothly to the form
                   const formEl = document.querySelector('form');
                   if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
+                  playTacClick();
                 }}
-                className={`min-h-[90px] bg-white p-2.5 flex flex-col gap-1.5 transition-all cursor-pointer hover:bg-slate-50/70 border-b-2 border-transparent hover:border-ncc-navy/30 ${isToday ? 'bg-blue-50/20 border-b-ncc-navy' : ''}`}
+                className={`min-h-[90px] p-2.5 flex flex-col gap-1.5 transition-all cursor-pointer border-b-2 ${
+                  isToday 
+                    ? 'bg-ncc-gold/5 border-b-ncc-gold border border-ncc-gold/20' 
+                    : 'bg-black/30 border-transparent hover:bg-white/[0.03] hover:border-b-ncc-olive/30'
+                }`}
                 title={`Click to schedule event on ${dateStr}`}
               >
                 <div className="text-center mb-1">
@@ -340,23 +357,30 @@ export default function ANODashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-body">
+    <div className="min-h-screen tacops-dark-bg flex font-body relative overflow-x-hidden">
+      {/* TacOps Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
+        <TacticalBattleMap />
+      </div>
+      <div className="hud-scanner z-30" />
+      <TargetCursor />
+
       {/* Sidebar */}
-      <aside className="w-72 bg-gradient-to-b from-ncc-navy to-[#051122] text-white fixed h-full hidden md:flex flex-col border-r border-white/5">
+      <aside className="w-64 tac-sidebar text-white fixed h-full hidden md:flex flex-col z-40">
         {/* Brand Header */}
-        <div className="p-8 border-b border-white/5 relative">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
-          <div className="flex items-center gap-3">
-            <img src="/assets/images/ncc_logo.png" alt="NCC" className="h-10 animate-float" />
+        <div className="p-6 border-b border-ncc-olive/20 relative">
+          <div className="tricolor-bar absolute top-0 left-0 right-0"></div>
+          <div className="flex items-center gap-3 mt-1">
+            <img src="/assets/images/ncc_logo.png" alt="NCC" className="h-9 animate-float" />
             <div>
-              <h2 className="font-heading text-2xl font-bold tracking-tight leading-none">SASTRA NCC</h2>
-              <p className="text-[10px] text-ncc-sky font-bold tracking-[0.2em] uppercase mt-1">Command Center</p>
+              <h2 className="font-heading text-xl font-bold tracking-widest leading-none text-white uppercase">SASTRA NCC</h2>
+              <p className="text-[8px] text-ncc-gold font-mono tracking-[0.25em] uppercase mt-1">Command Center</p>
             </div>
           </div>
         </div>
 
         {/* Navigation Links */}
-        <nav className="p-4 space-y-1.5 flex-grow">
+        <nav className="p-3 space-y-1 flex-grow">
           {[
             { id: 'overview', label: 'Overview', icon: 'th-large' },
             { id: 'approvals', label: 'Approvals', icon: 'check-double', badge: allActionRequired.length },
@@ -368,18 +392,18 @@ export default function ANODashboard() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full text-left px-5 py-3 rounded-xl transition-all flex items-center gap-3.5 font-semibold text-sm relative ${
+                onClick={() => { setActiveTab(item.id); playTacClick(); }}
+                className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-mono text-xs uppercase tracking-widest relative ${
                   isActive 
-                    ? 'bg-ncc-red text-white shadow-lg shadow-ncc-red/15' 
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    ? 'tac-nav-active' 
+                    : 'text-ncc-olive/60 hover:bg-ncc-olive/8 hover:text-gray-300 border border-transparent'
                 }`}
               >
-                {isActive && <div className="absolute left-0 top-3 bottom-3 w-1 bg-white rounded-r-md"></div>}
-                <i className={`fas fa-${item.icon} w-5 text-center text-sm ${isActive ? 'text-white' : 'text-gray-500'}`}></i>
+                {isActive && <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-ncc-gold rounded-r-sm"></div>}
+                <i className={`fas fa-${item.icon} w-4 text-center text-xs ${isActive ? 'text-ncc-gold' : 'text-ncc-olive/60'}`}></i>
                 <span>{item.label}</span>
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="text-[10px] bg-ncc-red border border-white/20 px-2 py-0.5 rounded-full ml-auto font-bold">
+                  <span className="text-[9px] bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-1.5 py-0.5 rounded-sm ml-auto font-bold font-mono animate-pulse">
                     {item.badge}
                   </span>
                 )}
@@ -389,20 +413,20 @@ export default function ANODashboard() {
         </nav>
 
         {/* User Profile Footer */}
-        <div className="p-6 bg-black/20 border-t border-white/5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-ncc-gold/15 text-ncc-gold flex items-center justify-center font-bold text-lg border border-ncc-gold/20 shadow-inner">
+        <div className="p-4 border-t border-ncc-olive/15">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-sm bg-ncc-red/15 text-ncc-red flex items-center justify-center font-bold text-base border border-ncc-red/25">
               {user.name.charAt(0)}
             </div>
             <div className="overflow-hidden">
-              <div className="text-white font-bold text-sm leading-tight truncate">{user.name}</div>
-              <div className="text-ncc-sky text-[9px] font-bold uppercase tracking-wider mt-0.5">{user.rank || 'Officer'}</div>
-              <div className="text-gray-500 text-[9px] mt-0.5">{user.role === 'ANO' ? 'Associate NCC Officer' : 'Command Staff'}</div>
+              <div className="text-white font-bold text-xs leading-tight truncate">{user.name}</div>
+              <div className="text-ncc-gold text-[8px] font-mono font-bold uppercase tracking-wider mt-0.5">{user.rank || 'Officer'}</div>
+              <div className="text-ncc-olive/50 text-[8px] font-mono mt-0.5">{user.role === 'ANO' ? 'Associate NCC Officer' : 'Command Staff'}</div>
             </div>
           </div>
           <button
-            onClick={() => { localStorage.removeItem('user'); localStorage.removeItem('access_token'); router.push('/'); }}
-            className="w-full py-2 rounded-lg border border-white/10 text-xs hover:bg-white/5 hover:text-white text-gray-400 font-semibold transition-all flex items-center justify-center gap-2"
+            onClick={() => { playTacClick(); localStorage.removeItem('user'); localStorage.removeItem('access_token'); router.push('/'); }}
+            className="w-full py-2 rounded-sm border border-ncc-olive/20 text-[10px] font-mono hover:bg-ncc-red/10 hover:border-ncc-red/30 hover:text-ncc-red text-ncc-olive/50 font-semibold transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             <i className="fas fa-sign-out-alt"></i>
             <span>Sign Out</span>
@@ -411,30 +435,24 @@ export default function ANODashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="md:ml-72 w-full p-8 md:p-12 overflow-x-hidden min-h-screen flex flex-col">
+      <main className="md:ml-64 w-full p-6 md:p-10 overflow-x-hidden min-h-screen flex flex-col relative z-10">
         {data.fetchError && (
-          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl mb-6 text-sm flex items-center gap-3">
-            <i className="fas fa-exclamation-circle text-red-600"></i>
+          <div className="bg-ncc-red/10 border border-ncc-red/30 text-red-400 p-4 rounded-md mb-6 text-xs flex items-center gap-3 font-mono">
+            <i className="fas fa-exclamation-circle text-ncc-red"></i>
             <span><strong>Error loading data:</strong> {data.fetchError}</span>
           </div>
         )}
 
         {/* Sticky Top Header */}
-        <header className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200/60">
+        <header className="flex justify-between items-center mb-8 pb-5 border-b border-ncc-olive/20">
           <div>
-            <h1 className="text-3xl font-heading font-bold text-ncc-navy uppercase tracking-wider">
+            <div className="text-[9px] font-mono text-ncc-olive/50 uppercase tracking-widest mb-1">// ano.command.console</div>
+            <h1 className="text-2xl font-heading font-bold text-white uppercase tracking-widest">
               {activeTab === 'command' ? 'Command Center' : activeTab}
             </h1>
-            <p className="text-gray-400 text-xs mt-1">
-              {activeTab === 'overview' && "Contingent strength, key activity logs, and quick metrics"}
-              {activeTab === 'approvals' && "Review and manage cadet leave permissions"}
-              {activeTab === 'achievements' && "Verify achievements and view the central registry"}
-              {activeTab === 'schedule' && "Manage weekly training routines and schedules"}
-              {activeTab === 'command' && "Ask natural language questions to query database registers"}
-            </p>
           </div>
           <div className="flex gap-2">
-            <span className="bg-gradient-to-r from-ncc-red to-red-700 text-white px-4 py-1.5 rounded-full font-bold text-[10px] uppercase tracking-wider shadow-md flex items-center gap-1.5">
+            <span className="hud-badge hud-badge-rejected flex items-center gap-1.5 py-1 px-3">
               <i className="fas fa-crown"></i> {isANO ? 'Commanding Officer' : user.rank}
             </span>
           </div>
@@ -442,63 +460,59 @@ export default function ANODashboard() {
 
         {/* --- OVERVIEW TAB --- */}
         {activeTab === 'overview' && (
-          <div className="space-y-8 animate-fade-in flex-grow">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="space-y-6 animate-fade-in flex-grow">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-ncc-navy"></div>
-                <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Strength</h3>
-                <div className="text-4xl font-heading font-bold text-gray-800 mt-3">{data.users.filter(u => u.role === 'CADET').length}</div>
-                <div className="text-[10px] text-gray-400 font-semibold mt-1">Active Cadets</div>
+              <div className="tac-card-sky p-5 relative overflow-hidden">
+                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Total Strength</div>
+                <div className="text-4xl font-heading font-bold text-ncc-sky mt-2">{data.users.filter(u => u.role === 'CADET').length}</div>
+                <div className="text-[9px] text-ncc-olive/50 font-mono mt-1 uppercase">Active Cadets</div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-yellow-500"></div>
-                <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Action Required</h3>
-                <div className="text-4xl font-heading font-bold text-yellow-600 mt-3">{allActionRequired.length}</div>
-                <div className="text-[10px] text-gray-400 font-semibold mt-1">{pendingReview.length} new · {pendingApprovals.length} forwarded</div>
+              <div className="tac-card-gold p-5 relative overflow-hidden">
+                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Action Required</div>
+                <div className="text-4xl font-heading font-bold text-ncc-gold mt-2">{allActionRequired.length}</div>
+                <div className="text-[9px] text-ncc-olive/50 font-mono mt-1 uppercase">{pendingReview.length} new · {pendingApprovals.length} forwarded</div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-red-500"></div>
-                <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">SUO Rejections</h3>
-                <div className="text-4xl font-heading font-bold text-red-600 mt-3">{suoRejections.length}</div>
-                <div className="text-[10px] text-gray-400 font-semibold mt-1">Review Needed</div>
+              <div className="tac-card-red p-5 relative overflow-hidden">
+                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">SUO Rejections</div>
+                <div className="text-4xl font-heading font-bold text-ncc-red mt-2">{suoRejections.length}</div>
+                <div className="text-[9px] text-ncc-olive/50 font-mono mt-1 uppercase">Review Needed</div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-green-600"></div>
-                <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Next Event</h3>
-                <div className="text-lg font-heading font-bold text-gray-800 mt-3 truncate">{nextEvent ? nextEvent.title : 'None'}</div>
-                <div className="text-[10px] text-green-600 font-bold mt-1">{nextEvent ? nextEvent.date : '-'}</div>
+              <div className="tac-card p-5 relative overflow-hidden">
+                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Next Event</div>
+                <div className="text-base font-heading font-bold text-white mt-2 truncate">{nextEvent ? nextEvent.title : 'None'}</div>
+                <div className="text-[9px] text-emerald-400 font-mono font-bold mt-1 uppercase">{nextEvent ? nextEvent.date : '—'}</div>
               </div>
 
             </div>
 
             {/* Quick Actions / Recent Activity */}
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-6">
               {/* Army News Feed */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-hidden">
+              <div className="tac-card p-5 overflow-hidden">
                 <ArmyNewsFeed />
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 className="font-heading text-lg font-bold text-ncc-navy mb-4 uppercase">Recent Permission Activity</h3>
+              <div className="tac-card p-5">
+                <h3 className="font-heading text-sm font-bold text-ncc-gold mb-4 uppercase tracking-widest border-b border-ncc-gold/15 pb-3">Recent Permission Activity</h3>
                 <div className="space-y-1">
                   {data.permissions.filter(p => ['PENDING_REVIEW','FORWARDED_TO_ANO', 'REJECTED_BY_SUO'].includes(p.status)).slice(0, 5).map(p => (
-                    <div key={p.id} className="border-b border-gray-100 last:border-0 py-3.5 flex justify-between items-center gap-4">
+                    <div key={p.id} className="border-b border-ncc-olive/10 last:border-0 py-3 flex justify-between items-center gap-4">
                       <div>
-                        <div className="font-bold text-sm text-gray-800">{p.cadetName}</div>
-                        <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">{p.reason}</div>
+                        <div className="font-bold text-xs text-gray-200">{p.cadetName}</div>
+                        <div className="text-[10px] text-ncc-olive/50 mt-0.5 line-clamp-1 font-mono">{p.reason}</div>
                       </div>
-                      <span className={`badge-status flex-shrink-0 ${
-                        p.status === 'PENDING_REVIEW' ? 'badge-pending' :
-                        p.status === 'FORWARDED_TO_ANO' ? 'badge-forwarded' : 'badge-rejected'}`}>
+                      <span className={`hud-badge flex-shrink-0 ${
+                        p.status === 'PENDING_REVIEW' ? 'hud-badge-pending' :
+                        p.status === 'FORWARDED_TO_ANO' ? 'hud-badge-forwarded' : 'hud-badge-rejected'}`}>
                         {p.status === 'PENDING_REVIEW' ? 'New' : p.status === 'FORWARDED_TO_ANO' ? 'Forwarded' : 'Rejected'}
                       </span>
                     </div>
                   ))}
-                  {data.permissions.length === 0 && <p className="text-xs text-gray-400 italic text-center py-6">No recent activity.</p>}
+                  {data.permissions.length === 0 && <p className="text-[10px] text-ncc-olive/40 italic text-center py-6 font-mono">No recent activity.</p>}
                 </div>
               </div>
             </div>
@@ -511,25 +525,23 @@ export default function ANODashboard() {
             
             {/* Manager Designation Panel */}
             {isANO && (
-              <div className="bg-white border border-gray-200/60 rounded-2xl shadow-sm p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden group">
-                <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-ncc-navy"></div>
+              <div className="tac-card-sky p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
                 <div>
-                  <h3 className="font-heading font-bold text-ncc-navy text-lg flex items-center gap-2">
+                  <h3 className="font-mono font-bold text-ncc-sky text-sm flex items-center gap-2 uppercase tracking-widest">
                     <i className="fas fa-user-shield text-ncc-red animate-pulse"></i> Permission Manager
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">
+                  <p className="text-[10px] text-gray-400 mt-1 max-w-md leading-relaxed font-mono">
                     Designate a cadet to review and filter incoming permission requests before they reach you.
-                    Usually the SUO/CUO, but can be any entrusted cadet.
                   </p>
                 </div>
                 <form action={async (formData) => {
                   const res = await updatePermissionManager(formData);
-                  if (res.success) { alert('Permission Manager Assigned!'); refreshData(); }
+                  if (res.success) { alert('Permission Manager Assigned!'); refreshData(); playTacClick('confirm'); }
                   else alert(res.message);
                 }} className="flex items-center gap-3 w-full md:w-auto z-10">
                   <select 
                     name="managerId" 
-                    className="military-input md:w-64" 
+                    className="hud-input md:w-64" 
                     value={selectedManagerId || ''} 
                     onChange={(e) => setSelectedManagerId(e.target.value)}
                     required
@@ -542,10 +554,10 @@ export default function ANODashboard() {
                   <button 
                     type="submit" 
                     disabled={selectedManagerId === data.permissionManagerId && !!selectedManagerId}
-                    className={`px-6 py-3.5 rounded-xl font-heading font-bold text-xs uppercase tracking-wider text-white transition-all shadow-md ${
+                    className={`px-5 py-2.5 rounded-sm font-mono font-bold text-[10px] uppercase tracking-widest text-white transition-all border ${
                       selectedManagerId === data.permissionManagerId && !!selectedManagerId
-                        ? 'bg-emerald-600 shadow-emerald-600/10 cursor-default'
-                        : 'bg-ncc-navy hover:bg-ncc-navy/90 shadow-ncc-navy/10'
+                        ? 'bg-emerald-600/80 border-emerald-500/40 cursor-default'
+                        : 'bg-ncc-sky/15 border-ncc-sky/40 hover:bg-ncc-sky/25 text-ncc-sky'
                     }`}
                   >
                     {selectedManagerId === data.permissionManagerId && !!selectedManagerId ? 'Assigned ✓' : 'Assign'}
@@ -554,50 +566,46 @@ export default function ANODashboard() {
               </div>
             )}
 
-            <div className="bg-amber-50/50 border border-amber-200/60 rounded-2xl p-5 text-xs text-amber-800 flex items-center gap-3.5 shadow-sm">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 flex-shrink-0">
-                <i className="fas fa-crown text-sm"></i>
+            <div className="bg-ncc-gold/8 border border-ncc-gold/25 rounded-md p-4 text-[10px] text-ncc-gold/80 flex items-center gap-3 font-mono">
+              <div className="w-7 h-7 rounded-sm bg-ncc-gold/10 flex items-center justify-center text-ncc-gold flex-shrink-0 border border-ncc-gold/25">
+                <i className="fas fa-crown text-xs"></i>
               </div>
-              <span><strong>ANO Final Authority:</strong> You can Approve or Decline any request at any stage, overriding any Manager designation.</span>
+              <span><strong className="text-ncc-gold">ANO Final Authority:</strong> You can Approve or Decline any request at any stage, overriding any Manager designation.</span>
             </div>
 
             {/* Reusable action panels */}
             {([
-              { label: 'Pending Review', subtitle: '(New — not yet reviewed by Manager)', items: pendingReview, accent: 'border-blue-500', badge: 'badge-pending', badgeText: 'Pending Review' },
-              { label: 'Forwarded by Manager', subtitle: '', items: pendingApprovals, accent: 'border-yellow-500', badge: 'badge-forwarded', badgeText: 'Forwarded' },
-              { label: 'Manager Override Zone', subtitle: '(Rejected by Manager — you can still approve)', items: suoRejections, accent: 'border-red-400', badge: 'badge-rejected', badgeText: 'Rejected by Manager' },
-            ] as const).map(({ label, subtitle, items, accent, badge, badgeText }) =>
+              { label: 'Pending Review', subtitle: '(New — not yet reviewed by Manager)', items: pendingReview, accent: 'tac-card-sky', badgeCls: 'hud-badge-pending', badgeText: 'Pending Review' },
+              { label: 'Forwarded by Manager', subtitle: '', items: pendingApprovals, accent: 'tac-card-gold', badgeCls: 'hud-badge-forwarded', badgeText: 'Forwarded' },
+              { label: 'Manager Override Zone', subtitle: '(Rejected by Manager — you can still approve)', items: suoRejections, accent: 'tac-card-red', badgeCls: 'hud-badge-rejected', badgeText: 'Rejected by Manager' },
+            ] as const).map(({ label, subtitle, items, accent, badgeCls, badgeText }) =>
               items.length > 0 && (
                 <div key={label} className="space-y-4">
-                  <h3 className={`font-heading text-lg font-bold border-b pb-2 flex items-center gap-2 ${
-                    label === 'Pending Review' ? 'text-blue-700 border-blue-100' :
-                    label === 'Manager Override Zone' ? 'text-red-600 border-red-100' : 'text-ncc-navy border-slate-100'
+                  <h3 className={`font-mono text-[9px] font-bold border-b pb-2 flex items-center gap-2 uppercase tracking-widest ${
+                    label === 'Pending Review' ? 'text-ncc-sky border-ncc-sky/20' :
+                    label === 'Manager Override Zone' ? 'text-ncc-red border-ncc-red/20' : 'text-ncc-gold border-ncc-gold/20'
                   }`}>
                     {label}
-                    {subtitle && <span className="text-xs font-normal text-gray-400 lowercase">{subtitle}</span>}
+                    {subtitle && <span className="text-[8px] font-normal text-ncc-olive/40 lowercase">{subtitle}</span>}
                   </h3>
                   {items.map(p => (
-                    <div key={p.id} className={`bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6 relative overflow-hidden group hover:border-gray-200 transition-all`}>
-                      <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${
-                        label === 'Pending Review' ? 'bg-blue-500' :
-                        label === 'Forwarded by Manager' ? 'bg-amber-500' : 'bg-red-500'
-                      }`}></div>
+                    <div key={p.id} className={`${accent} p-5 flex flex-col md:flex-row gap-5 relative overflow-hidden`}>
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3 flex-wrap">
-                          <span className="font-heading font-bold text-lg text-gray-800">{p.cadetName}</span>
-                          <span className={`badge-status ${badge}`}>{badgeText}</span>
+                          <span className="font-heading font-bold text-sm text-white uppercase tracking-wider">{p.cadetName}</span>
+                          <span className={`hud-badge ${badgeCls}`}>{badgeText}</span>
                           {p.evidenceUrl && (
-                            <a href={p.evidenceUrl} target="_blank" rel="noopener noreferrer" className="bg-blue-50 text-blue-600 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1.5">
-                              <i className="fas fa-paperclip text-[10px]"></i> Evidence
+                            <a href={p.evidenceUrl} target="_blank" rel="noopener noreferrer" className="hud-badge hud-badge-forwarded flex items-center gap-1.5 py-1 px-2.5 hover:border-ncc-sky/60 transition-colors">
+                              <i className="fas fa-paperclip text-[9px]"></i> Evidence
                             </a>
                           )}
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl text-gray-700 text-sm mb-4 leading-relaxed">
-                          <strong className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Reason</strong>
+                        <div className="bg-black/30 border border-ncc-olive/15 p-3.5 rounded-sm text-gray-300 text-xs mb-3 leading-relaxed font-mono">
+                          <strong className="block text-[9px] font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Reason</strong>
                           {p.reason}
                         </div>
-                        <div className="text-xs font-semibold text-gray-400 flex items-center gap-2">
-                          <i className="far fa-calendar text-ncc-red"></i> {p.startDate} to {p.endDate}
+                        <div className="text-[10px] font-mono text-ncc-olive/60 flex items-center gap-2">
+                          <i className="far fa-calendar text-ncc-red"></i> {p.startDate} → {p.endDate}
                         </div>
                         {p.suoComment && (
                           <div className="mt-4 bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs p-3.5 rounded-xl">
@@ -651,36 +659,36 @@ export default function ANODashboard() {
                       </div>
                       
                       {isANO ? (
-                        <div className="w-full md:w-64 space-y-3 flex flex-col justify-between">
+                        <div className="w-full md:w-56 space-y-2.5 flex flex-col justify-between">
                           <div>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Remarks</label>
+                            <label className="text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1 block">Remarks</label>
                             <textarea 
                               value={actionComments[p.id] || ''}
                               onChange={(e) => setActionComments(prev => ({ ...prev, [p.id]: e.target.value }))} 
-                              className="military-input h-24 py-2 resize-none" 
+                              className="hud-input h-20 py-2 resize-none" 
                               placeholder="Enter remarks..."
                             ></textarea>
                           </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
-                              <button className="w-full bg-green-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-green-700 shadow shadow-green-600/10 transition-colors">
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('confirm'); refreshData(); }}>
+                              <button className="w-full bg-emerald-600/80 border border-emerald-500/40 text-white py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-colors">
                                 Approve
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
-                              <button className="w-full bg-red-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-red-700 shadow shadow-red-600/10 transition-colors">
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('error'); refreshData(); }}>
+                              <button className="w-full bg-ncc-red/20 border border-ncc-red/40 text-ncc-red py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/30 transition-colors">
                                 Decline
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'MEET_ANO'); fd.append('comment', actionComments[p.id] || 'Please report to ANO office.'); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }} className="col-span-2">
-                              <button className="w-full bg-amber-500 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-amber-600 shadow shadow-amber-500/10 transition-colors flex items-center justify-center gap-1.5">
-                                <i className="fas fa-user-clock text-xs"></i> Call for Meeting
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'MEET_ANO'); fd.append('comment', actionComments[p.id] || 'Please report to ANO office.'); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick(); refreshData(); }} className="col-span-2">
+                              <button className="w-full bg-ncc-gold/10 border border-ncc-gold/30 text-ncc-gold py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-gold/20 transition-colors flex items-center justify-center gap-1.5">
+                                <i className="fas fa-user-clock text-[9px]"></i> Call for Meeting
                               </button>
                             </form>
                           </div>
                         </div>
                       ) : (
-                        <div className="w-full md:w-64 text-xs font-semibold text-gray-400 italic flex items-center justify-center border border-dashed border-gray-200 p-4 rounded-xl bg-slate-50 text-center">
+                        <div className="w-full md:w-56 text-[10px] font-mono text-ncc-olive/40 italic flex items-center justify-center border border-dashed border-ncc-olive/20 p-4 rounded-sm text-center">
                           ANO review required for final decision.
                         </div>
                       )}
@@ -691,65 +699,65 @@ export default function ANODashboard() {
             )}
 
             {allActionRequired.length === 0 && (
-              <div className="p-12 text-center text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200 text-sm">
-                <i className="fas fa-check-circle text-2xl mb-2 block opacity-30 text-green-600"></i>
-                All clear — no active requests pending review.
+              <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed text-xs font-mono">
+                <i className="fas fa-check-circle text-2xl mb-2 block text-emerald-500/50"></i>
+                ALL CLEAR — no active requests pending review.
               </div>
             )}
 
             {/* Closed requests — ANO can still override */}
             {closedPermissions.length > 0 && (
-              <div className="space-y-4 pt-8 border-t border-gray-200">
-                <h3 className="font-heading text-lg font-bold text-gray-500 flex items-center gap-2">
-                  Closed Requests <span className="text-xs font-normal text-gray-400">(ANO can override)</span>
+              <div className="space-y-3 pt-6 border-t border-ncc-olive/15">
+                <h3 className="font-mono text-[9px] font-bold text-ncc-olive/60 flex items-center gap-2 uppercase tracking-widest">
+                  Closed Requests <span className="text-[8px] font-normal text-ncc-olive/40 lowercase">(ANO can override)</span>
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {closedPermissions.map(p => (
-                    <div key={p.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 hover:border-gray-200 transition-all">
+                    <div key={p.id} className="tac-card p-4 flex flex-col md:flex-row gap-4 hover:border-ncc-olive/25 transition-all">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <span className="font-heading font-bold text-gray-800">{p.cadetName}</span>
-                          <span className={`badge-status ${
-                            p.status === 'APPROVED' ? 'badge-approved' :
-                            p.status === 'MEET_ANO' ? 'bg-amber-50 text-amber-800 border-amber-200' : 'badge-rejected'
+                        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                          <span className="font-heading font-bold text-sm text-gray-200 uppercase tracking-wider">{p.cadetName}</span>
+                          <span className={`hud-badge ${
+                            p.status === 'APPROVED' ? 'hud-badge-approved' :
+                            p.status === 'MEET_ANO' ? 'hud-badge-pending' : 'hud-badge-rejected'
                           }`}>{p.status.replace(/_/g, ' ')}</span>
                           {p.aiStatus && (
-                            <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 ${
-                              p.aiStatus === 'VERIFIED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                              p.aiStatus === 'FLAGGED' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                              p.aiStatus === 'ERROR' ? 'bg-red-50 text-red-700 border border-red-200' :
-                              'bg-gray-100 text-gray-600 border border-gray-205'
-                            }`}>
+                            <span className={`hud-badge ${
+                              p.aiStatus === 'VERIFIED' ? 'hud-badge-approved' :
+                              p.aiStatus === 'FLAGGED' ? 'hud-badge-pending' :
+                              p.aiStatus === 'ERROR' ? 'hud-badge-rejected' :
+                              'hud-badge-draft'
+                            } flex items-center gap-1`}>
                               <i className={`fas ${
-                                p.aiStatus === 'VERIFIED' ? 'fa-user-shield text-emerald-600' :
-                                p.aiStatus === 'FLAGGED' ? 'fa-exclamation-triangle text-amber-500' :
-                                p.aiStatus === 'ERROR' ? 'fa-bug text-red-500' :
-                                'fa-info-circle text-gray-400'
+                                p.aiStatus === 'VERIFIED' ? 'fa-user-shield' :
+                                p.aiStatus === 'FLAGGED' ? 'fa-exclamation-triangle' :
+                                p.aiStatus === 'ERROR' ? 'fa-bug' :
+                                'fa-info-circle'
                               } text-[7px]`}></i>
                               AI: {p.aiStatus.replace(/_/g, ' ')}
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-600 leading-relaxed">{p.reason}</div>
-                        <div className="text-xs text-gray-400 font-semibold mt-2"><i className="far fa-calendar text-ncc-red"></i> {p.startDate} to {p.endDate}</div>
-                        {p.anoComment && <div className="mt-2 text-xs text-gray-500 bg-slate-50 px-3.5 py-2.5 rounded-lg border border-slate-100 leading-relaxed">ANO note: {p.anoComment}</div>}
+                        <div className="text-xs text-ncc-olive/60 font-mono leading-relaxed">{p.reason}</div>
+                        <div className="text-[10px] font-mono text-ncc-olive/50 mt-1.5"><i className="far fa-calendar text-ncc-red mr-1"></i> {p.startDate} → {p.endDate}</div>
+                        {p.anoComment && <div className="mt-1.5 text-[10px] text-ncc-olive/50 bg-black/30 px-3 py-2 rounded-sm border border-ncc-olive/10 font-mono leading-relaxed">ANO note: {p.anoComment}</div>}
                       </div>
                       {isANO && (
-                        <div className="flex items-center gap-3 self-center w-full md:w-auto">
+                        <div className="flex items-center gap-2 self-center w-full md:w-auto">
                           <textarea 
                             value={actionComments[p.id] || ''}
                             onChange={(e) => setActionComments(prev => ({ ...prev, [p.id]: e.target.value }))} 
-                            className="military-input h-14 w-40 text-xs py-2" 
+                            className="hud-input h-12 w-36 text-[10px] py-2" 
                             placeholder="Override remark..."
                           ></textarea>
-                          <div className="flex flex-col gap-1 w-24">
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
-                              <button className="bg-green-600 text-white px-3 py-2 rounded-lg font-heading font-bold text-[10px] uppercase tracking-wider hover:bg-green-700 w-full transition-colors">
+                          <div className="flex flex-col gap-1 w-20">
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('confirm'); refreshData(); }}>
+                              <button className="bg-emerald-600/80 border border-emerald-500/40 text-white px-2 py-1.5 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600 w-full transition-colors">
                                 Approve
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); refreshData(); }}>
-                              <button className="bg-red-600 text-white px-3 py-2 rounded-lg font-heading font-bold text-[10px] uppercase tracking-wider hover:bg-red-700 w-full transition-colors">
+                            <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('error'); refreshData(); }}>
+                              <button className="bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-2 py-1.5 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/30 w-full transition-colors">
                                 Decline
                               </button>
                             </form>
@@ -768,9 +776,9 @@ export default function ANODashboard() {
         {activeTab === 'achievements' && (
           <div className="space-y-6 animate-fade-in flex-grow">
             <div className="space-y-4">
-              <h3 className="font-heading text-lg font-bold text-ncc-navy border-b pb-2 uppercase tracking-wide">Pending Verification Queue</h3>
+              <h3 className="font-mono text-[9px] font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 uppercase tracking-widest">Pending Verification Queue</h3>
               {pendingAchievements.length === 0 ? (
-                <div className="p-12 text-center text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200">
+                <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed font-mono text-xs">
                   <i className="fas fa-medal text-3xl mb-2 block opacity-30"></i>
                   No pending achievements to verify.
                 </div>
@@ -778,27 +786,26 @@ export default function ANODashboard() {
                 pendingAchievements.map(a => {
                   const cadet = data.users.find(u => u.id === a.cadetId);
                   return (
-                    <div key={a.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 hover:border-gray-200 transition-all relative overflow-hidden">
-                      <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-blue-500"></div>
+                    <div key={a.id} className="tac-card-sky p-5 flex flex-col md:flex-row gap-5 relative overflow-hidden">
                       <div className="flex-grow">
                         {/* Cadet Header */}
-                        <div className="flex items-center gap-3 mb-4 border-b border-dashed border-gray-100 pb-3">
-                          <div className="w-10 h-10 rounded-xl bg-ncc-navy/5 text-ncc-navy flex items-center justify-center font-heading font-bold text-lg border border-ncc-navy/10 shadow-inner">
+                        <div className="flex items-center gap-3 mb-3 border-b border-ncc-olive/10 pb-3">
+                          <div className="w-9 h-9 rounded-sm bg-ncc-sky/10 text-ncc-sky flex items-center justify-center font-heading font-bold text-base border border-ncc-sky/20">
                             {cadet?.name.charAt(0) || '?'}
                           </div>
                           <div>
-                            <div className="font-bold text-gray-800 text-sm">{cadet?.rank} {cadet?.name}</div>
-                            <div className="text-[10px] text-gray-400 font-semibold flex items-center gap-2 mt-0.5">
-                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-gray-500 border border-slate-200/50">{cadet?.regimentalNumber || 'No Regt #'}</span>
-                              <span>•</span>
+                            <div className="font-bold text-gray-200 text-sm">{cadet?.rank} {cadet?.name}</div>
+                            <div className="text-[9px] text-ncc-olive/50 font-mono flex items-center gap-2 mt-0.5">
+                              <span className="bg-black/30 px-1.5 py-0.5 rounded-sm border border-ncc-olive/15">{cadet?.regimentalNumber || 'No Regt #'}</span>
+                              <span>·</span>
                               <span>Batch {cadet?.batchYear}</span>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <span className="font-heading font-bold text-lg text-gray-800">{a.title}</span>
-                          <span className="text-[10px] font-bold bg-slate-100 border border-slate-200/50 px-2 py-0.5 rounded-md text-gray-600 uppercase tracking-wider">{a.category}</span>
+                          <span className="font-heading font-bold text-sm text-white uppercase tracking-wider">{a.title}</span>
+                          <span className="hud-badge hud-badge-draft">{a.category}</span>
                           {a.certificateUrl && (
                             <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="bg-blue-50 text-blue-600 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1.5">
                               <i className="fas fa-certificate text-[10px]"></i> View Certificate
@@ -815,31 +822,31 @@ export default function ANODashboard() {
                       </div>
                       
                       {isANO ? (
-                        <div className="w-full md:w-64 space-y-3 flex flex-col justify-between">
+                        <div className="w-full md:w-56 space-y-2.5 flex flex-col justify-between">
                           <div>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Remarks</label>
+                            <label className="text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1 block">Remarks</label>
                             <textarea 
                               value={actionComments[a.id] || ''}
                               onChange={(e) => setActionComments(prev => ({ ...prev, [a.id]: e.target.value }))} 
-                              className="military-input h-24 py-2 resize-none" 
+                              className="hud-input h-20 py-2 resize-none" 
                               placeholder="Rejection Reason..."
                             ></textarea>
                           </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'VERIFIED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); refreshData(); }}>
-                              <button className="w-full bg-green-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-green-700 shadow shadow-green-600/10 transition-colors">
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'VERIFIED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); playTacClick('confirm'); refreshData(); }}>
+                              <button className="w-full bg-emerald-600/80 border border-emerald-500/40 text-white py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-colors">
                                 Verify
                               </button>
                             </form>
-                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'REJECTED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); refreshData(); }}>
-                              <button className="w-full bg-red-600 text-white py-2.5 rounded-lg font-heading font-bold text-xs uppercase tracking-wider hover:bg-red-700 shadow shadow-red-600/10 transition-colors">
+                            <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'REJECTED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); playTacClick('error'); refreshData(); }}>
+                              <button className="w-full bg-ncc-red/20 border border-ncc-red/40 text-ncc-red py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/30 transition-colors">
                                 Reject
                               </button>
                             </form>
                           </div>
                         </div>
                       ) : (
-                        <div className="w-full md:w-64 text-xs font-semibold text-gray-400 italic flex items-center justify-center border border-dashed border-gray-200 p-4 rounded-xl bg-slate-50 text-center">
+                        <div className="w-full md:w-56 text-[10px] font-mono text-ncc-olive/40 italic flex items-center justify-center border border-dashed border-ncc-olive/20 p-4 rounded-sm text-center">
                           ANO verification required.
                         </div>
                       )}
@@ -850,27 +857,27 @@ export default function ANODashboard() {
             </div>
 
             {/* 2. Verified Database Registry */}
-            <div className="space-y-4 pt-12">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-gray-200 pb-4 mb-4 gap-4">
+            <div className="space-y-4 pt-8">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-ncc-olive/15 pb-3 mb-4 gap-4">
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-green-700 uppercase tracking-wide flex items-center gap-2">
-                    <i className="fas fa-database text-green-600"></i> Verified Achievement Registry
+                  <h3 className="font-mono text-[9px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                    <i className="fas fa-database"></i> Verified Achievement Registry
                   </h3>
-                  <p className="text-gray-400 text-xs mt-0.5">Central roster of verified achievements in the unit</p>
+                  <p className="text-[10px] text-ncc-olive/40 font-mono mt-0.5">Central roster of verified achievements in the unit</p>
                 </div>
-                <div className="relative w-full md:w-64">
+                <div className="relative w-full md:w-56">
                   <input
                     type="text"
                     placeholder="Search Cadet Name..."
-                    className="military-input pl-10 pr-4 py-2.5 text-xs rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-green-500 w-full"
+                    className="hud-input pl-8 pr-4 py-2 text-[10px] w-full"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <i className="fas fa-search absolute left-4 top-3.5 text-xs text-gray-400"></i>
+                  <i className="fas fa-search absolute left-3 top-3 text-[9px] text-ncc-olive/50"></i>
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {Array.from(new Set(verifiedAchievements.map(a => a.cadetId)))
                   .map(id => data.users.find(u => u.id === id))
                   .filter(u => u && (!searchQuery || u.name.toLowerCase().includes(searchQuery.toLowerCase())))
@@ -879,19 +886,19 @@ export default function ANODashboard() {
                     const cadetAchievements = verifiedAchievements.filter(a => a.cadetId === cadet.id);
 
                     return (
-                      <div key={cadet.id} className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                      <div key={cadet.id} className="tac-card overflow-hidden">
                         {/* Cadet Header */}
-                        <div className="bg-slate-50/50 p-4 border-b border-gray-100 flex justify-between items-center">
+                        <div className="bg-black/20 p-3.5 border-b border-ncc-olive/10 flex justify-between items-center">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-ncc-navy/5 text-ncc-navy flex items-center justify-center font-heading font-bold border border-ncc-navy/10 shadow-inner">
+                            <div className="w-9 h-9 rounded-sm bg-ncc-sky/10 text-ncc-sky flex items-center justify-center font-heading font-bold border border-ncc-sky/20">
                               {cadet.name.charAt(0)}
                             </div>
                             <div>
-                              <h4 className="font-heading font-bold text-gray-800 text-base">{cadet.rank} {cadet.name}</h4>
-                              <div className="text-[10px] text-gray-400 font-semibold flex items-center gap-2 mt-0.5">
-                                <span className="bg-white border px-1.5 py-0.5 rounded">{cadet.regimentalNumber || 'No Regt #'}</span>
-                                <span>•</span>
-                                <span className="text-green-700 font-bold">{cadetAchievements.length} Verified Records</span>
+                              <h4 className="font-heading font-bold text-gray-200 text-sm uppercase tracking-wider">{cadet.rank} {cadet.name}</h4>
+                              <div className="text-[9px] text-ncc-olive/50 font-mono flex items-center gap-2 mt-0.5">
+                                <span className="bg-black/30 border border-ncc-olive/15 px-1.5 py-0.5 rounded-sm">{cadet.regimentalNumber || 'No Regt #'}</span>
+                                <span>·</span>
+                                <span className="text-emerald-400 font-bold">{cadetAchievements.length} Verified Records</span>
                               </div>
                             </div>
                           </div>
@@ -899,35 +906,35 @@ export default function ANODashboard() {
 
                         {/* Achievements List Table */}
                         <div className="overflow-x-auto">
-                          <table className="w-full text-sm text-left border-collapse">
-                            <thead className="bg-slate-50 text-[10px] font-bold text-gray-400 uppercase border-b border-gray-100">
+                          <table className="w-full text-xs text-left border-collapse">
+                            <thead className="bg-black/20 text-[9px] font-mono font-bold text-ncc-olive/60 uppercase border-b border-ncc-olive/10">
                               <tr>
-                                <th className="px-6 py-3">Achievement Title</th>
-                                <th className="px-6 py-3">Category</th>
-                                <th className="px-6 py-3">Date</th>
-                                <th className="px-6 py-3 text-right">Certificate</th>
+                                <th className="px-5 py-3">Achievement Title</th>
+                                <th className="px-5 py-3">Category</th>
+                                <th className="px-5 py-3">Date</th>
+                                <th className="px-5 py-3 text-right">Certificate</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-ncc-olive/10">
                               {cadetAchievements.map(a => (
-                                <tr key={a.id} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="px-6 py-4">
-                                    <div className="font-bold text-gray-700 text-sm">{a.title}</div>
-                                    <div className="text-xs text-gray-400 mt-1 max-w-md">{a.description}</div>
+                                <tr key={a.id} className="hover:bg-white/[0.02] transition-colors">
+                                  <td className="px-5 py-3">
+                                    <div className="font-bold text-gray-300 text-xs">{a.title}</div>
+                                    <div className="text-[10px] text-ncc-olive/50 font-mono mt-0.5 max-w-xs">{a.description}</div>
                                   </td>
-                                  <td className="px-6 py-4">
-                                    <span className="text-[9px] font-bold bg-slate-100 border border-slate-200/50 text-gray-500 px-2 py-1 rounded uppercase tracking-wider">{a.category}</span>
+                                  <td className="px-5 py-3">
+                                    <span className="hud-badge hud-badge-verified">{a.category}</span>
                                   </td>
-                                  <td className="px-6 py-4 font-semibold text-xs text-gray-500">
+                                  <td className="px-5 py-3 font-mono text-[10px] text-ncc-olive/60">
                                     {a.date}
                                   </td>
-                                  <td className="px-6 py-4 text-right">
+                                  <td className="px-5 py-3 text-right">
                                     {a.certificateUrl ? (
-                                      <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline font-bold text-xs inline-flex items-center gap-1">
-                                        <i className="fas fa-external-link-alt text-[10px]"></i> View
+                                      <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-ncc-sky hover:text-ncc-sky/80 font-mono font-bold text-[10px] inline-flex items-center gap-1">
+                                        <i className="fas fa-external-link-alt text-[9px]"></i> View
                                       </a>
                                     ) : (
-                                      <span className="text-gray-300 text-xs italic">No File</span>
+                                      <span className="text-ncc-olive/30 text-[10px] font-mono italic">No File</span>
                                     )}
                                   </td>
                                 </tr>
@@ -940,7 +947,7 @@ export default function ANODashboard() {
                   })}
 
                 {verifiedAchievements.length === 0 && (
-                  <div className="p-10 text-center text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200">
+                  <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed font-mono text-xs">
                     <i className="fas fa-database text-3xl mb-2 block opacity-30"></i>
                     No verified achievements found in the database.
                   </div>
@@ -952,7 +959,7 @@ export default function ANODashboard() {
 
         {/* --- SCHEDULE TAB --- */}
         {activeTab === 'schedule' && (
-          <div className="grid md:grid-cols-2 gap-12 animate-fade-in flex-grow">
+          <div className="grid md:grid-cols-2 gap-10 animate-fade-in flex-grow">
             
             {/* Left: Form / AI Planner */}
             <div>
@@ -960,38 +967,38 @@ export default function ANODashboard() {
               <div className="flex gap-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setScheduleMethod('manual')}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                  onClick={() => { setScheduleMethod('manual'); playTacClick(); }}
+                  className={`px-4 py-2 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all border ${
                     scheduleMethod === 'manual'
-                      ? 'bg-ncc-navy border-ncc-navy text-white shadow-sm'
-                      : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                      ? 'bg-ncc-sky/15 border-ncc-sky/40 text-ncc-sky'
+                      : 'bg-transparent border-ncc-olive/20 text-ncc-olive/60 hover:border-ncc-olive/40 hover:text-gray-300'
                   }`}
                 >
-                  <i className="fas fa-edit mr-1.5"></i> Manual Event Creator
+                  <i className="fas fa-edit mr-1.5"></i> Manual Creator
                 </button>
                 <button
                   type="button"
-                  onClick={() => setScheduleMethod('ai')}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                  onClick={() => { setScheduleMethod('ai'); playTacClick(); }}
+                  className={`px-4 py-2 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all border flex items-center gap-1.5 ${
                     scheduleMethod === 'ai'
-                      ? 'bg-ncc-red border-ncc-red text-white shadow-sm'
-                      : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                      ? 'bg-ncc-gold/15 border-ncc-gold/40 text-ncc-gold'
+                      : 'bg-transparent border-ncc-olive/20 text-ncc-olive/60 hover:border-ncc-olive/40 hover:text-gray-300'
                   }`}
                 >
-                  <i className="fas fa-magic text-yellow-400 animate-pulse"></i> AI Training Planner
+                  <i className="fas fa-magic text-ncc-gold animate-pulse"></i> AI Training Planner
                 </button>
               </div>
 
               {scheduleMethod === 'manual' ? (
                 <>
-                  <h1 className="text-3xl font-heading font-bold text-gray-800 mb-6">{editingId ? 'Update Event' : 'Create Event'}</h1>
-                  <div className="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <form action={async (fd) => { await createEvent(fd); alert(editingId ? 'Event Updated' : 'Event Published'); refreshData(); resetForm(); }} className="space-y-5">
+                  <h1 className="text-xl font-heading font-bold text-white mb-4 uppercase tracking-widest">{editingId ? 'Update Event' : 'Create Event'}</h1>
+                  <div className="tac-card p-6">
+                    <form action={async (fd) => { await createEvent(fd); alert(editingId ? 'Event Updated' : 'Event Published'); playTacClick('confirm'); refreshData(); resetForm(); }} className="space-y-4">
                       <input type="hidden" name="id" value={editingId || ''} />
 
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Event Type</label>
-                        <select name="type" className="military-input cursor-pointer" onChange={handleTypeChange} value={eventType}>
+                        <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Event Type</label>
+                        <select name="type" className="hud-input cursor-pointer" onChange={handleTypeChange} value={eventType}>
                           <option value="Parade">Parade</option>
                           <option value="Theory">Theory Class</option>
                           <option value="Camp">Camp</option>
@@ -1000,43 +1007,43 @@ export default function ANODashboard() {
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Title (Auto-filled but editable)</label>
-                        <input name="title" className="military-input" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required />
+                        <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Title (Auto-filled but editable)</label>
+                        <input name="title" className="hud-input" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Date</label>
-                          <input name="date" type="date" className="military-input" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
+                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Date</label>
+                          <input name="date" type="date" className="hud-input" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Location</label>
-                          <input name="location" className="military-input" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Start Time</label>
-                          <input name="startTime" type="time" className="military-input" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">End Time</label>
-                          <input name="endTime" type="time" className="military-input" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required />
+                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Location</label>
+                          <input name="location" className="hud-input" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
                         </div>
                       </div>
 
-                      <div className="flex gap-3 pt-2">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Start Time</label>
+                          <input name="startTime" type="time" className="hud-input" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">End Time</label>
+                          <input name="endTime" type="time" className="hud-input" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
                         {editingId && (
                           <button 
                             type="button" 
-                            onClick={resetForm} 
-                            className="flex-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-gray-500 font-heading font-bold rounded-xl transition-colors py-3.5 text-xs uppercase tracking-wider"
+                            onClick={() => { resetForm(); playTacClick(); }} 
+                            className="flex-1 bg-transparent border border-ncc-olive/25 hover:border-ncc-olive/50 text-ncc-olive/60 hover:text-gray-300 font-mono font-bold rounded-sm transition-colors py-2.5 text-[10px] uppercase tracking-widest"
                           >
                             Cancel
                           </button>
                         )}
-                        <button className="flex-[2] bg-ncc-navy hover:bg-ncc-navy/90 text-white font-heading font-bold rounded-xl transition-colors py-3.5 text-xs uppercase tracking-widest shadow-lg shadow-ncc-navy/10">
+                        <button className="flex-[2] bg-ncc-sky/15 border border-ncc-sky/40 hover:bg-ncc-sky/25 text-ncc-sky font-mono font-bold rounded-sm transition-colors py-2.5 text-[10px] uppercase tracking-widest">
                           {editingId ? 'Update Event' : 'Publish to Unit Calendar'}
                         </button>
                       </div>
@@ -1044,14 +1051,13 @@ export default function ANODashboard() {
                   </div>
                 </>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-5">
                   {/* AI Console Card */}
-                  <div className="bg-white p-6 rounded-2xl border border-gray-200/60 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red to-ncc-gold"></div>
-                    <h3 className="font-heading font-bold text-ncc-navy text-base flex items-center gap-2 mb-2">
-                      <i className="fas fa-magic text-ncc-red"></i> Autonomous Curriculum Planner
+                  <div className="tac-card-gold p-5 relative overflow-hidden">
+                    <h3 className="font-mono font-bold text-ncc-gold text-sm flex items-center gap-2 mb-1.5 uppercase tracking-widest">
+                      <i className="fas fa-magic"></i> Autonomous Curriculum Planner
                     </h3>
-                    <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                    <p className="text-[10px] text-ncc-olive/60 font-mono leading-relaxed mb-4">
                       Let the AI agent plan a 4-week weekend syllabus schedule. It audits recently taught events to avoid duplication and balances topic categories.
                     </p>
 
@@ -1082,7 +1088,7 @@ export default function ANODashboard() {
                         <input
                           type="text"
                           placeholder="What should next month's training focus on?..."
-                          className="w-full bg-slate-900 text-slate-100 font-mono text-xs px-4 py-3.5 pr-28 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-ncc-red focus:border-transparent placeholder-slate-500 shadow-inner"
+                          className="hud-input pr-24"
                           value={aiScheduleQuery}
                           onChange={(e) => setAiScheduleQuery(e.target.value)}
                           required
@@ -1090,17 +1096,13 @@ export default function ANODashboard() {
                         <button
                           type="submit"
                           disabled={aiScheduleLoading}
-                          className="absolute right-2 top-2 px-3 py-1.5 bg-ncc-red hover:bg-red-600 text-white font-heading font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all disabled:bg-slate-800 disabled:text-slate-600 flex items-center gap-1"
+                          onClick={() => { if (!aiScheduleLoading) playTacClick(); }}
+                          className="absolute right-2 top-1.5 px-3 py-1.5 bg-ncc-gold/20 border border-ncc-gold/40 hover:bg-ncc-gold/30 text-ncc-gold font-mono font-bold text-[9px] uppercase tracking-widest rounded-sm transition-all disabled:opacity-40 flex items-center gap-1"
                         >
                           {aiScheduleLoading ? (
-                            <>
-                              <i className="fas fa-spinner animate-spin"></i> Planning
-                            </>
+                            <><i className="fas fa-spinner animate-spin"></i> Planning</>
                           ) : (
-                            <>
-                              <span>Plan</span>
-                              <i className="fas fa-chevron-right text-[9px]"></i>
-                            </>
+                            <><span>Plan</span><i className="fas fa-chevron-right text-[8px]"></i></>
                           )}
                         </button>
                       </div>
@@ -1115,8 +1117,8 @@ export default function ANODashboard() {
                           <button
                             key={idx}
                             type="button"
-                            onClick={() => setAiScheduleQuery(pr)}
-                            className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-500 text-[9px] font-bold rounded-lg transition-colors"
+                            onClick={() => { setAiScheduleQuery(pr); playTacClick(); }}
+                            className="px-2.5 py-1.5 bg-black/20 border border-ncc-olive/15 hover:border-ncc-gold/30 text-ncc-olive/60 hover:text-ncc-gold text-[9px] font-mono font-bold rounded-sm transition-colors"
                           >
                             {pr}
                           </button>
@@ -1127,7 +1129,7 @@ export default function ANODashboard() {
 
                   {/* Proposed Plan Explanation */}
                   {aiPlanningExplanation && (
-                    <div className="bg-slate-900 text-slate-200 border border-slate-800 p-5 rounded-2xl shadow-inner text-xs font-semibold leading-relaxed">
+                    <div className="bg-black/40 text-ncc-olive/70 border border-ncc-olive/20 p-5 rounded-sm shadow-inner text-[10px] font-mono leading-relaxed">
                       <div className="text-[10px] font-bold text-ncc-sky uppercase tracking-widest mb-1.5 font-mono flex items-center gap-1.5">
                         <i className="fas fa-clipboard-list"></i> Planning Explanation
                       </div>
@@ -1137,9 +1139,9 @@ export default function ANODashboard() {
 
                   {/* Proposed Draft Cards list */}
                   {aiProposedEvents.length > 0 && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-                        <h4 className="font-heading font-bold text-gray-800 text-sm">Proposed Draft Schedule</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center pb-2 border-b border-ncc-olive/15">
+                        <h4 className="font-mono font-bold text-gray-200 text-xs uppercase tracking-widest">Proposed Draft Schedule</h4>
                         <button
                           type="button"
                           onClick={async () => {
@@ -1148,6 +1150,7 @@ export default function ANODashboard() {
                               const res = await publishBulkEvents(aiProposedEvents);
                               if (res.success) {
                                 alert(`Successfully published ${res.count} events!`);
+                                playTacClick('confirm');
                                 refreshData();
                                 setAiProposedEvents([]);
                                 setAiPlanningExplanation('');
@@ -1159,16 +1162,15 @@ export default function ANODashboard() {
                               alert(err.message || 'Publication failed');
                             }
                           }}
-                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                          className="px-3 py-1.5 bg-emerald-600/80 border border-emerald-500/40 text-white font-mono font-bold text-[9px] uppercase tracking-widest rounded-sm transition-all flex items-center gap-1.5"
                         >
                           <i className="fas fa-calendar-check"></i> Publish Drafts
                         </button>
                       </div>
 
-                      <div className="space-y-3.5">
+                      <div className="space-y-3">
                         {aiProposedEvents.map((evt, idx) => (
-                          <div key={idx} className="bg-white p-5 rounded-2xl border border-gray-200/60 shadow-sm relative overflow-hidden group">
-                            <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-ncc-navy"></div>
+                          <div key={idx} className="tac-card p-4 relative overflow-hidden">
                             
                             <div className="space-y-3">
                               {/* Title */}

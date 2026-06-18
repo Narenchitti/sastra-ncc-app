@@ -3,13 +3,12 @@
 import React, { useEffect, useState } from 'react';
 
 export default function TargetCursor() {
-    const [position, setPosition] = useState({ x: -100, y: -100 });
+    const [position, setPosition] = useState({ x: -200, y: -200 });
     const [isVisible, setIsVisible] = useState(false);
     const [isPointer, setIsPointer] = useState(false);
     const [isClicking, setIsClicking] = useState(false);
 
     useEffect(() => {
-        // Only run on desktop/devices with a real pointer
         if (typeof window === 'undefined') return;
         const mediaQuery = window.matchMedia('(pointer: fine)');
         if (!mediaQuery.matches) return;
@@ -19,23 +18,16 @@ export default function TargetCursor() {
 
         const handleMouseMove = (e: MouseEvent) => {
             setPosition({ x: e.clientX, y: e.clientY });
-
-            // Check if hovering over a clickable element
             const target = e.target as HTMLElement;
-            if (
-                target && 
-                (target.tagName === 'BUTTON' || 
-                 target.tagName === 'A' || 
-                 target.onclick || 
-                 target.closest('button') || 
-                 target.closest('a') ||
-                 target.getAttribute('role') === 'button' ||
-                 target.classList.contains('cursor-pointer'))
-            ) {
-                setIsPointer(true);
-            } else {
-                setIsPointer(false);
-            }
+            setIsPointer(!!(
+                target.tagName === 'BUTTON' ||
+                target.tagName === 'A' ||
+                target.onclick ||
+                target.closest('button') ||
+                target.closest('a') ||
+                target.getAttribute('role') === 'button' ||
+                target.classList.contains('cursor-pointer')
+            ));
         };
 
         const handleMouseDown = () => setIsClicking(true);
@@ -63,35 +55,60 @@ export default function TargetCursor() {
 
     return (
         <div
-            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-transform duration-[60ms] ease-out -translate-x-1/2 -translate-y-1/2 hidden md:block"
+            className="fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 hidden md:block"
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
+                transition: 'left 40ms linear, top 40ms linear',
             }}
         >
-            {/* Custom Crosshair HUD */}
-            <div className={`relative flex items-center justify-center transition-all duration-200 ${
-                isClicking ? 'scale-75 text-ncc-red' : isPointer ? 'scale-110 text-ncc-gold' : 'text-ncc-olive'
+            <div className={`relative flex items-center justify-center transition-all duration-150 ${
+                isClicking ? 'scale-75' : isPointer ? 'scale-125' : 'scale-100'
             }`}>
-                {/* Center dot */}
-                <div className={`w-1 h-1 rounded-full bg-current transition-all ${isPointer ? 'scale-150' : ''}`}></div>
 
-                {/* Outer rotating ring */}
-                <div className={`absolute w-7 h-7 border border-dashed border-current rounded-full transition-transform duration-1000 ${
-                    isClicking ? 'animate-spin' : 'animate-[spin_20s_linear_infinite]'
-                }`}></div>
+                {/* ── Center Aiming Dot ── */}
+                <div className={`w-2 h-2 rounded-full transition-all duration-150 ${
+                    isClicking ? 'bg-ncc-red scale-150 shadow-[0_0_8px_rgba(210,16,52,0.9)]' :
+                    isPointer  ? 'bg-ncc-gold scale-125 shadow-[0_0_8px_rgba(212,175,55,0.9)]' :
+                                 'bg-ncc-olive shadow-[0_0_5px_rgba(74,93,35,0.8)]'
+                }`} />
 
-                {/* Crosshair lines */}
-                <div className="absolute w-9 h-[1px] bg-current opacity-60"></div>
-                <div className="absolute h-9 w-[1px] bg-current opacity-60"></div>
+                {/* ── Outer Rotating Ring (Gold, prominent) ── */}
+                <div className={`absolute rounded-full border-2 border-dashed transition-all duration-200 ${
+                    isClicking ? 'w-9 h-9 border-ncc-red shadow-[0_0_12px_rgba(210,16,52,0.5)] animate-spin' :
+                    isPointer  ? 'w-14 h-14 border-ncc-gold shadow-[0_0_16px_rgba(212,175,55,0.45)] animate-[spin_6s_linear_infinite]' :
+                                 'w-10 h-10 border-ncc-olive/90 shadow-[0_0_8px_rgba(74,93,35,0.35)] animate-[spin_20s_linear_infinite]'
+                }`} />
 
-                {/* Corner brackets */}
+                {/* ── Inner Static Ring ── */}
+                <div className={`absolute rounded-full border transition-all duration-200 ${
+                    isPointer ? 'w-7 h-7 border-ncc-gold/50' : 'w-6 h-6 border-ncc-olive/40'
+                }`} />
+
+                {/* ── Crosshair Lines (Longer & Brighter) ── */}
+                <div className={`absolute h-[1.5px] transition-all duration-150 ${
+                    isPointer ? 'w-16 bg-ncc-gold/75 shadow-[0_0_4px_rgba(212,175,55,0.5)]' : 'w-12 bg-ncc-olive/70'
+                }`} />
+                <div className={`absolute w-[1.5px] transition-all duration-150 ${
+                    isPointer ? 'h-16 bg-ncc-gold/75 shadow-[0_0_4px_rgba(212,175,55,0.5)]' : 'h-12 bg-ncc-olive/70'
+                }`} />
+
+                {/* ── Corner Brackets (on hover/pointer) ── */}
                 {isPointer && (
-                    <div className="absolute w-10 h-10 border border-current opacity-40 scale-110"></div>
+                    <>
+                        {/* Top-left */}
+                        <span className="absolute top-[-14px] left-[-14px] w-4 h-4 border-l-2 border-t-2 border-ncc-gold/80" />
+                        {/* Top-right */}
+                        <span className="absolute top-[-14px] right-[-14px] w-4 h-4 border-r-2 border-t-2 border-ncc-gold/80" />
+                        {/* Bottom-left */}
+                        <span className="absolute bottom-[-14px] left-[-14px] w-4 h-4 border-l-2 border-b-2 border-ncc-gold/80" />
+                        {/* Bottom-right */}
+                        <span className="absolute bottom-[-14px] right-[-14px] w-4 h-4 border-r-2 border-b-2 border-ncc-gold/80" />
+                    </>
                 )}
 
-                {/* HUD Coordinates Display */}
-                <div className="absolute top-6 left-6 font-mono text-[7px] font-bold tracking-widest text-ncc-olive/80 bg-black/45 px-1 py-0.5 rounded border border-ncc-olive/20 pointer-events-none select-none flex flex-col gap-0.5 whitespace-nowrap">
+                {/* ── HUD Coordinates ── */}
+                <div className="absolute top-8 left-8 font-mono text-[7px] font-bold tracking-widest text-ncc-olive bg-black/60 px-1.5 py-1 rounded border border-ncc-olive/30 pointer-events-none select-none flex flex-col gap-0.5 whitespace-nowrap shadow-lg">
                     <span>X: {position.x.toFixed(0)}</span>
                     <span>Y: {position.y.toFixed(0)}</span>
                 </div>
