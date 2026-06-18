@@ -333,3 +333,14 @@ export async function createEvent(formData: FormData) {
 }
 
 
+// --- COMMAND CENTER ACTION ---
+export async function runNaturalLanguageQuery(query: string) {
+    try {
+        const result = await apiClient.post('/query', { query });
+        return { success: true, ...result };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Query execution failed' };
+    }
+}
+
+

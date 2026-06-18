@@ -418,3 +418,20 @@ async def upload_file(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return {"url": f"http://127.0.0.1:8000/static/uploads/{file.filename}"}
+
+
+# ── Command Center Text-to-SQL (protected) ─────────────────────────────────
+
+@router.post("/query")
+async def natural_query(data: Dict[str, str], current_user: dict = Depends(get_current_user)):
+    role = current_user.get("role")
+    if role != "ANO":
+        raise HTTPException(status_code=403, detail="Only the ANO can query the Command Center")
+        
+    query_text = data.get("query")
+    if not query_text:
+        raise HTTPException(status_code=400, detail="Query text is required")
+        
+    from ..services import query_agent
+    res = await query_agent.execute_natural_query(query_text)
+    return res

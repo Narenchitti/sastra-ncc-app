@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 
@@ -37,6 +37,11 @@ export default function ANODashboard() {
 
   // Verified Registry State
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Command Center State
+  const [consoleQuery, setConsoleQuery] = useState('');
+  const [queryLoading, setQueryLoading] = useState(false);
+  const [queryResult, setQueryResult] = useState<any | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -326,7 +331,8 @@ export default function ANODashboard() {
             { id: 'overview', label: 'Overview', icon: 'th-large' },
             { id: 'approvals', label: 'Approvals', icon: 'check-double', badge: allActionRequired.length },
             { id: 'achievements', label: 'Achievements', icon: 'medal', badge: pendingAchievements.length },
-            { id: 'schedule', label: 'Schedule', icon: 'calendar-alt' }
+            { id: 'schedule', label: 'Schedule', icon: 'calendar-alt' },
+            { id: 'command', label: 'Command Center', icon: 'terminal' }
           ].map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -386,12 +392,15 @@ export default function ANODashboard() {
         {/* Sticky Top Header */}
         <header className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200/60">
           <div>
-            <h1 className="text-3xl font-heading font-bold text-ncc-navy uppercase tracking-wider">{activeTab}</h1>
+            <h1 className="text-3xl font-heading font-bold text-ncc-navy uppercase tracking-wider">
+              {activeTab === 'command' ? 'Command Center' : activeTab}
+            </h1>
             <p className="text-gray-400 text-xs mt-1">
               {activeTab === 'overview' && "Contingent strength, key activity logs, and quick metrics"}
               {activeTab === 'approvals' && "Review and manage cadet leave permissions"}
               {activeTab === 'achievements' && "Verify achievements and view the central registry"}
               {activeTab === 'schedule' && "Manage weekly training routines and schedules"}
+              {activeTab === 'command' && "Ask natural language questions to query database registers"}
             </p>
           </div>
           <div className="flex gap-2">
@@ -986,6 +995,201 @@ export default function ANODashboard() {
                 <span>Events created or modified here will be immediately visible to all 52 Cadets on their dashboards.</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* --- COMMAND CENTER TAB --- */}
+        {activeTab === 'command' && (
+          <div className="space-y-8 animate-fade-in flex-grow">
+            {/* Console Prompt Card */}
+            <div className="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-navy via-ncc-red to-ncc-gold"></div>
+              
+              <div className="max-w-3xl">
+                <h3 className="font-heading font-bold text-ncc-navy text-xl flex items-center gap-2">
+                  <i className="fas fa-terminal text-ncc-red"></i> Secure SQL Query Console
+                </h3>
+                <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                  Query the central NCC unit registers using natural language. The AI Adjutant compiles safety-audited, read-only SELECT queries to execute against live SQLite registers.
+                </p>
+
+                {/* Query Input */}
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!consoleQuery.trim()) return;
+                    setQueryLoading(true);
+                    setQueryResult(null);
+                    try {
+                      const res = await runNaturalLanguageQuery(consoleQuery);
+                      setQueryResult(res);
+                    } catch (err: any) {
+                      setQueryResult({
+                        success: false,
+                        message: err.message || 'Execution failed'
+                      });
+                    } finally {
+                      setQueryLoading(false);
+                    }
+                  }}
+                  className="mt-6 space-y-4"
+                >
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Ask a question (e.g., 'Show all cadets who are CSMs' or 'Who has pending leave requests?')..."
+                      className="w-full bg-slate-900 text-slate-100 font-mono text-sm px-5 py-4 pl-12 pr-32 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-ncc-red focus:border-transparent placeholder-slate-500 shadow-inner"
+                      value={consoleQuery}
+                      onChange={(e) => setConsoleQuery(e.target.value)}
+                      required
+                    />
+                    <i className="fas fa-search absolute left-4 top-[18px] text-slate-500 text-sm"></i>
+                    
+                    <button
+                      type="submit"
+                      disabled={queryLoading}
+                      className="absolute right-3 top-2.5 px-4 py-2 bg-ncc-red hover:bg-red-600 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-lg transition-all disabled:bg-slate-800 disabled:text-slate-600 flex items-center gap-1.5"
+                    >
+                      {queryLoading ? (
+                        <>
+                          <i className="fas fa-spinner animate-spin"></i> Executing
+                        </>
+                      ) : (
+                        <>
+                          <span>Run Query</span>
+                          <i className="fas fa-chevron-right text-[10px]"></i>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Suggestion Pills */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {[
+                      "List all active cadets",
+                      "Show all 3rd-year cadets",
+                      "Who has pending leave requests?",
+                      "List achievements pending verification",
+                      "Show recent attendance records"
+                    ].map((sug, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setConsoleQuery(sug)}
+                        className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-600 text-[10px] font-bold rounded-lg transition-colors"
+                      >
+                        {sug}
+                      </button>
+                    ))}
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            {/* Loading Skeleton */}
+            {queryLoading && (
+              <div className="space-y-4 animate-pulse">
+                <div className="h-12 bg-gray-200 rounded-xl w-3/4"></div>
+                <div className="h-40 bg-gray-200 rounded-xl w-full"></div>
+              </div>
+            )}
+
+            {/* Results Output */}
+            {queryResult && (
+              <div className="space-y-6 animate-fade-in">
+                {/* AI Remark Panel */}
+                <div className={`p-6 rounded-2xl border flex flex-col gap-2.5 transition-all shadow-sm ${
+                  queryResult.success && !queryResult.explanation?.includes('⚠️')
+                    ? 'bg-slate-900 text-slate-100 border-slate-800'
+                    : 'bg-red-50 border-red-200 text-red-900'
+                }`}>
+                  <div className="flex items-center justify-between border-b pb-2.5 border-current/10">
+                    <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 font-mono">
+                      <i className={`fas ${
+                        queryResult.success && !queryResult.explanation?.includes('⚠️') ? 'fa-robot text-ncc-sky' : 'fa-exclamation-triangle text-red-500'
+                      }`}></i>
+                      AI Adjutant Remark
+                    </span>
+                    <span className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest ${
+                      queryResult.success && !queryResult.explanation?.includes('⚠️') ? 'bg-ncc-navy border border-white/10 text-ncc-sky' : 'bg-red-600 text-white'
+                    }`}>
+                      {queryResult.success && !queryResult.explanation?.includes('⚠️') ? 'Status OK' : 'Execution Denied'}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold leading-relaxed">
+                    {queryResult.explanation || queryResult.message}
+                  </p>
+                </div>
+
+                {/* Code Disclosure Widget */}
+                {queryResult.sql && (
+                  <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                    <details className="group">
+                      <summary className="flex items-center justify-between p-4 cursor-pointer select-none bg-slate-50 border-b border-gray-150">
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                          <i className="fas fa-code text-gray-400"></i> Compile Diagnostics (Generated Read-Only SQL)
+                        </span>
+                        <span className="text-xs text-gray-400 group-open:rotate-180 transition-transform">
+                          <i className="fas fa-chevron-down"></i>
+                        </span>
+                      </summary>
+                      <div className="p-5 bg-slate-900 border-t border-slate-800 font-mono text-xs text-ncc-sky overflow-x-auto whitespace-pre">
+                        {queryResult.sql}
+                      </div>
+                    </details>
+                  </div>
+                )}
+
+                {/* Query Results Table */}
+                {queryResult.success && queryResult.data && (
+                  <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                    <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
+                      <div>
+                        <h4 className="font-heading font-bold text-gray-800 text-sm">Query Results</h4>
+                        <p className="text-[10px] text-gray-400 font-semibold mt-0.5 font-mono">Found {queryResult.data.length} records</p>
+                      </div>
+                    </div>
+
+                    {queryResult.data.length === 0 ? (
+                      <div className="p-10 text-center text-gray-400 italic text-sm">
+                        No matching records found in the database.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left border-collapse">
+                          <thead className="bg-slate-50 text-[10px] font-bold text-gray-400 uppercase border-b border-gray-100">
+                            <tr>
+                              {Object.keys(queryResult.data[0]).map((colName) => (
+                                <th key={colName} className="px-6 py-3.5 whitespace-nowrap">
+                                  {colName.replace(/_/g, ' ')}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50">
+                            {queryResult.data.map((row: any, rowIdx: number) => (
+                              <tr key={rowIdx} className="hover:bg-slate-50/50 transition-colors">
+                                {Object.values(row).map((val: any, colIdx: number) => (
+                                  <td key={colIdx} className="px-6 py-4 font-semibold text-gray-700 whitespace-nowrap max-w-xs truncate">
+                                    {val === null || val === undefined ? (
+                                      <span className="text-gray-300 italic text-xs">NULL</span>
+                                    ) : typeof val === 'boolean' ? (
+                                      val ? 'Yes' : 'No'
+                                    ) : (
+                                      String(val)
+                                    )}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         {/* Event Detail Modal */}
