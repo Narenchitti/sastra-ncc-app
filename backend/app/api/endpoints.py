@@ -435,3 +435,41 @@ async def natural_query(data: Dict[str, str], current_user: dict = Depends(get_c
     from ..services import query_agent
     res = await query_agent.execute_natural_query(query_text)
     return res
+
+
+# ── Training Planner Scheduler (protected) ───────────────────────────────────
+
+@router.post("/schedule/plan")
+async def schedule_plan(data: Dict[str, str], current_user: dict = Depends(get_current_user)):
+    role = current_user.get("role")
+    if role != "ANO":
+        raise HTTPException(status_code=403, detail="Only the ANO can plan schedules")
+        
+    query_text = data.get("query")
+    if not query_text:
+        raise HTTPException(status_code=400, detail="Query text is required")
+        
+    from ..services import scheduler_agent
+    res = await scheduler_agent.plan_training_schedule(query_text)
+    return res
+
+
+@router.post("/events/bulk")
+async def save_events_bulk(data: Dict[str, Any], current_user: dict = Depends(get_current_user)):
+    role = current_user.get("role")
+    if role != "ANO":
+        raise HTTPException(status_code=403, detail="Only the ANO can save events in bulk")
+        
+    events_data = data.get("events", [])
+    if not events_data:
+        raise HTTPException(status_code=400, detail="No events provided")
+        
+    import uuid
+    for ev_dict in events_data:
+        if "id" not in ev_dict or not ev_dict["id"]:
+            ev_dict["id"] = str(uuid.uuid4())
+        event_obj = EventBase(**ev_dict)
+        await database.save_event(event_obj)
+        
+    return {"success": True, "count": len(events_data)}
+

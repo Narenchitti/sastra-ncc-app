@@ -1,0 +1,92 @@
+[
+  {
+    "category": "Drill",
+    "lesson_code": "DR-1",
+    "title": "Attention, Stand at Ease, Stand Easy",
+    "duration_hours": 1,
+    "target_year": [1, 2, 3],
+    "equipment": ["None"],
+    "description": "Fundamental positions, words of command, and posture alignment."
+  },
+  {
+    "category": "Drill",
+    "lesson_code": "DR-2",
+    "title": "Turning and Inclining at the Halt",
+    "duration_hours": 1,
+    "target_year": [1, 2, 3],
+    "equipment": ["None"],
+    "description": "Right turn, left turn, about turn, and half turns at the halt."
+  },
+  {
+    "category": "Drill",
+    "lesson_code": "DR-3",
+    "title": "Sizing and Pacings",
+    "duration_hours": 1,
+    "target_year": [1, 2],
+    "equipment": ["Sizing stick"],
+    "description": "Arranging the squad in tall-to-short hierarchy, pacing calculations, and intervals."
+  },
+  {
+    "category": "Weapon Training",
+    "lesson_code": "WT-1",
+    "title": "Characteristics & Stripping of .22 Rifle",
+    "duration_hours": 2,
+    "target_year": [1, 2],
+    "equipment": [".22 Deluxe Rifle", "Pullthrough", "Oil bottle", "Flannelette"],
+    "description": "Introduction to technical details of .22 rifle, disassembly, cleaning, and assembly."
+  },
+  {
+    "category": "Weapon Training",
+    "lesson_code": "WT-2",
+    "title": "Aiming, Firing Positions, and Trigger Control",
+    "duration_hours": 2,
+    "target_year": [2, 3],
+    "equipment": [".22 Deluxe Rifle", "Aiming disc", "Target board", "Ground mat"],
+    "description": "Sight alignment, sight picture, lying position holds, and dry-fire trigger release."
+  },
+  {
+    "category": "Map Reading",
+    "lesson_code": "MR-1",
+    "title": "Introduction to Maps and Conventional Signs",
+    "duration_hours": 2,
+    "target_year": [2, 3],
+    "equipment": ["Topographical Map (Survey of India)", "Service Protractor"],
+    "description": "Understanding scales, types of maps, relief features, contours, and identifying symbols."
+  },
+  {
+    "category": "Map Reading",
+    "lesson_code": "MR-2",
+    "title": "Prismatic Compass and Service Protractor",
+    "duration_hours": 2,
+    "target_year": [2, 3],
+    "equipment": ["Prismatic Compass Liquid Type", "Service Protractor", "Pencil", "Ruler"],
+    "description": "Measuring grid bearings, magnetic bearings, setting a map, and calculating position."
+  },
+  {
+    "category": "Field Craft",
+    "lesson_code": "FC-1",
+    "title": "Judging Distance and Description of Ground",
+    "duration_hours": 1,
+    "target_year": [2, 3],
+    "equipment": ["Binoculars", "Ground indicator flags"],
+    "description": "Methods of judging distance (appearance, unit of measure, key ranges) and labeling foreground/middle/background."
+  },
+  {
+    "category": "Field Craft",
+    "lesson_code": "FC-2",
+    "title": "Camouflage, Concealment and Field Signals",
+    "duration_hours": 2,
+    "target_year": [1, 2, 3],
+    "equipment": ["Camouflage nets", "Face paint", "Grass bundles", "Whistle"],
+    "description": "How to merge with surroundings using local vegetation, shapes, shine, shadows, and tactical hand signals."
+  },
+  {
+    "category": "Leadership",
+    "lesson_code": "LD-1",
+    "title": "Leadership Traits and Character Development",
+    "duration_hours": 1,
+    "target_year": [1, 2, 3],
+    "equipment": ["Projector/Slides"],
+    "description": "Essential qualities of a leader, discipline, honor, and duty in the NCC."
+  }
+]

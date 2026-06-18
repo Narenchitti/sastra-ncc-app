@@ -344,3 +344,24 @@ export async function runNaturalLanguageQuery(query: string) {
 }
 
 
+// --- SYLLABUS SCHEDULER ACTIONS ---
+export async function generateSchedulePlan(query: string) {
+    try {
+        const result = await apiClient.post('/schedule/plan', { query });
+        return { success: true, ...result };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Schedule generation failed' };
+    }
+}
+
+export async function publishBulkEvents(events: Array<any>) {
+    try {
+        const result = await apiClient.post('/events/bulk', { events });
+        return { success: true, ...result };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Bulk publication failed' };
+    }
+}
+
+
+

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 
@@ -42,6 +42,13 @@ export default function ANODashboard() {
   const [consoleQuery, setConsoleQuery] = useState('');
   const [queryLoading, setQueryLoading] = useState(false);
   const [queryResult, setQueryResult] = useState<any | null>(null);
+
+  // Schedule AI Planner State
+  const [scheduleMethod, setScheduleMethod] = useState<'manual' | 'ai'>('manual');
+  const [aiScheduleQuery, setAiScheduleQuery] = useState('');
+  const [aiScheduleLoading, setAiScheduleLoading] = useState(false);
+  const [aiProposedEvents, setAiProposedEvents] = useState<any[]>([]);
+  const [aiPlanningExplanation, setAiPlanningExplanation] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -924,66 +931,326 @@ export default function ANODashboard() {
         {activeTab === 'schedule' && (
           <div className="grid md:grid-cols-2 gap-12 animate-fade-in flex-grow">
             
-            {/* Left: Form */}
+            {/* Left: Form / AI Planner */}
             <div>
-              <h1 className="text-3xl font-heading font-bold text-gray-800 mb-6">{editingId ? 'Update Event' : 'Create Event'}</h1>
-              <div className="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm">
-                <form action={async (fd) => { await createEvent(fd); alert(editingId ? 'Event Updated' : 'Event Published'); refreshData(); resetForm(); }} className="space-y-5">
-                  <input type="hidden" name="id" value={editingId || ''} />
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Event Type</label>
-                    <select name="type" className="military-input cursor-pointer" onChange={handleTypeChange} value={eventType}>
-                      <option value="Parade">Parade</option>
-                      <option value="Theory">Theory Class</option>
-                      <option value="Camp">Camp</option>
-                      <option value="Event">Other Event</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Title (Auto-filled but editable)</label>
-                    <input name="title" className="military-input" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Date</label>
-                      <input name="date" type="date" className="military-input" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Location</label>
-                      <input name="location" className="military-input" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Start Time</label>
-                      <input name="startTime" type="time" className="military-input" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">End Time</label>
-                      <input name="endTime" type="time" className="military-input" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    {editingId && (
-                      <button 
-                        type="button" 
-                        onClick={resetForm} 
-                        className="flex-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-gray-500 font-heading font-bold rounded-xl transition-colors py-3.5 text-xs uppercase tracking-wider"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                    <button className="flex-[2] bg-ncc-navy hover:bg-ncc-navy/90 text-white font-heading font-bold rounded-xl transition-colors py-3.5 text-xs uppercase tracking-widest shadow-lg shadow-ncc-navy/10">
-                      {editingId ? 'Update Event' : 'Publish to Unit Calendar'}
-                    </button>
-                  </div>
-                </form>
+              {/* Method Switcher Tabs */}
+              <div className="flex gap-2 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setScheduleMethod('manual')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                    scheduleMethod === 'manual'
+                      ? 'bg-ncc-navy border-ncc-navy text-white shadow-sm'
+                      : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                  }`}
+                >
+                  <i className="fas fa-edit mr-1.5"></i> Manual Event Creator
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScheduleMethod('ai')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                    scheduleMethod === 'ai'
+                      ? 'bg-ncc-red border-ncc-red text-white shadow-sm'
+                      : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                  }`}
+                >
+                  <i className="fas fa-magic text-yellow-400 animate-pulse"></i> AI Training Planner
+                </button>
               </div>
+
+              {scheduleMethod === 'manual' ? (
+                <>
+                  <h1 className="text-3xl font-heading font-bold text-gray-800 mb-6">{editingId ? 'Update Event' : 'Create Event'}</h1>
+                  <div className="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <form action={async (fd) => { await createEvent(fd); alert(editingId ? 'Event Updated' : 'Event Published'); refreshData(); resetForm(); }} className="space-y-5">
+                      <input type="hidden" name="id" value={editingId || ''} />
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Event Type</label>
+                        <select name="type" className="military-input cursor-pointer" onChange={handleTypeChange} value={eventType}>
+                          <option value="Parade">Parade</option>
+                          <option value="Theory">Theory Class</option>
+                          <option value="Camp">Camp</option>
+                          <option value="Event">Other Event</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Title (Auto-filled but editable)</label>
+                        <input name="title" className="military-input" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Date</label>
+                          <input name="date" type="date" className="military-input" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Location</label>
+                          <input name="location" className="military-input" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Start Time</label>
+                          <input name="startTime" type="time" className="military-input" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">End Time</label>
+                          <input name="endTime" type="time" className="military-input" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3 pt-2">
+                        {editingId && (
+                          <button 
+                            type="button" 
+                            onClick={resetForm} 
+                            className="flex-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-gray-500 font-heading font-bold rounded-xl transition-colors py-3.5 text-xs uppercase tracking-wider"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                        <button className="flex-[2] bg-ncc-navy hover:bg-ncc-navy/90 text-white font-heading font-bold rounded-xl transition-colors py-3.5 text-xs uppercase tracking-widest shadow-lg shadow-ncc-navy/10">
+                          {editingId ? 'Update Event' : 'Publish to Unit Calendar'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-6">
+                  {/* AI Console Card */}
+                  <div className="bg-white p-6 rounded-2xl border border-gray-200/60 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red to-ncc-gold"></div>
+                    <h3 className="font-heading font-bold text-ncc-navy text-base flex items-center gap-2 mb-2">
+                      <i className="fas fa-magic text-ncc-red"></i> Autonomous Curriculum Planner
+                    </h3>
+                    <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                      Let the AI agent plan a 4-week weekend syllabus schedule. It audits recently taught events to avoid duplication and balances topic categories.
+                    </p>
+
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!aiScheduleQuery.trim()) return;
+                        setAiScheduleLoading(true);
+                        setAiProposedEvents([]);
+                        setAiPlanningExplanation('');
+                        try {
+                          const res = await generateSchedulePlan(aiScheduleQuery);
+                          if (res.success) {
+                            setAiProposedEvents(res.events || []);
+                            setAiPlanningExplanation(res.explanation || '');
+                          } else {
+                            alert(res.message || 'Planning failed');
+                          }
+                        } catch (err: any) {
+                          alert(err.message || 'Generation error');
+                        } finally {
+                          setAiScheduleLoading(false);
+                        }
+                      }}
+                      className="space-y-3"
+                    >
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="What should next month's training focus on?..."
+                          className="w-full bg-slate-900 text-slate-100 font-mono text-xs px-4 py-3.5 pr-28 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-ncc-red focus:border-transparent placeholder-slate-500 shadow-inner"
+                          value={aiScheduleQuery}
+                          onChange={(e) => setAiScheduleQuery(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="submit"
+                          disabled={aiScheduleLoading}
+                          className="absolute right-2 top-2 px-3 py-1.5 bg-ncc-red hover:bg-red-600 text-white font-heading font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all disabled:bg-slate-800 disabled:text-slate-600 flex items-center gap-1"
+                        >
+                          {aiScheduleLoading ? (
+                            <>
+                              <i className="fas fa-spinner animate-spin"></i> Planning
+                            </>
+                          ) : (
+                            <>
+                              <span>Plan</span>
+                              <i className="fas fa-chevron-right text-[9px]"></i>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Presets */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          "Focus on weapon training and rifle theory",
+                          "Plan a strict drill & sizing routine",
+                          "Focus on map reading bearing plotting"
+                        ].map((pr, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setAiScheduleQuery(pr)}
+                            className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-500 text-[9px] font-bold rounded-lg transition-colors"
+                          >
+                            {pr}
+                          </button>
+                        ))}
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Proposed Plan Explanation */}
+                  {aiPlanningExplanation && (
+                    <div className="bg-slate-900 text-slate-200 border border-slate-800 p-5 rounded-2xl shadow-inner text-xs font-semibold leading-relaxed">
+                      <div className="text-[10px] font-bold text-ncc-sky uppercase tracking-widest mb-1.5 font-mono flex items-center gap-1.5">
+                        <i className="fas fa-clipboard-list"></i> Planning Explanation
+                      </div>
+                      {aiPlanningExplanation}
+                    </div>
+                  )}
+
+                  {/* Proposed Draft Cards list */}
+                  {aiProposedEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                        <h4 className="font-heading font-bold text-gray-800 text-sm">Proposed Draft Schedule</h4>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!confirm('Publish all 4 proposed events to the active calendar?')) return;
+                            try {
+                              const res = await publishBulkEvents(aiProposedEvents);
+                              if (res.success) {
+                                alert(`Successfully published ${res.count} events!`);
+                                refreshData();
+                                setAiProposedEvents([]);
+                                setAiPlanningExplanation('');
+                                setScheduleMethod('manual');
+                              } else {
+                                alert('Failed to publish events.');
+                              }
+                            } catch (err: any) {
+                              alert(err.message || 'Publication failed');
+                            }
+                          }}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                        >
+                          <i className="fas fa-calendar-check"></i> Publish Drafts
+                        </button>
+                      </div>
+
+                      <div className="space-y-3.5">
+                        {aiProposedEvents.map((evt, idx) => (
+                          <div key={idx} className="bg-white p-5 rounded-2xl border border-gray-200/60 shadow-sm relative overflow-hidden group">
+                            <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-ncc-navy"></div>
+                            
+                            <div className="space-y-3">
+                              {/* Title */}
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Title</label>
+                                <input
+                                  type="text"
+                                  className="w-full text-xs font-bold text-gray-800 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                  value={evt.title}
+                                  onChange={(e) => {
+                                    const updated = [...aiProposedEvents];
+                                    updated[idx].title = e.target.value;
+                                    setAiProposedEvents(updated);
+                                  }}
+                                  required
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                {/* Date */}
+                                <div>
+                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
+                                  <input
+                                    type="date"
+                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                    value={evt.date}
+                                    onChange={(e) => {
+                                      const updated = [...aiProposedEvents];
+                                      updated[idx].date = e.target.value;
+                                      setAiProposedEvents(updated);
+                                    }}
+                                    required
+                                  />
+                                </div>
+                                {/* Location */}
+                                <div>
+                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Location</label>
+                                  <input
+                                    type="text"
+                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                    value={evt.location}
+                                    onChange={(e) => {
+                                      const updated = [...aiProposedEvents];
+                                      updated[idx].location = e.target.value;
+                                      setAiProposedEvents(updated);
+                                    }}
+                                    required
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                {/* Start Time */}
+                                <div>
+                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Start Time</label>
+                                  <input
+                                    type="time"
+                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                    value={evt.startTime || evt.start_time}
+                                    onChange={(e) => {
+                                      const updated = [...aiProposedEvents];
+                                      updated[idx].startTime = e.target.value;
+                                      updated[idx].start_time = e.target.value;
+                                      setAiProposedEvents(updated);
+                                    }}
+                                    required
+                                  />
+                                </div>
+                                {/* End Time */}
+                                <div>
+                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
+                                  <input
+                                    type="time"
+                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                    value={evt.endTime || evt.end_time}
+                                    onChange={(e) => {
+                                      const updated = [...aiProposedEvents];
+                                      updated[idx].endTime = e.target.value;
+                                      updated[idx].end_time = e.target.value;
+                                      setAiProposedEvents(updated);
+                                    }}
+                                    required
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Gear list */}
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Required Equipment</label>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {evt.equipment.map((eq: string, eqIdx: number) => (
+                                    <span key={eqIdx} className="text-[9px] font-bold bg-slate-100 text-gray-500 border border-slate-200/50 px-2 py-0.5 rounded">
+                                      {eq}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right: Calendar Preview */}
