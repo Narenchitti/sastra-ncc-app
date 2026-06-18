@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 
@@ -49,6 +49,29 @@ export default function ANODashboard() {
   const [aiScheduleLoading, setAiScheduleLoading] = useState(false);
   const [aiProposedEvents, setAiProposedEvents] = useState<any[]>([]);
   const [aiPlanningExplanation, setAiPlanningExplanation] = useState('');
+
+  // Diagnostics Console State
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [telemetryLogs, setTelemetryLogs] = useState<any[]>([]);
+  const [expandedTraceIdx, setExpandedTraceIdx] = useState<number | null>(null);
+
+  // Periodic polling for telemetry logs
+  useEffect(() => {
+    if (showDiagnostics) {
+      fetchTelemetry();
+      const interval = setInterval(fetchTelemetry, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [showDiagnostics]);
+
+  async function fetchTelemetry() {
+    try {
+      const res = await getTelemetryTraces();
+      setTelemetryLogs(res || []);
+    } catch (err) {
+      console.error("Telemetry failed to fetch:", err);
+    }
+  }
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -1610,6 +1633,179 @@ export default function ANODashboard() {
             </div>
           );
         })()}
+
+      {/* Observability Diagnostics Panel */}
+      {showDiagnostics && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex justify-end animate-fade-in" onClick={() => setShowDiagnostics(false)}>
+          <div className="bg-slate-950 text-slate-100 w-full max-w-lg h-full shadow-2xl flex flex-col border-l border-slate-800 relative" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+            
+            {/* Header */}
+            <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+              <div>
+                <h3 className="font-heading text-lg font-bold text-slate-100 flex items-center gap-2">
+                  <i className="fas fa-chart-line text-ncc-sky"></i> Observability Telemetry
+                </h3>
+                <p className="text-[10px] text-slate-400 font-mono mt-0.5">Live API Latency & Tracing Logs</p>
+              </div>
+              <button onClick={() => setShowDiagnostics(false)} className="text-slate-400 hover:text-slate-200 transition-colors p-2 rounded-lg hover:bg-slate-800">
+                <i className="fas fa-times text-lg"></i>
+              </button>
+            </div>
+
+            {/* Performance Averages */}
+            {telemetryLogs.length > 0 && (() => {
+              const avgTotal = telemetryLogs.reduce((acc, l) => acc + l.durationMs, 0) / telemetryLogs.length;
+              const dbTimes = telemetryLogs.flatMap(l => l.spans.filter((s: any) => s.category === 'database').map((s: any) => s.durationMs));
+              const avgDb = dbTimes.length > 0 ? dbTimes.reduce((acc, t) => acc + t, 0) / dbTimes.length : 0;
+              const aiTimes = telemetryLogs.flatMap(l => l.spans.filter((s: any) => s.category === 'ai').map((s: any) => s.durationMs));
+              const avgAi = aiTimes.length > 0 ? aiTimes.reduce((acc, t) => acc + t, 0) / aiTimes.length : 0;
+
+              return (
+                <div className="p-6 bg-slate-900/20 border-b border-slate-800 grid grid-cols-3 gap-4 text-center">
+                  <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
+                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wider">Avg Latency</span>
+                    <span className="block text-sm font-bold text-ncc-sky font-mono mt-1">{avgTotal.toFixed(1)}ms</span>
+                  </div>
+                  <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
+                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wider">Avg DB Overhead</span>
+                    <span className="block text-sm font-bold text-emerald-400 font-mono mt-1">{avgDb.toFixed(1)}ms</span>
+                  </div>
+                  <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
+                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wider">Avg AI Inference</span>
+                    <span className="block text-sm font-bold text-yellow-400 font-mono mt-1">{avgAi.toFixed(1)}ms</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Traces List */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {telemetryLogs.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 font-mono text-xs italic text-center">
+                  No telemetry traces captured yet. Run queries or perform actions to see metrics.
+                </div>
+              ) : (
+                telemetryLogs.map((trace, idx) => {
+                  const isExpanded = expandedTraceIdx === idx;
+                  const total = trace.durationMs || 1.0;
+                  const dbSpan = trace.spans.find((s: any) => s.category === 'database');
+                  const dbVal = dbSpan ? dbSpan.durationMs : 0;
+                  const aiSpan = trace.spans.find((s: any) => s.category === 'ai');
+                  const aiVal = aiSpan ? aiSpan.durationMs : 0;
+                  const otherVal = Math.max(0, total - dbVal - aiVal);
+
+                  const dbPct = Math.round((dbVal / total) * 100);
+                  const aiPct = Math.round((aiVal / total) * 100);
+                  const otherPct = 100 - dbPct - aiPct;
+
+                  return (
+                    <div key={idx} className="bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden shadow-sm hover:border-slate-700 transition-colors">
+                      {/* Trace Header Summary */}
+                      <div 
+                        onClick={() => setExpandedTraceIdx(isExpanded ? null : idx)}
+                        className="p-4 cursor-pointer select-none flex justify-between items-center hover:bg-slate-900/20"
+                      >
+                        <div className="flex items-center gap-2.5 overflow-hidden">
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded font-mono ${
+                            trace.method === 'POST' ? 'bg-blue-950 text-blue-400 border border-blue-900/60' : 'bg-slate-800 text-slate-300'
+                          }`}>
+                            {trace.method}
+                          </span>
+                          <span className="text-xs font-mono font-semibold text-slate-200 truncate max-w-[180px]">
+                            {trace.path}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`text-[10px] font-mono font-bold ${
+                            trace.statusCode < 300 ? 'text-emerald-400' : 'text-red-500'
+                          }`}>
+                            {trace.statusCode}
+                          </span>
+                          <span className="text-xs font-mono font-semibold text-ncc-sky">
+                            {trace.durationMs}ms
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            <i className={`fas fa-chevron-down transition-transform duration-200 ${isExpanded ? 'rotate-180 text-ncc-sky' : ''}`}></i>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Expanded Trace Details */}
+                      {isExpanded && (
+                        <div className="p-4 border-t border-slate-800 bg-slate-950/60 space-y-4 font-mono text-[10px]">
+                          {/* Segment bar chart */}
+                          <div className="space-y-1.5">
+                            <div className="flex justify-between text-slate-400">
+                              <span>Latency Composition</span>
+                              <span>{total}ms</span>
+                            </div>
+                            <div className="h-2.5 rounded-full overflow-hidden flex bg-slate-800">
+                              {dbVal > 0 && (
+                                <div className="bg-emerald-500 h-full" style={{ width: `${dbPct}%` }} title={`DB: ${dbVal}ms`}></div>
+                              )}
+                              {aiVal > 0 && (
+                                <div className="bg-yellow-500 h-full" style={{ width: `${aiPct}%` }} title={`AI: ${aiVal}ms`}></div>
+                              )}
+                              {otherVal > 0 && (
+                                <div className="bg-sky-500 h-full" style={{ width: `${otherPct}%` }} title={`Overhead: ${otherVal.toFixed(1)}ms`}></div>
+                              )}
+                            </div>
+                            {/* Legend labels */}
+                            <div className="flex justify-between text-[8px] text-slate-500 pt-0.5">
+                              <span className="flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> DB ({dbPct}%)
+                              </span>
+                              {aiVal > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> AI ({aiPct}%)
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Overhead ({otherPct}%)
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Trace span list */}
+                          <div className="space-y-2 border-t border-slate-800 pt-3">
+                            <div className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Span Breakdown</div>
+                            
+                            {trace.spans.length === 0 ? (
+                              <div className="text-slate-600 italic text-[9px]">No sub-spans recorded.</div>
+                            ) : (
+                              trace.spans.map((s: any, sIdx: number) => (
+                                <div key={sIdx} className="flex justify-between items-center text-slate-300 bg-slate-900/20 p-2 rounded border border-slate-800/40">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`w-1 h-1 rounded-full ${
+                                      s.category === 'database' ? 'bg-emerald-500' : 'bg-yellow-500'
+                                    }`}></span>
+                                    <span className="font-semibold">{s.name}</span>
+                                  </div>
+                                  <span className="font-bold text-slate-200">{s.durationMs}ms</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Diagnostics Button */}
+      <button
+        onClick={() => setShowDiagnostics(true)}
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-slate-950 hover:bg-slate-900 text-ncc-sky border border-slate-800 hover:border-slate-700 flex items-center justify-center shadow-2xl transition-all hover:scale-105 z-40 group cursor-pointer"
+        title="Open Observability Telemetry"
+      >
+        <i className="fas fa-chart-line text-lg animate-pulse"></i>
+      </button>
 
       </main>
     </div>

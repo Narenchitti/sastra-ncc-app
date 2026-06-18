@@ -363,5 +363,15 @@ export async function publishBulkEvents(events: Array<any>) {
     }
 }
 
+export async function getTelemetryTraces() {
+    try {
+        return await apiClient.get('/telemetry/traces');
+    } catch (error: any) {
+        console.error("Telemetry Fetch Error:", error);
+        return [];
+    }
+}
+
+
 
 

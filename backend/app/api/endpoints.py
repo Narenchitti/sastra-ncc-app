@@ -473,3 +473,14 @@ async def save_events_bulk(data: Dict[str, Any], current_user: dict = Depends(ge
         
     return {"success": True, "count": len(events_data)}
 
+
+@router.get("/telemetry/traces")
+async def get_telemetry_traces(current_user: dict = Depends(get_current_user)):
+    role = current_user.get("role")
+    if role != "ANO":
+        raise HTTPException(status_code=403, detail="Only the ANO can access performance metrics telemetry")
+        
+    from ..services import telemetry
+    return telemetry.get_traces()
+
+

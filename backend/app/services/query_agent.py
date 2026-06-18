@@ -184,8 +184,11 @@ async def execute_natural_query(query_text: str) -> Dict[str, Any]:
 
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
+        from .telemetry import TelemetrySpan
+
         async with httpx.AsyncClient(timeout=30.0) as client:
-            res = await client.post(url, json=payload)
+            with TelemetrySpan("ai", "Gemini Text-to-SQL Parsing"):
+                res = await client.post(url, json=payload)
             if res.status_code != 200:
                 raise ValueError(f"Gemini API returned status {res.status_code}: {res.text}")
             
@@ -226,7 +229,8 @@ If no rows were returned, explain that no matching records were found.
                 }
             }
             
-            explain_res = await client.post(url, json=explain_payload)
+            with TelemetrySpan("ai", "Gemini Result Explainer"):
+                explain_res = await client.post(url, json=explain_payload)
             if explain_res.status_code != 200:
                 explanation = f"Query run successfully. Found {len(data)} records."
             else:

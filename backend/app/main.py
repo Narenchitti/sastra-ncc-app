@@ -5,8 +5,42 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from .api.endpoints import router as api_router
+import time
+import datetime
+from fastapi import Request
+from .services.telemetry import current_spans, add_trace
 
 app = FastAPI(title="SASTRA NCC App API", version="1.0.0")
+
+# Telemetry middleware to capture request lifecycle duration
+@app.middleware("http")
+async def telemetry_middleware(request: Request, call_next):
+    path = request.url.path
+    if not path.startswith("/api") or path.endswith("/telemetry/traces") or path == "/api/health":
+        return await call_next(request)
+        
+    spans_token = current_spans.set([])
+    start_time = time.perf_counter()
+    status_code = 500
+    
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        duration_ms = (time.perf_counter() - start_time) * 1000.0
+        spans = current_spans.get()
+        current_spans.reset(spans_token)
+        
+        trace = {
+            "path": path,
+            "method": request.method,
+            "duration_ms": round(duration_ms, 2),
+            "status_code": status_code,
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "spans": spans or []
+        }
+        add_trace(trace)
 
 # Mount static files folder
 os.makedirs("static", exist_ok=True)

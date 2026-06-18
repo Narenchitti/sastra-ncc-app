@@ -113,10 +113,13 @@ Provide a structured JSON output with:
             }
         }
 
+        from .telemetry import TelemetrySpan
+
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         async with httpx.AsyncClient(timeout=30.0) as client:
-            res = await client.post(url, json=payload)
+            with TelemetrySpan("ai", "Gemini Document Audit"):
+                res = await client.post(url, json=payload)
             if res.status_code != 200:
                 logger.error(f"Gemini API returned status code {res.status_code}: {res.text}")
                 return {

@@ -11,6 +11,8 @@ logger = logging.getLogger("app.database")
 # Config option to force local SQLite
 USE_SQLITE = os.getenv("USE_SQLITE", "false").lower() == "true"
 
+from .telemetry import TelemetrySpan
+
 def _run(fn):
     """Wrap a synchronous supabase call so it runs in a thread pool,
     keeping the async event loop unblocked."""
@@ -18,15 +20,16 @@ def _run(fn):
 
 async def _execute(supabase_fn, sqlite_fn):
     """Executes the supabase query. If it fails due to network/DNS, falls back to SQLite."""
-    if USE_SQLITE:
-        return await sqlite_fn()
-    try:
-        # Test connection or directly execute
-        return await supabase_fn()
-    except Exception as e:
-        # Fallback to local sqlite
-        logger.warning(f"Supabase connection/operation failed: {e}. Falling back to local SQLite.")
-        return await sqlite_fn()
+    with TelemetrySpan("database", "Database Transaction"):
+        if USE_SQLITE:
+            return await sqlite_fn()
+        try:
+            # Test connection or directly execute
+            return await supabase_fn()
+        except Exception as e:
+            # Fallback to local sqlite
+            logger.warning(f"Supabase connection/operation failed: {e}. Falling back to local SQLite.")
+            return await sqlite_fn()
 
 # ── Users ──────────────────────────────────────────────────────────────────
 

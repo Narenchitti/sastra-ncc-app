@@ -210,10 +210,13 @@ Respond with a JSON object containing 'explanation' (why this plan fits syllabus
             }
         }
         
+        from .telemetry import TelemetrySpan
+
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         async with httpx.AsyncClient(timeout=30.0) as client:
-            res = await client.post(url, json=payload)
+            with TelemetrySpan("ai", "Gemini Training Schedule Planner"):
+                res = await client.post(url, json=payload)
             if res.status_code != 200:
                 raise ValueError(f"Gemini API returned status {res.status_code}: {res.text}")
                 
