@@ -217,6 +217,10 @@ async def save_permission(perm: PermissionBase, current_user: dict = Depends(get
             if role == "ANO":
                 if perm.status not in ["APPROVED", "DECLINED_BY_ANO", "MEET_ANO", "FORWARDED_TO_ANO", "REJECTED_BY_SUO"]:
                     raise HTTPException(status_code=400, detail="Invalid status change by ANO")
+            
+            # Preserve existing AI audit results on status review
+            perm.ai_status = existing.ai_status
+            perm.ai_remarks = existing.ai_remarks
         # Case 2: Other details changing
         else:
             if role != "ANO":
@@ -224,6 +228,29 @@ async def save_permission(perm: PermissionBase, current_user: dict = Depends(get
                     raise HTTPException(status_code=403, detail="You can only edit your own requests")
                 if existing.status not in ["PENDING_REVIEW", "PENDING_SUO"]:
                     raise HTTPException(status_code=403, detail="Cannot edit a request that has already been processed")
+            
+            # Rerun AI audit if details changed
+            if existing.evidence_url != perm.evidence_url or existing.reason != perm.reason or existing.start_date != perm.start_date or existing.end_date != perm.end_date:
+                import os
+                from ..services import ai_auditor
+                file_path = None
+                if perm.evidence_url:
+                    filename = perm.evidence_url.split("/uploads/")[-1]
+                    file_path = f"static/uploads/{filename}"
+                    if not os.path.exists(file_path):
+                        file_path = None
+
+                audit_res = await ai_auditor.audit_permission_document(
+                    reason=perm.reason,
+                    start_date=perm.start_date,
+                    end_date=perm.end_date,
+                    file_path=file_path
+                )
+                perm.ai_status = audit_res.get("status")
+                perm.ai_remarks = audit_res.get("remarks")
+            else:
+                perm.ai_status = existing.ai_status
+                perm.ai_remarks = existing.ai_remarks
     else:
         # Creating new permission request
         if role != "ANO":
@@ -231,6 +258,25 @@ async def save_permission(perm: PermissionBase, current_user: dict = Depends(get
                 raise HTTPException(status_code=403, detail="You can only request permissions for yourself")
             if perm.status != "PENDING_REVIEW":
                 raise HTTPException(status_code=403, detail="New requests must be in PENDING_REVIEW status")
+
+        # Run AI Document Audit
+        import os
+        from ..services import ai_auditor
+        file_path = None
+        if perm.evidence_url:
+            filename = perm.evidence_url.split("/uploads/")[-1]
+            file_path = f"static/uploads/{filename}"
+            if not os.path.exists(file_path):
+                file_path = None
+
+        audit_res = await ai_auditor.audit_permission_document(
+            reason=perm.reason,
+            start_date=perm.start_date,
+            end_date=perm.end_date,
+            file_path=file_path
+        )
+        perm.ai_status = audit_res.get("status")
+        perm.ai_remarks = audit_res.get("remarks")
 
     await database.save_permission(perm)
     return {"success": True}

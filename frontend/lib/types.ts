@@ -37,6 +37,8 @@ export interface Permission {
     status: PermissionStatus;
     suoComment?: string;
     anoComment?: string;
+    aiStatus?: 'VERIFIED' | 'FLAGGED' | 'ERROR' | 'NO_EVIDENCE';
+    aiRemarks?: string;
     createdAt: string;
 }
 

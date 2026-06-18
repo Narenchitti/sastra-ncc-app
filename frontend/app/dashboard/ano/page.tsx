@@ -572,6 +572,43 @@ export default function ANODashboard() {
                             {p.anoComment}
                           </div>
                         )}
+                        {p.aiStatus && (
+                          <div className={`mt-4 p-4 rounded-xl border flex flex-col gap-2.5 transition-all duration-300 ${
+                            p.aiStatus === 'VERIFIED' ? 'bg-emerald-50/50 border-emerald-100/80 text-emerald-900' :
+                            p.aiStatus === 'FLAGGED' ? 'bg-amber-50/50 border-amber-100/80 text-amber-900' :
+                            p.aiStatus === 'ERROR' ? 'bg-red-50/50 border-red-100/80 text-red-900' :
+                            'bg-slate-50 border-slate-150 text-gray-700'
+                          }`}>
+                            <div className="flex items-center justify-between border-b pb-1.5 border-current/10">
+                              <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                <i className={`fas ${
+                                  p.aiStatus === 'VERIFIED' ? 'fa-user-shield text-emerald-600' :
+                                  p.aiStatus === 'FLAGGED' ? 'fa-exclamation-triangle text-amber-500' :
+                                  p.aiStatus === 'ERROR' ? 'fa-bug text-red-500' :
+                                  'fa-info-circle text-gray-400'
+                                }`}></i>
+                                AI Adjutant Auditor
+                              </span>
+                              <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                                p.aiStatus === 'VERIFIED' ? 'bg-emerald-600 text-white' :
+                                p.aiStatus === 'FLAGGED' ? 'bg-amber-500 text-white animate-pulse' :
+                                p.aiStatus === 'ERROR' ? 'bg-red-600 text-white' :
+                                'bg-gray-200 text-gray-600'
+                              }`}>
+                                {p.aiStatus === 'VERIFIED' ? 'Verified' : p.aiStatus === 'FLAGGED' ? 'Flagged' : p.aiStatus === 'ERROR' ? 'Error' : 'No Doc'}
+                              </span>
+                            </div>
+                            <div className="text-xs font-semibold leading-relaxed">
+                              {p.aiRemarks}
+                            </div>
+                            {p.aiStatus === 'FLAGGED' && (
+                              <div className="bg-white/90 border border-amber-200/50 text-[10px] text-amber-800 p-2.5 rounded-lg flex items-start gap-1.5 mt-0.5 font-bold shadow-sm">
+                                <i className="fas fa-exclamation-circle text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                <span>ANO Attention: Visual audit flagged discrepancy. Please check dates and name carefully.</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                       
                       {isANO ? (
@@ -637,6 +674,22 @@ export default function ANODashboard() {
                             p.status === 'APPROVED' ? 'badge-approved' :
                             p.status === 'MEET_ANO' ? 'bg-amber-50 text-amber-800 border-amber-200' : 'badge-rejected'
                           }`}>{p.status.replace(/_/g, ' ')}</span>
+                          {p.aiStatus && (
+                            <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 ${
+                              p.aiStatus === 'VERIFIED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                              p.aiStatus === 'FLAGGED' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                              p.aiStatus === 'ERROR' ? 'bg-red-50 text-red-700 border border-red-200' :
+                              'bg-gray-100 text-gray-600 border border-gray-205'
+                            }`}>
+                              <i className={`fas ${
+                                p.aiStatus === 'VERIFIED' ? 'fa-user-shield text-emerald-600' :
+                                p.aiStatus === 'FLAGGED' ? 'fa-exclamation-triangle text-amber-500' :
+                                p.aiStatus === 'ERROR' ? 'fa-bug text-red-500' :
+                                'fa-info-circle text-gray-400'
+                              } text-[7px]`}></i>
+                              AI: {p.aiStatus.replace(/_/g, ' ')}
+                            </span>
+                          )}
                         </div>
                         <div className="text-sm text-gray-600 leading-relaxed">{p.reason}</div>
                         <div className="text-xs text-gray-400 font-semibold mt-2"><i className="far fa-calendar text-ncc-red"></i> {p.startDate} to {p.endDate}</div>

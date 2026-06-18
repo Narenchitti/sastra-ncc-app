@@ -61,6 +61,8 @@ class PermissionBase(APIModel):
     status: str
     suo_comment: Optional[str] = None
     ano_comment: Optional[str] = None
+    ai_status: Optional[str] = None
+    ai_remarks: Optional[str] = None
     created_at: str
 
 class AchievementBase(APIModel):

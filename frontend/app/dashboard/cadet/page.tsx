@@ -885,6 +885,19 @@ export default function CadetDashboard() {
                             <strong className="text-gray-500 block mb-0.5">ANO Comment:</strong> {p.anoComment}
                           </div>
                         )}
+                        {p.aiStatus && (
+                          <div className={`text-[10px] p-2.5 rounded-lg border mt-1 flex flex-col gap-1 ${
+                            p.aiStatus === 'VERIFIED' ? 'bg-emerald-50/40 border-emerald-100 text-emerald-900' :
+                            p.aiStatus === 'FLAGGED' ? 'bg-amber-50/40 border-amber-100 text-amber-900' :
+                            p.aiStatus === 'ERROR' ? 'bg-red-50/40 border-red-100 text-red-900' :
+                            'bg-slate-50 border-slate-100 text-gray-700'
+                          }`}>
+                            <div className="flex items-center gap-1 font-bold text-[9px] uppercase tracking-wider text-current/80">
+                              <i className="fas fa-robot text-[8px]"></i> AI Audit Check
+                            </div>
+                            <div className="opacity-90">{p.aiRemarks}</div>
+                          </div>
+                        )}
 
                         {p.status === 'MEET_ANO' && (
                           <div className="bg-amber-50 border-l-4 border-amber-500 p-3 text-amber-800 text-xs rounded-r-md mt-3 flex items-start gap-2 shadow-inner animate-pulse">

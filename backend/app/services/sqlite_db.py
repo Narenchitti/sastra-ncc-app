@@ -111,6 +111,17 @@ def init_db():
 
     conn.commit()
 
+    # Schema migration: check and add columns if they do not exist
+    try:
+        cursor.execute("ALTER TABLE permissions ADD COLUMN ai_status TEXT")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE permissions ADD COLUMN ai_remarks TEXT")
+    except Exception:
+        pass
+    conn.commit()
+
     # Seed if empty
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
