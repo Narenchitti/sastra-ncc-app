@@ -28,6 +28,19 @@ export default function CadetDashboard() {
   // Time Mocking
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
+  // Schedule Navigation, Filtering, Details, and Leave Pre-filling
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Get Monday
+    const monday = new Date(today.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  });
+  const [scheduleFilter, setScheduleFilter] = useState<'All' | 'Parade' | 'Theory' | 'Camp' | 'Event'>('All');
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+  const [leavePrefill, setLeavePrefill] = useState<{ startDate: string; endDate: string; reason: string } | null>(null);
+
   useEffect(() => {
     setCurrentTime(new Date());
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -136,29 +149,103 @@ export default function CadetDashboard() {
 
   /* ... Calendar ... */
   const CalendarView = () => {
-    const startDate = new Date('2026-02-01');
     const weekDates = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
+      const d = new Date(currentWeekStart);
+      d.setDate(currentWeekStart.getDate() + i);
       return d;
     });
-    const monthName = startDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    const weekEnd = new Date(weekDates[6]);
+    const rangeLabel = `${weekDates[0].toLocaleDateString('default', { day: 'numeric', month: 'short' })} - ${weekEnd.toLocaleDateString('default', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+    const filteredEvents = data.events.filter(e => {
+      if (scheduleFilter === 'All') return true;
+      return e.type === scheduleFilter;
+    });
 
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-slate-50/50">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-slate-50/50">
           <div>
             <h3 className="font-heading text-xl font-bold text-gray-800">Weekly Training Schedule</h3>
-            <p className="text-ncc-red font-bold uppercase text-xs tracking-widest mt-0.5">{monthName} | Week 1</p>
+            <p className="text-ncc-red font-bold uppercase text-[10px] tracking-widest mt-0.5">{rangeLabel}</p>
+          </div>
+          {/* Week Navigation */}
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button 
+              onClick={() => {
+                setCurrentWeekStart(prev => {
+                  const d = new Date(prev);
+                  d.setDate(d.getDate() - 7);
+                  return d;
+                });
+              }}
+              className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-slate-50 transition-colors text-gray-500"
+              title="Previous Week"
+            >
+              <i className="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button 
+              onClick={() => {
+                const today = new Date();
+                const day = today.getDay();
+                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(today.setDate(diff));
+                monday.setHours(0, 0, 0, 0);
+                setCurrentWeekStart(monday);
+              }}
+              className="px-3 h-8 rounded-lg border border-gray-200 text-xs font-semibold hover:bg-slate-50 transition-colors text-gray-600"
+            >
+              Today
+            </button>
+            <button 
+              onClick={() => {
+                setCurrentWeekStart(prev => {
+                  const d = new Date(prev);
+                  d.setDate(d.getDate() + 7);
+                  return d;
+                });
+              }}
+              className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-slate-50 transition-colors text-gray-500"
+              title="Next Week"
+            >
+              <i className="fas fa-chevron-right text-xs"></i>
+            </button>
           </div>
         </div>
-        <div className="grid grid-cols-7 gap-px bg-gray-100 border-b border-gray-100">
+
+        {/* Filter Pills */}
+        <div className="flex gap-2 p-4 bg-slate-50/20 border-b border-gray-50 overflow-x-auto">
+          {(['All', 'Parade', 'Theory', 'Camp', 'Event'] as const).map(f => {
+            const isActive = scheduleFilter === f;
+            const label = f === 'Theory' ? 'Theory Classes' : f === 'Event' ? 'Other Events' : f === 'All' ? 'All Events' : `${f}s`;
+            return (
+              <button
+                key={f}
+                onClick={() => setScheduleFilter(f)}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                  isActive 
+                    ? 'bg-ncc-navy border-ncc-navy text-white shadow-sm' 
+                    : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-px bg-gray-100 border-b border-gray-100">
           {weekDates.map((dateObj, i) => {
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dateObj.toLocaleDateString('default', { weekday: 'short' });
             const dayNum = dateObj.getDate();
-            const daysEvents = data.events.filter(e => e.date === dateStr);
-            const isToday = dateStr === '2026-02-02';
+            const daysEvents = filteredEvents.filter(e => e.date === dateStr);
+            const isToday = currentTime 
+              ? dateStr === currentTime.toISOString().split('T')[0]
+              : dateStr === new Date().toISOString().split('T')[0];
+
             return (
               <div key={i} className={`min-h-[140px] bg-white p-3 flex flex-col gap-2 transition-colors ${isToday ? 'bg-blue-50/20' : ''}`}>
                 <div className="text-center mb-1">
@@ -168,15 +255,47 @@ export default function CadetDashboard() {
                 <div className="flex flex-col gap-1.5 flex-grow justify-end">
                   {daysEvents.map(ev => {
                     const status = getRegisterStatus(ev);
+                    const attRecord = data.attendance.find(a => a.eventId === ev.id && a.userId === user.id);
+                    const approvedLeave = data.permissions.find(p => 
+                      p.cadetId === user.id && 
+                      p.status.includes('APPROVED') && 
+                      ev.date >= p.startDate && ev.date <= p.endDate
+                    );
+
                     return (
-                      <div key={ev.id} className={`text-[10px] p-2 rounded-lg border-l-2 shadow-sm relative group ${ev.type === 'Parade' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-blue-50 border-blue-500 text-blue-700'}`}>
+                      <div 
+                        key={ev.id} 
+                        onClick={() => setSelectedEvent(ev)}
+                        className={`text-[10px] p-2.5 rounded-lg border-l-2 shadow-sm relative group cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all duration-200 ${
+                          ev.type === 'Parade' ? 'bg-red-50/70 border-red-500 text-red-800 hover:bg-red-50' : 
+                          ev.type === 'Theory' ? 'bg-blue-50/70 border-blue-500 text-blue-800 hover:bg-blue-50' : 
+                          ev.type === 'Camp' ? 'bg-purple-50/70 border-purple-500 text-purple-800 hover:bg-purple-50' :
+                          'bg-emerald-50/70 border-emerald-500 text-emerald-800 hover:bg-emerald-50'
+                        }`}
+                      >
                         <div className="font-bold truncate">{ev.title}</div>
                         <div className="opacity-75 text-[9px] mt-0.5">{ev.startTime} - {ev.endTime}</div>
+
+                        {/* Personal Attendance Indicator */}
+                        {attRecord ? (
+                          <span className={`inline-flex items-center gap-1 text-[8px] font-bold px-1.5 py-0.5 rounded mt-1.5 ${
+                            attRecord.status === 'Present' ? 'bg-green-100 text-green-700' :
+                            attRecord.status === 'Absent' ? 'bg-red-100 text-red-700' :
+                            'bg-amber-100 text-amber-700'
+                          }`}>
+                            <i className={`fas ${attRecord.status === 'Present' ? 'fa-check' : 'fa-times'} text-[7px]`}></i>
+                            {attRecord.status}
+                          </span>
+                        ) : approvedLeave ? (
+                          <span className="inline-flex items-center gap-1 text-[8px] font-bold px-1.5 py-0.5 rounded mt-1.5 bg-blue-100 text-blue-700">
+                            <i className="fas fa-plane-departure text-[7px]"></i> Leave
+                          </span>
+                        ) : null}
 
                         {/* Rank Holder Action */}
                         {isRankHolder && (
                           <div onClick={(e) => { e.stopPropagation(); launchRegister(ev); }}
-                            className={`mt-1.5 text-center py-1 rounded-md cursor-pointer font-bold transition-all text-[9px] ${status.status === 'open' ? 'bg-green-600 text-white animate-pulse' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+                            className={`mt-2 text-center py-1 rounded-md cursor-pointer font-bold transition-all text-[9px] ${status.status === 'open' ? 'bg-green-600 text-white animate-pulse' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
                             {status.status === 'open' ? 'Mark Attendance' : 'Closed'}
                           </div>
                         )}
@@ -654,20 +773,41 @@ export default function CadetDashboard() {
             {/* Form */}
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm h-fit">
               <h3 className="font-heading text-lg font-bold text-ncc-navy uppercase mb-6 border-b border-gray-50 pb-4">New Leave Request</h3>
-              <form action={async (fd) => { fd.append('cadetId', user.id); fd.append('cadetName', `${user.rank} ${user.name}`); await submitPermission(fd); setMessage('Permission Submitted Successfully!'); refreshData(); }} className="space-y-5">
+              <form action={async (fd) => { fd.append('cadetId', user.id); fd.append('cadetName', `${user.rank} ${user.name}`); await submitPermission(fd); setMessage('Permission Submitted Successfully!'); setLeavePrefill(null); refreshData(); }} className="space-y-5">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">From Date</label>
-                    <input name="startDate" type="date" className="military-input" required />
+                    <input 
+                      name="startDate" 
+                      type="date" 
+                      className="military-input" 
+                      defaultValue={leavePrefill?.startDate || ''} 
+                      key={leavePrefill ? `prefill-start-${leavePrefill.startDate}` : 'normal-start'} 
+                      required 
+                    />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">To Date</label>
-                    <input name="endDate" type="date" className="military-input" required />
+                    <input 
+                      name="endDate" 
+                      type="date" 
+                      className="military-input" 
+                      defaultValue={leavePrefill?.endDate || ''} 
+                      key={leavePrefill ? `prefill-end-${leavePrefill.endDate}` : 'normal-end'} 
+                      required 
+                    />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Reason Detailed</label>
-                  <textarea name="reason" className="military-input h-32 py-2" placeholder="Provide detailed explanation..." required></textarea>
+                  <textarea 
+                    name="reason" 
+                    className="military-input h-32 py-2" 
+                    defaultValue={leavePrefill?.reason || ''} 
+                    key={leavePrefill ? `prefill-reason-${leavePrefill.reason}` : 'normal-reason'} 
+                    placeholder="Provide detailed explanation..." 
+                    required
+                  ></textarea>
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-wider">Evidence Document (Optional)</label>
@@ -1014,6 +1154,183 @@ export default function CadetDashboard() {
             )}
           </div>
         )}
+        {/* Event Detail Modal */}
+        {selectedEvent && (() => {
+          const ev = selectedEvent;
+          const attRecord = data.attendance.find(a => a.eventId === ev.id && a.userId === user.id);
+          const approvedLeave = data.permissions.find(p => 
+            p.cadetId === user.id && 
+            p.status.includes('APPROVED') && 
+            ev.date >= p.startDate && ev.date <= p.endDate
+          );
+          
+          // Calculate relative countdown/status
+          let countdownText = '';
+          const now = currentTime || new Date();
+          const startDateTime = new Date(`${ev.date}T${ev.startTime}`);
+          const endDateTime = new Date(`${ev.date}T${ev.endTime}`);
+          
+          if (now < startDateTime) {
+            const diffMs = startDateTime.getTime() - now.getTime();
+            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            if (diffHrs > 24) {
+              countdownText = `Starts in ${Math.round(diffHrs / 24)} days`;
+            } else if (diffHrs > 0) {
+              countdownText = `Starts in ${diffHrs}h ${diffMins}m`;
+            } else {
+              countdownText = `Starts in ${diffMins} mins`;
+            }
+          } else if (now >= startDateTime && now <= endDateTime) {
+            countdownText = 'Ongoing';
+          } else {
+            countdownText = 'Completed';
+          }
+
+          // Google Calendar Sync URL
+          const formatCalDate = (dStr: string, tStr: string) => {
+            return `${dStr.replace(/-/g, '')}T${tStr.replace(/:/g, '')}00`;
+          };
+          const startCal = formatCalDate(ev.date, ev.startTime);
+          const endCal = formatCalDate(ev.date, ev.endTime);
+          const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${startCal}/${endCal}&details=Location:+${encodeURIComponent(ev.location)}&sf=true&output=xml`;
+
+          return (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 relative">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+                
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                        ev.type === 'Parade' ? 'bg-red-50 border border-red-200 text-red-700' :
+                        ev.type === 'Theory' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
+                        ev.type === 'Camp' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+                        'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                      }`}>
+                        {ev.type}
+                      </span>
+                      <h3 className="font-heading text-lg font-bold text-gray-800 mt-2 leading-snug">{ev.title}</h3>
+                    </div>
+                    <button onClick={() => setSelectedEvent(null)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-slate-100">
+                      <i className="fas fa-times text-lg"></i>
+                    </button>
+                  </div>
+
+                  {/* Details list */}
+                  <div className="space-y-4 my-6 text-sm text-gray-600">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-red">
+                        <i className="far fa-calendar-alt"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Date</div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(ev.date).toLocaleDateString('default', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-gold">
+                        <i className="far fa-clock"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Time</div>
+                        <div className="text-xs text-gray-500">{ev.startTime} - {ev.endTime}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-sky">
+                        <i className="fas fa-map-marker-alt"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Location</div>
+                        <div className="text-xs text-gray-500">{ev.location}</div>
+                      </div>
+                    </div>
+
+                    {/* Countdown / Current state */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500">
+                        <i className="fas fa-hourglass-half"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Status</div>
+                        <div className="text-xs text-gray-500 flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${countdownText === 'Ongoing' ? 'bg-green-500 animate-pulse' : countdownText === 'Completed' ? 'bg-gray-400' : 'bg-blue-500'}`}></span>
+                          {countdownText}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Attendance Card */}
+                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">My Attendance</div>
+                      {attRecord ? (
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-gray-700">Marked Status:</span>
+                          <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${
+                            attRecord.status === 'Present' ? 'bg-green-100 text-green-800' :
+                            attRecord.status === 'Absent' ? 'bg-red-100 text-red-800' :
+                            'bg-amber-100 text-amber-800'
+                          }`}>
+                            <i className={`fas ${attRecord.status === 'Present' ? 'fa-check-circle' : 'fa-times-circle'}`}></i>
+                            {attRecord.status}
+                          </span>
+                        </div>
+                      ) : approvedLeave ? (
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-gray-700">Duty Leave:</span>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                            <i className="fas fa-check-circle"></i>
+                            Approved Leave
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500 italic">No attendance record logged for this event.</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3 mt-6">
+                    {/* Google Calendar Sync */}
+                    <a 
+                      href={gCalUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex-1 border border-gray-200 hover:bg-slate-50 text-gray-600 font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5"
+                    >
+                      <i className="fab fa-google"></i> Calendar
+                    </a>
+
+                    {/* Apply leave if event is upcoming and not already leave-approved */}
+                    {now < startDateTime && !approvedLeave && (
+                      <button
+                        onClick={() => {
+                          setLeavePrefill({
+                            startDate: ev.date,
+                            endDate: ev.date,
+                            reason: `Applying for leave from ${ev.type} training session: "${ev.title}" on ${ev.date}.`
+                          });
+                          setActiveTab('permissions');
+                          setSelectedEvent(null);
+                        }}
+                        className="flex-[2] bg-ncc-navy hover:bg-ncc-navy/90 text-white font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+                      >
+                        <i className="fas fa-file-signature"></i> Request Leave
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       </main>
     </div>

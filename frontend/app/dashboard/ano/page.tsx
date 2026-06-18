@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager } from '@/app/actions';
-import { User, Permission, Event, Achievement } from '@/lib/types';
+import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 
 export default function ANODashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[], users: User[], permissionManagerId?: string | null, fetchError?: string }>({ events: [], permissions: [], achievements: [], users: [] });
+  const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[], users: User[], attendance: Attendance[], permissionManagerId?: string | null, fetchError?: string }>({ events: [], permissions: [], achievements: [], users: [], attendance: [] });
   const [selectedManagerId, setSelectedManagerId] = useState('');
   const [actionComment, setActionComment] = useState('');
 
@@ -22,6 +22,18 @@ export default function ANODashboard() {
   const [eventLocation, setEventLocation] = useState('');
   const [eventStart, setEventStart] = useState('');
   const [eventEnd, setEventEnd] = useState('');
+
+  // Schedule Navigation, Filtering, and Details
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Get Monday
+    const monday = new Date(today.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  });
+  const [scheduleFilter, setScheduleFilter] = useState<'All' | 'Parade' | 'Theory' | 'Camp' | 'Event'>('All');
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
 
   // Verified Registry State
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,18 +106,24 @@ export default function ANODashboard() {
 
   // Calendar View Component
   const CalendarView = () => {
-    const startDate = new Date('2026-02-01'); // Keeping simulation date
     const weekDates = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
+      const d = new Date(currentWeekStart);
+      d.setDate(currentWeekStart.getDate() + i);
       return d;
     });
-    const monthName = startDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    const weekEnd = new Date(weekDates[6]);
+    const rangeLabel = `${weekDates[0].toLocaleDateString('default', { day: 'numeric', month: 'short' })} - ${weekEnd.toLocaleDateString('default', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+    // Filter events based on active pill
+    const filteredEvents = data.events.filter(e => {
+      if (scheduleFilter === 'All') return true;
+      return e.type === scheduleFilter;
+    });
 
     // Collect all events for this week for the Detailed Agenda
     const weekEvents = weekDates.flatMap(dateObj => {
       const dateStr = dateObj.toISOString().split('T')[0];
-      return data.events
+      return filteredEvents
         .filter(e => e.date === dateStr)
         .map(e => ({ ...e, dateObj }));
     }).sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -113,15 +131,74 @@ export default function ANODashboard() {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-slate-50/50">
+        <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-slate-50/50">
           <div>
             <h3 className="font-heading text-lg font-bold text-gray-800">Weekly Schedule</h3>
-            <p className="text-ncc-red font-bold uppercase text-[10px] tracking-widest mt-0.5">{monthName} | Week 1</p>
+            <p className="text-ncc-red font-bold uppercase text-[10px] tracking-widest mt-0.5">{rangeLabel}</p>
           </div>
-          <div className="text-right">
-            <span className="text-2xl font-heading font-bold text-gray-800">{weekEvents.length}</span>
-            <span className="text-[10px] text-gray-400 block uppercase tracking-wider font-bold">Events</span>
+          {/* Week Navigation */}
+          <div className="flex items-center gap-1.5 self-start sm:self-auto">
+            <button 
+              onClick={() => {
+                setCurrentWeekStart(prev => {
+                  const d = new Date(prev);
+                  d.setDate(d.getDate() - 7);
+                  return d;
+                });
+              }}
+              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-slate-50 transition-colors text-gray-500"
+              title="Previous Week"
+            >
+              <i className="fas fa-chevron-left text-[10px]"></i>
+            </button>
+            <button 
+              onClick={() => {
+                const today = new Date();
+                const day = today.getDay();
+                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(today.setDate(diff));
+                monday.setHours(0, 0, 0, 0);
+                setCurrentWeekStart(monday);
+              }}
+              className="px-2.5 h-7 rounded-lg border border-gray-200 text-[10px] font-semibold hover:bg-slate-50 transition-colors text-gray-600"
+            >
+              Today
+            </button>
+            <button 
+              onClick={() => {
+                setCurrentWeekStart(prev => {
+                  const d = new Date(prev);
+                  d.setDate(d.getDate() + 7);
+                  return d;
+                });
+              }}
+              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-slate-50 transition-colors text-gray-500"
+              title="Next Week"
+            >
+              <i className="fas fa-chevron-right text-[10px]"></i>
+            </button>
           </div>
+        </div>
+
+        {/* Filter Pills */}
+        <div className="flex gap-1.5 p-3 bg-slate-50/20 border-b border-gray-100 overflow-x-auto">
+          {(['All', 'Parade', 'Theory', 'Camp', 'Event'] as const).map(f => {
+            const isActive = scheduleFilter === f;
+            const label = f === 'Theory' ? 'Theory' : f === 'Event' ? 'Other' : f === 'All' ? 'All' : `${f}s`;
+            return (
+              <button
+                key={f}
+                onClick={() => setScheduleFilter(f)}
+                className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all border ${
+                  isActive 
+                    ? 'bg-ncc-navy border-ncc-navy text-white shadow-sm' 
+                    : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* 1. Mini Visual Grid (Quick Glance) */}
@@ -130,11 +207,21 @@ export default function ANODashboard() {
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dateObj.toLocaleDateString('default', { weekday: 'short' });
             const dayNum = dateObj.getDate();
-            const daysEvents = data.events.filter(e => e.date === dateStr);
-            const isToday = i === 0; // Assuming start date is today for simulation
+            const daysEvents = filteredEvents.filter(e => e.date === dateStr);
+            const isToday = dateStr === new Date().toISOString().split('T')[0];
 
             return (
-              <div key={i} className={`min-h-[90px] bg-white p-2.5 flex flex-col gap-1.5 transition-colors ${isToday ? 'bg-blue-50/20' : ''}`}>
+              <div 
+                key={i} 
+                onClick={() => {
+                  setEventDate(dateStr);
+                  // Scroll smoothly to the form
+                  const formEl = document.querySelector('form');
+                  if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className={`min-h-[90px] bg-white p-2.5 flex flex-col gap-1.5 transition-all cursor-pointer hover:bg-slate-50/70 border-b-2 border-transparent hover:border-ncc-navy/30 ${isToday ? 'bg-blue-50/20 border-b-ncc-navy' : ''}`}
+                title={`Click to schedule event on ${dateStr}`}
+              >
                 <div className="text-center mb-1">
                   <span className="block text-[9px] uppercase font-bold text-gray-400 tracking-wider">{dayName}</span>
                   <span className={`text-sm font-bold leading-none ${isToday ? 'text-ncc-red' : 'text-gray-700'}`}>{dayNum}</span>
@@ -142,7 +229,7 @@ export default function ANODashboard() {
                 {/* Dots/Small Indicators */}
                 <div className="flex flex-col gap-1 flex-grow justify-end">
                   {daysEvents.map(ev => (
-                    <div key={ev.id} className={`h-1.5 rounded-full w-full ${ev.type === 'Parade' ? 'bg-red-500' : ev.type === 'Theory' ? 'bg-blue-500' : 'bg-purple-500'}`} title={ev.title}></div>
+                    <div key={ev.id} className={`h-1.5 rounded-full w-full ${ev.type === 'Parade' ? 'bg-red-500' : ev.type === 'Theory' ? 'bg-blue-500' : ev.type === 'Camp' ? 'bg-purple-500' : 'bg-emerald-500'}`} title={ev.title}></div>
                   ))}
                 </div>
               </div>
@@ -153,14 +240,18 @@ export default function ANODashboard() {
         {/* 2. Detailed Agenda List */}
         <div className="bg-slate-50 p-6 space-y-3">
           <h4 className="font-heading font-bold text-gray-400 text-xs uppercase tracking-wider mb-2">Detailed Agenda</h4>
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
             {weekEvents.length === 0 ? (
               <p className="text-sm text-gray-400 italic text-center py-6">No events scheduled for this week.</p>
             ) : (
               weekEvents.map(ev => (
-                <div key={ev.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center gap-4 hover:border-ncc-navy transition-all group">
+                <div 
+                  key={ev.id} 
+                  onClick={() => setSelectedEvent(ev)}
+                  className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center gap-4 hover:border-ncc-navy transition-all group cursor-pointer hover:shadow"
+                >
                   {/* Date Badge */}
-                  <div className="flex-shrink-0 w-16 text-center border-r border-gray-100 pr-4">
+                  <div className="flex-shrink-0 w-12 text-center border-r border-gray-100 pr-4">
                     <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{ev.dateObj.toLocaleDateString('default', { weekday: 'short' })}</span>
                     <span className="block text-xl font-heading font-bold text-gray-800 leading-none mt-1">{ev.dateObj.getDate()}</span>
                   </div>
@@ -171,11 +262,12 @@ export default function ANODashboard() {
                       <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
                         ev.type === 'Parade' ? 'bg-red-50 border border-red-200 text-red-700' :
                         ev.type === 'Theory' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
-                        'bg-purple-50 border border-purple-200 text-purple-700'
+                        ev.type === 'Camp' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+                        'bg-emerald-50 border border-emerald-200 text-emerald-700'
                       }`}>
                         {ev.type}
                       </span>
-                      <h5 className="font-bold text-gray-800 text-sm">{ev.title}</h5>
+                      <h5 className="font-bold text-gray-800 text-sm group-hover:text-ncc-navy transition-colors">{ev.title}</h5>
                     </div>
                     <div className="flex items-center gap-4 text-xs font-semibold text-gray-400 mt-1">
                       <span className="flex items-center gap-1">
@@ -188,7 +280,7 @@ export default function ANODashboard() {
                   </div>
 
                   {/* Action/Edit (Update & Delete) */}
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 self-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 self-center" onClick={(e) => e.stopPropagation()}>
                     <button onClick={() => handleEditClick(ev)} className="text-gray-400 hover:text-blue-600 p-2 rounded-lg hover:bg-slate-50 transition-colors" title="Edit Event">
                       <i className="fas fa-edit"></i>
                     </button>
@@ -834,9 +926,160 @@ export default function ANODashboard() {
                 <span>Events created or modified here will be immediately visible to all 52 Cadets on their dashboards.</span>
               </div>
             </div>
-
           </div>
         )}
+        {/* Event Detail Modal */}
+        {selectedEvent && (() => {
+          const ev = selectedEvent;
+          const cadets = data.users.filter(u => u.role === 'CADET');
+          const totalCadets = cadets.length || 16;
+          const eventAtt = data.attendance.filter(a => a.eventId === ev.id);
+          const presentCount = eventAtt.filter(a => a.status === 'Present').length;
+          const absentCount = eventAtt.filter(a => a.status === 'Absent').length;
+          const leaveCount = eventAtt.filter(a => a.status === 'Permission' || a.status === 'Late').length;
+          const unmarkedCount = Math.max(0, totalCadets - eventAtt.length);
+          const attendanceRate = eventAtt.length > 0 ? Math.round((presentCount / (presentCount + absentCount)) * 100) : 0;
+
+          // Google Calendar Sync URL
+          const formatCalDate = (dStr: string, tStr: string) => {
+            return `${dStr.replace(/-/g, '')}T${tStr.replace(/:/g, '')}00`;
+          };
+          const startCal = formatCalDate(ev.date, ev.startTime);
+          const endCal = formatCalDate(ev.date, ev.endTime);
+          const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${startCal}/${endCal}&details=Location:+${encodeURIComponent(ev.location)}&sf=true&output=xml`;
+
+          return (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedEvent(null)}>
+              <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 relative" onClick={(e) => e.stopPropagation()}>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+                
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                        ev.type === 'Parade' ? 'bg-red-50 border border-red-200 text-red-700' :
+                        ev.type === 'Theory' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
+                        ev.type === 'Camp' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+                        'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                      }`}>
+                        {ev.type}
+                      </span>
+                      <h3 className="font-heading text-lg font-bold text-gray-800 mt-2 leading-snug">{ev.title}</h3>
+                    </div>
+                    <button onClick={() => setSelectedEvent(null)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-slate-100">
+                      <i className="fas fa-times text-lg"></i>
+                    </button>
+                  </div>
+
+                  {/* Details list */}
+                  <div className="space-y-4 my-6 text-sm text-gray-600">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-red">
+                        <i className="far fa-calendar-alt"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Date</div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(ev.date).toLocaleDateString('default', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-gold">
+                        <i className="far fa-clock"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Time</div>
+                        <div className="text-xs text-gray-500">{ev.startTime} - {ev.endTime}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-sky">
+                        <i className="fas fa-map-marker-alt"></i>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-700">Location</div>
+                        <div className="text-xs text-gray-500">{ev.location}</div>
+                      </div>
+                    </div>
+
+                    {/* Attendance Card */}
+                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Unit Attendance Report</div>
+                      
+                      {eventAtt.length > 0 ? (
+                        <div className="space-y-3">
+                          {/* Progress bar */}
+                          <div>
+                            <div className="flex justify-between text-xs font-bold text-gray-700 mb-1">
+                              <span>Attendance Rate</span>
+                              <span className="text-ncc-red">{attendanceRate}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                              <div className="bg-ncc-navy h-full rounded-full transition-all" style={{ width: `${attendanceRate}%` }}></div>
+                            </div>
+                          </div>
+
+                          {/* Stats Grid */}
+                          <div className="grid grid-cols-4 gap-2 pt-2 text-center">
+                            <div className="bg-white p-2 rounded-lg border border-gray-100">
+                              <span className="block text-sm font-bold text-green-600">{presentCount}</span>
+                              <span className="text-[8px] text-gray-400 uppercase font-bold">Present</span>
+                            </div>
+                            <div className="bg-white p-2 rounded-lg border border-gray-100">
+                              <span className="block text-sm font-bold text-red-500">{absentCount}</span>
+                              <span className="text-[8px] text-gray-400 uppercase font-bold">Absent</span>
+                            </div>
+                            <div className="bg-white p-2 rounded-lg border border-gray-100">
+                              <span className="block text-sm font-bold text-blue-500">{leaveCount}</span>
+                              <span className="text-[8px] text-gray-400 uppercase font-bold">Leave/Late</span>
+                            </div>
+                            <div className="bg-white p-2 rounded-lg border border-gray-100">
+                              <span className="block text-sm font-bold text-gray-400">{unmarkedCount}</span>
+                              <span className="text-[8px] text-gray-400 uppercase font-bold">Pending</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500 italic text-center py-2 flex flex-col items-center gap-1">
+                          <i className="fas fa-clipboard-list text-lg text-gray-300"></i>
+                          No attendance data has been marked for this event yet.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3 mt-6">
+                    {/* Google Calendar Sync */}
+                    <a 
+                      href={gCalUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex-1 border border-gray-200 hover:bg-slate-50 text-gray-600 font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5"
+                    >
+                      <i className="fab fa-google"></i> Calendar
+                    </a>
+
+                    <button
+                      onClick={() => {
+                        handleEditClick(ev);
+                        setSelectedEvent(null);
+                      }}
+                      className="flex-1 bg-ncc-navy hover:bg-ncc-navy/90 text-white font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+                    >
+                      <i className="fas fa-edit"></i> Edit Event
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
       </main>
     </div>
   );
