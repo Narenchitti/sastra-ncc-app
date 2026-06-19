@@ -7,15 +7,46 @@ import { User, Event, Permission, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
+import CornerBrackets from '@/components/CornerBrackets';
 
-function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
+function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
+  if (typeof window === 'undefined') return;
+  const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
+  if (isMuted) return;
+
   try {
-    const ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    if (type === 'confirm') { osc.type = 'sine'; osc.frequency.setValueAtTime(660, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); gain.gain.setValueAtTime(0.035, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2); osc.start(); osc.stop(ctx.currentTime + 0.2);
-    } else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, ctx.currentTime); gain.gain.setValueAtTime(0.035, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18); osc.start(); osc.stop(ctx.currentTime + 0.18);
-    } else { osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime); gain.gain.setValueAtTime(0.025, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1); osc.start(); osc.stop(ctx.currentTime + 0.1); }
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === 'confirm') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      osc.start(); osc.stop(ctx.currentTime + 0.18);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'hover') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(240, ctx.currentTime);
+      gain.gain.setValueAtTime(0.012, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
+    } else {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      gain.gain.setValueAtTime(0.025, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(); osc.stop(ctx.currentTime + 0.05);
+    }
   } catch (_) {}
 }
 
@@ -489,7 +520,8 @@ export default function CadetDashboard() {
             return (
               <button
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); playTacClick(); }}
+                onClick={() => { setActiveTab(item.id); playTacClick('confirm'); }}
+                onMouseEnter={() => playTacClick('hover')}
                 className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-sans text-sm font-semibold uppercase tracking-wider relative ${
                   isActive 
                     ? 'tac-nav-active' 
@@ -504,7 +536,8 @@ export default function CadetDashboard() {
           })}
           {isManager && (
             <button
-              onClick={() => { setActiveTab('approvals'); playTacClick(); }}
+              onClick={() => { setActiveTab('approvals'); playTacClick('confirm'); }}
+              onMouseEnter={() => playTacClick('hover')}
               className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-sans text-sm font-semibold uppercase tracking-wider relative mt-3 pt-3 border-t border-ncc-olive/15 ${
                 activeTab === 'approvals'
                   ? 'tac-nav-active'
@@ -585,7 +618,8 @@ export default function CadetDashboard() {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               
-              <div className="tac-card-sky p-5 relative overflow-hidden">
+              <div className="tac-card-sky p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-sky/60" />
                 <div className="text-xs text-ncc-olive/60 font-sans font-semibold uppercase tracking-wider mb-1">Personal Attendance</div>
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="text-4xl font-heading font-bold text-ncc-sky">
@@ -600,14 +634,16 @@ export default function CadetDashboard() {
                 </div>
               </div>
 
-              <div className="tac-card-red p-5 relative overflow-hidden">
+              <div className="tac-card-red p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-red/60" />
                 <div className="text-xs text-ncc-olive/60 font-sans font-semibold uppercase tracking-wider mb-1">Pending Permissions</div>
                 <div className="text-4xl font-heading font-bold text-ncc-red mt-2">
                   {data.permissions.filter(p => p.cadetId === user.id && p.status.includes('PENDING')).length}
                 </div>
               </div>
 
-              <div className="tac-card-gold p-5 relative overflow-hidden">
+              <div className="tac-card-gold p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-gold/60" />
                 <div className="text-xs text-ncc-olive/60 font-sans font-semibold uppercase tracking-wider mb-1">Total Achievements</div>
                 <div className="text-4xl font-heading font-bold text-ncc-gold mt-2">
                   {data.achievements.filter(a => a.cadetId === user.id).length}
@@ -1187,7 +1223,7 @@ export default function CadetDashboard() {
                       const statusBadgeClass: Record<string, string> = { Present: 'hud-badge-approved', Late: 'hud-badge-pending', Permission: 'hud-badge-forwarded', Absent: 'hud-badge-rejected' };
                       const statusIcon: Record<string, string>  = { Present: 'fa-check-circle', Late: 'fa-clock', Permission: 'fa-file-signature', Absent: 'fa-times-circle' };
                       return (
-                        <tr key={i} className="hover:bg-ncc-olive/4 transition-colors">
+                        <tr key={i} className="odd:bg-black/20 even:bg-transparent hover:bg-ncc-olive/5 transition-all duration-150 border-b border-ncc-olive/10" onMouseEnter={() => playTacClick('hover')}>
                           <td className="px-5 py-3 font-mono text-xs text-ncc-olive/60 whitespace-nowrap">
                             {new Date(ev.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </td>

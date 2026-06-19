@@ -7,15 +7,46 @@ import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
+import CornerBrackets from '@/components/CornerBrackets';
 
-function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
+function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
+  if (typeof window === 'undefined') return;
+  const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
+  if (isMuted) return;
+
   try {
-    const ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    if (type === 'confirm') { osc.type = 'sine'; osc.frequency.setValueAtTime(660, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); gain.gain.setValueAtTime(0.035, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2); osc.start(); osc.stop(ctx.currentTime + 0.2);
-    } else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, ctx.currentTime); gain.gain.setValueAtTime(0.035, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18); osc.start(); osc.stop(ctx.currentTime + 0.18);
-    } else { osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime); gain.gain.setValueAtTime(0.025, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1); osc.start(); osc.stop(ctx.currentTime + 0.1); }
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === 'confirm') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      osc.start(); osc.stop(ctx.currentTime + 0.18);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'hover') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(240, ctx.currentTime);
+      gain.gain.setValueAtTime(0.012, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
+    } else {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      gain.gain.setValueAtTime(0.025, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(); osc.stop(ctx.currentTime + 0.05);
+    }
   } catch (_) {}
 }
 
@@ -392,7 +423,8 @@ export default function ANODashboard() {
             return (
               <button
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); playTacClick(); }}
+                onClick={() => { setActiveTab(item.id); playTacClick('confirm'); }}
+                onMouseEnter={() => playTacClick('hover')}
                 className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-sans text-sm font-semibold uppercase tracking-wider relative ${
                   isActive 
                     ? 'tac-nav-active' 
@@ -463,25 +495,29 @@ export default function ANODashboard() {
           <div className="space-y-6 animate-fade-in flex-grow">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               
-              <div className="tac-card-sky p-5 relative overflow-hidden">
+              <div className="tac-card-sky p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-sky/60" />
                 <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">Total Strength</div>
                 <div className="text-4xl font-heading font-bold text-ncc-sky mt-2">{data.users.filter(u => u.role === 'CADET').length}</div>
                 <div className="text-xs text-ncc-olive/50 font-sans mt-1.5 uppercase">Active Cadets</div>
               </div>
 
-              <div className="tac-card-gold p-5 relative overflow-hidden">
+              <div className="tac-card-gold p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-gold/60" />
                 <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">Action Required</div>
                 <div className="text-4xl font-heading font-bold text-ncc-gold mt-2">{allActionRequired.length}</div>
                 <div className="text-xs text-ncc-olive/50 font-sans mt-1.5 uppercase">{pendingReview.length} new · {pendingApprovals.length} forwarded</div>
               </div>
 
-              <div className="tac-card-red p-5 relative overflow-hidden">
+              <div className="tac-card-red p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-red/60" />
                 <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">SUO Rejections</div>
                 <div className="text-4xl font-heading font-bold text-ncc-red mt-2">{suoRejections.length}</div>
                 <div className="text-xs text-ncc-olive/50 font-sans mt-1.5 uppercase">Review Needed</div>
               </div>
 
-              <div className="tac-card p-5 relative overflow-hidden">
+              <div className="tac-card p-5 relative overflow-hidden group">
+                <CornerBrackets colorClass="border-ncc-olive/50" />
                 <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">Next Event</div>
                 <div className="text-base font-heading font-bold text-white mt-2 truncate">{nextEvent ? nextEvent.title : 'None'}</div>
                 <div className="text-xs text-emerald-400 font-mono font-bold mt-1.5 uppercase">{nextEvent ? nextEvent.date : '—'}</div>
@@ -982,8 +1018,8 @@ export default function ANODashboard() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-ncc-olive/10">
-                              {cadetAchievements.map(a => (
-                                <tr key={a.id} className="hover:bg-white/[0.02] transition-colors">
+                              {cadetAchievements.map((a, aIdx) => (
+                                <tr key={a.id} className="odd:bg-black/20 even:bg-transparent hover:bg-white/[0.03] transition-colors border-b border-ncc-olive/10" onMouseEnter={() => playTacClick('hover')}>
                                   <td className="px-5 py-3">
                                     <div className="font-bold text-gray-300 text-xs">{a.title}</div>
                                     <div className="text-xs text-ncc-olive/50 font-sans mt-0.5 max-w-xs">{a.description}</div>
@@ -996,7 +1032,7 @@ export default function ANODashboard() {
                                   </td>
                                   <td className="px-5 py-3 text-right">
                                     {a.certificateUrl ? (
-                                      <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-ncc-sky hover:text-ncc-sky/80 font-sans font-bold text-xs inline-flex items-center gap-1">
+                                      <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-ncc-sky hover:text-ncc-sky/80 font-sans font-bold text-xs inline-flex items-center gap-1" onMouseEnter={() => playTacClick('hover')}>
                                         <i className="fas fa-external-link-alt text-xs"></i> View
                                       </a>
                                     ) : (
@@ -1500,22 +1536,23 @@ export default function ANODashboard() {
 
                 {/* Query Results Table */}
                 {queryResult.success && queryResult.data && (
-                  <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
-                    <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
+                  <div className="tac-card overflow-hidden group">
+                    <CornerBrackets colorClass="border-ncc-gold/60" />
+                    <div className="p-5 border-b border-ncc-olive/15 flex items-center justify-between bg-black/35">
                       <div>
-                        <h4 className="font-heading font-bold text-gray-800 text-sm">Query Results</h4>
-                        <p className="text-xs text-gray-400 font-semibold mt-0.5 font-mono">Found {queryResult.data.length} records</p>
+                        <h4 className="font-heading font-bold text-white text-sm">Query Results</h4>
+                        <p className="text-xs text-ncc-gold font-bold mt-0.5 font-mono">Found {queryResult.data.length} records</p>
                       </div>
                     </div>
 
                     {queryResult.data.length === 0 ? (
-                      <div className="p-10 text-center text-gray-400 italic text-sm">
+                      <div className="p-10 text-center text-ncc-olive/40 italic text-sm">
                         No matching records found in the database.
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left border-collapse">
-                          <thead className="bg-slate-50 text-xs font-sans font-bold text-gray-400 uppercase border-b border-gray-100">
+                          <thead className="bg-black/20 text-xs font-sans font-bold text-ncc-olive/60 uppercase border-b border-ncc-olive/10">
                             <tr>
                               {Object.keys(queryResult.data[0]).map((colName) => (
                                 <th key={colName} className="px-6 py-3.5 whitespace-nowrap">
@@ -1524,13 +1561,13 @@ export default function ANODashboard() {
                               ))}
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-50">
+                          <tbody className="divide-y divide-ncc-olive/10">
                             {queryResult.data.map((row: any, rowIdx: number) => (
-                              <tr key={rowIdx} className="hover:bg-slate-50/50 transition-colors">
+                              <tr key={rowIdx} className="odd:bg-black/20 even:bg-transparent hover:bg-white/[0.03] transition-colors border-b border-ncc-olive/10" onMouseEnter={() => playTacClick('hover')}>
                                 {Object.values(row).map((val: any, colIdx: number) => (
-                                  <td key={colIdx} className="px-6 py-4 font-semibold text-gray-700 whitespace-nowrap max-w-xs truncate">
+                                  <td key={colIdx} className="px-6 py-4 font-semibold text-gray-300 whitespace-nowrap max-w-xs truncate">
                                     {val === null || val === undefined ? (
-                                      <span className="text-gray-300 italic text-xs">NULL</span>
+                                      <span className="text-gray-500 italic text-xs">NULL</span>
                                     ) : typeof val === 'boolean' ? (
                                       val ? 'Yes' : 'No'
                                     ) : (

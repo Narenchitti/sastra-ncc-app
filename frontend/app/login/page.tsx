@@ -6,9 +6,14 @@ import { loginAction } from '@/app/actions';
 import Link from 'next/link';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
+import CornerBrackets from '@/components/CornerBrackets';
 
 /** Plays a short synthesizer beep for tactical audio feedback */
-function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
+function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
+  if (typeof window === 'undefined') return;
+  const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
+  if (isMuted) return;
+
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -18,23 +23,29 @@ function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
 
     if (type === 'confirm') {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(660, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-      osc.start(); osc.stop(ctx.currentTime + 0.22);
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      osc.start(); osc.stop(ctx.currentTime + 0.18);
     } else if (type === 'error') {
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, ctx.currentTime);
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
       osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'hover') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(240, ctx.currentTime);
+      gain.gain.setValueAtTime(0.012, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
     } else {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
       gain.gain.setValueAtTime(0.025, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-      osc.start(); osc.stop(ctx.currentTime + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(); osc.stop(ctx.currentTime + 0.05);
     }
   } catch (_) {}
 }
@@ -122,7 +133,7 @@ export default function LoginPage() {
 
           {/* Top Brand */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Link href="/" className="hover:opacity-80 transition-opacity" onMouseEnter={() => playTacClick('hover')}>
               <img src="/assets/images/ncc_logo.png" alt="NCC Logo" className="h-10 object-contain drop-shadow animate-float" />
             </Link>
             <div className="w-[1.5px] h-5 bg-ncc-olive/30" />
@@ -169,8 +180,16 @@ export default function LoginPage() {
         </div>
 
         {/* RIGHT: Login Card */}
-        <div className="flex items-center justify-center md:justify-end w-full md:w-[45%] lg:w-[40%] mt-12 md:mt-0">
-          <div className="w-full max-w-[360px] relative overflow-hidden rounded-xl tac-card-gold shadow-[0_30px_70px_rgba(0,0,0,0.85)]">
+        <div className="flex items-center justify-center md:justify-end w-full md:w-[45%] lg:w-[40%] mt-12 md:mt-0 relative">
+          
+          {/* Glowing backdrops for depth */}
+          <div className="glow-backdrop-blur-gold absolute -top-12 -left-12 opacity-65 z-0"></div>
+          <div className="glow-backdrop-blur-sky absolute -bottom-12 -right-12 opacity-45 z-0"></div>
+
+          <div className="w-full max-w-[360px] relative overflow-hidden rounded-xl tac-card-gold shadow-[0_30px_70px_rgba(0,0,0,0.85)] z-10 group">
+
+            {/* CornerBrackets for hover glow focus */}
+            <CornerBrackets colorClass="border-ncc-gold/60" />
 
             {/* Tricolor bar */}
             <div className="tricolor-bar" />
@@ -179,7 +198,7 @@ export default function LoginPage() {
               {/* Logos */}
               <div className="text-center mb-7">
                 <div className="flex justify-center items-center gap-3 mb-5">
-                  <Link href="/" className="transition-transform duration-300 hover:scale-105 flex items-center gap-2">
+                  <Link href="/" className="transition-transform duration-300 hover:scale-105 flex items-center gap-2" onMouseEnter={() => playTacClick('hover')}>
                     <img src="/assets/images/sastra_logo.png" alt="SASTRA" className="h-7 object-contain drop-shadow" />
                     <img src="/assets/images/40_years_logo.png" alt="SASTRA 40 Years" className="h-7 object-contain drop-shadow" />
                   </Link>
@@ -206,8 +225,8 @@ export default function LoginPage() {
                   </label>
                   <div className="relative">
                     {/* Left bracket accent */}
-                    <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-colors duration-300 ${
-                      activeField === 'email' ? 'text-ncc-sky' : 'text-ncc-olive/40'
+                    <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                      activeField === 'email' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
                     }`}>[</span>
                     <input
                       name="email"
@@ -215,12 +234,13 @@ export default function LoginPage() {
                       required
                       placeholder="cadet@sastra.edu"
                       disabled={isLoading}
-                      onFocus={() => { setActiveField('email'); addLog('SYS: EMAIL IDENTITY FIELD ACTIVE...'); playTacClick(); }}
+                      onMouseEnter={() => playTacClick('hover')}
+                      onFocus={() => { setActiveField('email'); addLog('SYS: EMAIL IDENTITY FIELD ACTIVE...'); playTacClick('soft'); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.12)]"
+                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                     />
-                    <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-colors duration-300 ${
-                      activeField === 'email' ? 'text-ncc-sky' : 'text-ncc-olive/40'
+                    <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                      activeField === 'email' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
                     }`}>]</span>
                   </div>
                 </div>
@@ -232,8 +252,8 @@ export default function LoginPage() {
                     Command Key (Password)
                   </label>
                   <div className="relative">
-                    <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-colors duration-300 ${
-                      activeField === 'password' ? 'text-ncc-red' : 'text-ncc-olive/40'
+                    <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                      activeField === 'password' ? 'text-ncc-red drop-shadow-[0_0_6px_rgba(210,16,52,0.85)] font-bold' : 'text-ncc-olive/40'
                     }`}>[</span>
                     <input
                       name="password"
@@ -241,12 +261,13 @@ export default function LoginPage() {
                       required
                       placeholder="Registration Number"
                       disabled={isLoading}
-                      onFocus={() => { setActiveField('password'); addLog('SYS: COMMAND KEY FIELD ACTIVE...'); playTacClick(); }}
+                      onMouseEnter={() => playTacClick('hover')}
+                      onFocus={() => { setActiveField('password'); addLog('SYS: COMMAND KEY FIELD ACTIVE...'); playTacClick('soft'); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-red/55 focus:ring-1 focus:ring-ncc-red/25 focus:shadow-[0_0_12px_rgba(210,16,52,0.12)]"
+                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-red/55 focus:ring-1 focus:ring-ncc-red/25 focus:shadow-[0_0_12px_rgba(210,16,52,0.15)]"
                     />
-                    <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-colors duration-300 ${
-                      activeField === 'password' ? 'text-ncc-red' : 'text-ncc-olive/40'
+                    <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                      activeField === 'password' ? 'text-ncc-red drop-shadow-[0_0_6px_rgba(210,16,52,0.85)] font-bold' : 'text-ncc-olive/40'
                     }`}>]</span>
                   </div>
                 </div>
@@ -264,7 +285,7 @@ export default function LoginPage() {
                   type="submit"
                   disabled={isLoading}
                   className="w-full relative overflow-hidden bg-gradient-to-r from-ncc-gold/20 to-ncc-olive/20 border border-ncc-gold/40 text-ncc-gold text-sm font-sans font-bold py-3 rounded-md hover:bg-ncc-gold/25 hover:border-ncc-gold/65 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2.5"
-                  onMouseEnter={() => playTacClick()}
+                  onMouseEnter={() => playTacClick('hover')}
                 >
                   {/* Scan animation overlay */}
                   {isLoading && (
@@ -289,7 +310,7 @@ export default function LoginPage() {
                 <Link
                   href="/signup"
                   className="inline-flex items-center gap-1.5 text-xs font-sans uppercase tracking-widest text-ncc-sky/70 hover:text-white transition-colors duration-300 group"
-                  onMouseEnter={() => playTacClick()}
+                  onMouseEnter={() => playTacClick('hover')}
                 >
                   <i className="fas fa-file-signature text-[9px]" />
                   <span>Request Enlistment (Sign Up)</span>
@@ -301,7 +322,7 @@ export default function LoginPage() {
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-ncc-olive/55 hover:text-ncc-gold transition-colors duration-300 group"
-                  onMouseEnter={() => playTacClick()}
+                  onMouseEnter={() => playTacClick('hover')}
                 >
                   <i className="fas fa-arrow-left transition-transform group-hover:-translate-x-1 duration-200" />
                   <span>Back to Home</span>

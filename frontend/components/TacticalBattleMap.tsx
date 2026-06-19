@@ -107,6 +107,8 @@ export default function TacticalBattleMap() {
         let animationFrameId: number;
         let routeDashOffset = 0;
         let time = 0;
+        let lastTime = performance.now();
+        const fpsInterval = 1000 / 30; // 30 FPS ceiling
 
         let activeArcs: FiringArc[] = [];
         let activeRipples: ImpactRipple[] = [];
@@ -229,6 +231,16 @@ export default function TacticalBattleMap() {
 
         // Main animation draw loop
         const draw = () => {
+            animationFrameId = requestAnimationFrame(draw);
+
+            const now = performance.now();
+            const elapsed = now - lastTime;
+
+            if (elapsed < fpsInterval) return;
+
+            // Adjust lastTime to align with elapsed modulo interval
+            lastTime = now - (elapsed % fpsInterval);
+
             const w = canvas.width / (window.devicePixelRatio || 1);
             const h = canvas.height / (window.devicePixelRatio || 1);
 
@@ -527,7 +539,6 @@ export default function TacticalBattleMap() {
                 ctx.restore();
             });
 
-            animationFrameId = requestAnimationFrame(draw);
         };
 
         draw();

@@ -6,9 +6,14 @@ import { signupAction } from '@/app/actions';
 import Link from 'next/link';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
+import CornerBrackets from '@/components/CornerBrackets';
 
 /** Plays a short synthesizer beep for tactical audio feedback */
-function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
+function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
+  if (typeof window === 'undefined') return;
+  const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
+  if (isMuted) return;
+
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -18,23 +23,29 @@ function playTacClick(type: 'soft' | 'confirm' | 'error' = 'soft') {
 
     if (type === 'confirm') {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(660, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-      osc.start(); osc.stop(ctx.currentTime + 0.22);
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      osc.start(); osc.stop(ctx.currentTime + 0.18);
     } else if (type === 'error') {
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, ctx.currentTime);
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
       osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'hover') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(240, ctx.currentTime);
+      gain.gain.setValueAtTime(0.012, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
     } else {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
       gain.gain.setValueAtTime(0.025, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-      osc.start(); osc.stop(ctx.currentTime + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(); osc.stop(ctx.currentTime + 0.05);
     }
   } catch (_) {}
 }
@@ -117,7 +128,7 @@ export default function SignupPage() {
         <div className="flex flex-col justify-between w-full md:w-[45%] lg:w-[48%] py-4 md:py-8">
           {/* Top Brand */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Link href="/" className="hover:opacity-80 transition-opacity" onMouseEnter={() => playTacClick('hover')}>
               <img src="/assets/images/ncc_logo.png" alt="NCC Logo" className="h-10 object-contain drop-shadow animate-float" />
             </Link>
             <div className="w-[1.5px] h-5 bg-ncc-olive/30" />
@@ -164,8 +175,17 @@ export default function SignupPage() {
         </div>
 
         {/* RIGHT: Signup Form Card */}
-        <div className="flex items-center justify-center md:justify-end w-full md:w-[55%] lg:w-[50%] mt-12 md:mt-0">
-          <div className="w-full max-w-[480px] relative overflow-hidden rounded-xl bg-black/75 border border-ncc-sky/35 shadow-[0_30px_70px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto custom-scrollbar">
+        <div className="flex items-center justify-center md:justify-end w-full md:w-[55%] lg:w-[50%] mt-12 md:mt-0 relative">
+          
+          {/* Glowing backdrops for depth */}
+          <div className="glow-backdrop-blur-sky absolute -top-12 -left-12 opacity-65 z-0"></div>
+          <div className="glow-backdrop-blur-gold absolute -bottom-12 -right-12 opacity-45 z-0"></div>
+
+          <div className="w-full max-w-[480px] relative overflow-hidden rounded-xl bg-black/75 border border-ncc-sky/35 shadow-[0_30px_70px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto custom-scrollbar z-10 group">
+            
+            {/* CornerBrackets on hover */}
+            <CornerBrackets colorClass="border-ncc-sky/60" />
+
             {/* Tricolor top bar */}
             <div className="h-1.5 w-full bg-gradient-to-r from-ncc-orange via-white to-ncc-green" />
 
@@ -191,16 +211,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Full Name
                     </label>
-                    <input
-                      name="name"
-                      type="text"
-                      required
-                      placeholder="A B VENKATARAMANAN"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('name'); addLog('SYS: ENTERING NAME...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'name' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="name"
+                        type="text"
+                        required
+                        placeholder="A B VENKATARAMANAN"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('name'); addLog('SYS: ENTERING NAME...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'name' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
 
                   {/* Email */}
@@ -208,16 +237,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Email address
                     </label>
-                    <input
-                      name="email"
-                      type="email"
-                      required
-                      placeholder="cadet@sastra.edu"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('email'); addLog('SYS: ENTERING EMAIL...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'email' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="email"
+                        type="email"
+                        required
+                        placeholder="cadet@sastra.edu"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('email'); addLog('SYS: ENTERING EMAIL...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'email' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
                 </div>
 
@@ -228,16 +266,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Password
                     </label>
-                    <input
-                      name="password"
-                      type="password"
-                      required
-                      placeholder="Password"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('password'); addLog('SYS: SECURING PASSWORD...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'password' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="password"
+                        type="password"
+                        required
+                        placeholder="Password"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('password'); addLog('SYS: SECURING PASSWORD...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'password' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
 
                   {/* Rank */}
@@ -245,23 +292,32 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Rank
                     </label>
-                    <select
-                      name="rank"
-                      required
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('rank'); addLog('SYS: SELECTING RANK...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 appearance-none cursor-pointer"
-                    >
-                      <option value="Cadet">Cadet (CDT)</option>
-                      <option value="Lance Corporal">Lance Corporal (L/CPL)</option>
-                      <option value="Corporal">Corporal (CPL)</option>
-                      <option value="Sergeant">Sergeant (SGT)</option>
-                      <option value="CQMS">CQMS</option>
-                      <option value="CSM">CSM</option>
-                      <option value="CUO">CUO</option>
-                      <option value="SUO">SUO</option>
-                    </select>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'rank' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <select
+                        name="rank"
+                        required
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('rank'); addLog('SYS: SELECTING RANK...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)] appearance-none cursor-pointer"
+                      >
+                        <option value="Cadet">Cadet (CDT)</option>
+                        <option value="Lance Corporal">Lance Corporal (L/CPL)</option>
+                        <option value="Corporal">Corporal (CPL)</option>
+                        <option value="Sergeant">Sergeant (SGT)</option>
+                        <option value="CQMS">CQMS</option>
+                        <option value="CSM">CSM</option>
+                        <option value="CUO">CUO</option>
+                        <option value="SUO">SUO</option>
+                      </select>
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'rank' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
                 </div>
 
@@ -272,16 +328,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Regimental No
                     </label>
-                    <input
-                      name="regimentalNumber"
-                      type="text"
-                      required
-                      placeholder="TN2023SDA023581"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('regimentalNo'); addLog('SYS: ENTERING REGIMENTAL NUMBER...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'regimentalNo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="regimentalNumber"
+                        type="text"
+                        required
+                        placeholder="TN2023SDA023581"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('regimentalNo'); addLog('SYS: ENTERING REGIMENTAL NUMBER...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'regimentalNo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
 
                   {/* University Registration No */}
@@ -289,16 +354,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       University Reg No
                     </label>
-                    <input
-                      name="registrationNumber"
-                      type="text"
-                      required
-                      placeholder="127009001"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('regNo'); addLog('SYS: ENTERING UNIVERSITY REGISTER NUMBER...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'regNo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="registrationNumber"
+                        type="text"
+                        required
+                        placeholder="127009001"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('regNo'); addLog('SYS: ENTERING UNIVERSITY REGISTER NUMBER...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'regNo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
                 </div>
 
@@ -309,16 +383,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Date of Birth
                     </label>
-                    <input
-                      name="dob"
-                      type="text"
-                      required
-                      placeholder="DD-MM-YYYY"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('dob'); addLog('SYS: ENTERING DATE OF BIRTH...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="dob"
+                        type="text"
+                        required
+                        placeholder="DD-MM-YYYY"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('dob'); addLog('SYS: ENTERING DATE OF BIRTH...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
 
                   {/* Year / Branch */}
@@ -326,16 +409,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Year &amp; Branch
                     </label>
-                    <input
-                      name="yearBranch"
-                      type="text"
-                      required
-                      placeholder="III Year, B.Tech. Mech"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('yearBranch'); addLog('SYS: ENTERING ACADEMIC STREAM...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'yearBranch' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="yearBranch"
+                        type="text"
+                        required
+                        placeholder="III Year, B.Tech. Mech"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('yearBranch'); addLog('SYS: ENTERING ACADEMIC STREAM...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'yearBranch' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
                 </div>
 
@@ -346,16 +438,25 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Hostel &amp; Room Info
                     </label>
-                    <input
-                      name="hostelInfo"
-                      type="text"
-                      required
-                      placeholder="Vinaya Block-1, S-239 / Day Scholar"
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('hostelInfo'); addLog('SYS: ENTERING RESIDENCY RECORD...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
-                    />
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'hostelInfo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <input
+                        name="hostelInfo"
+                        type="text"
+                        required
+                        placeholder="Vinaya Block-1, S-239 / Day Scholar"
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('hostelInfo'); addLog('SYS: ENTERING RESIDENCY RECORD...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'hostelInfo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
 
                   {/* Batch Passout Year */}
@@ -363,19 +464,28 @@ export default function SignupPage() {
                     <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Batch Year (Passout)
                     </label>
-                    <select
-                      name="batchYear"
-                      required
-                      disabled={isLoading}
-                      onFocus={() => { setActiveField('batchYear'); addLog('SYS: SELECTING BATCH YEAR...'); playTacClick(); }}
-                      onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 appearance-none cursor-pointer"
-                    >
-                      <option value="2026">2026 (Batch 5)</option>
-                      <option value="2027">2027 (Batch 6)</option>
-                      <option value="2028">2028 (Batch 7)</option>
-                      <option value="2029">2029 (Batch 8)</option>
-                    </select>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'batchYear' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>[</span>
+                      <select
+                        name="batchYear"
+                        required
+                        disabled={isLoading}
+                        onMouseEnter={() => playTacClick('hover')}
+                        onFocus={() => { setActiveField('batchYear'); addLog('SYS: SELECTING BATCH YEAR...'); playTacClick('soft'); }}
+                        onBlur={() => setActiveField(null)}
+                        className="w-full px-7 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)] appearance-none cursor-pointer"
+                      >
+                        <option value="2026">2026 (Batch 5)</option>
+                        <option value="2027">2027 (Batch 6)</option>
+                        <option value="2028">2028 (Batch 7)</option>
+                        <option value="2029">2029 (Batch 8)</option>
+                      </select>
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'batchYear' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      }`}>]</span>
+                    </div>
                   </div>
                 </div>
 
@@ -399,7 +509,7 @@ export default function SignupPage() {
                   type="submit"
                   disabled={isLoading}
                   className="w-full relative overflow-hidden bg-gradient-to-r from-ncc-sky/20 to-ncc-olive/20 border border-ncc-sky/40 text-ncc-sky text-sm font-sans font-bold py-3 rounded hover:bg-ncc-sky/25 hover:border-ncc-sky/65 hover:shadow-[0_0_20px_rgba(75,156,211,0.2)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2.5"
-                  onMouseEnter={() => playTacClick()}
+                  onMouseEnter={() => playTacClick('hover')}
                 >
                   {isLoading && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-ncc-sky/10 to-transparent animate-shimmer" />
@@ -423,7 +533,7 @@ export default function SignupPage() {
                 <Link
                   href="/login"
                   className="text-ncc-sky/55 hover:text-white transition-colors duration-300 flex items-center gap-1"
-                  onMouseEnter={() => playTacClick()}
+                  onMouseEnter={() => playTacClick('hover')}
                 >
                   <i className="fas fa-arrow-left" />
                   <span>Existing Link (Login)</span>
@@ -431,7 +541,7 @@ export default function SignupPage() {
                 <Link
                   href="/"
                   className="text-ncc-olive/55 hover:text-ncc-gold transition-colors duration-300 flex items-center gap-1"
-                  onMouseEnter={() => playTacClick()}
+                  onMouseEnter={() => playTacClick('hover')}
                 >
                   <span>Home</span>
                   <i className="fas fa-home" />

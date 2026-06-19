@@ -4,6 +4,48 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
+import CornerBrackets from '@/components/CornerBrackets';
+
+function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
+  if (typeof window === 'undefined') return;
+  const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
+  if (isMuted) return;
+
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === 'confirm') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      osc.start(); osc.stop(ctx.currentTime + 0.18);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'hover') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(240, ctx.currentTime);
+      gain.gain.setValueAtTime(0.012, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
+    } else {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      gain.gain.setValueAtTime(0.025, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(); osc.stop(ctx.currentTime + 0.05);
+    }
+  } catch (_) {}
+}
 
 export default function Home() {
     const [scrolled, setScrolled] = useState(false);
@@ -196,22 +238,22 @@ export default function Home() {
 
                     {/* Nav Links (Desktop) */}
                     <nav className="hidden lg:flex items-center gap-7 text-[11px] font-bold tracking-widest text-ncc-olive/80">
-                        <a href="#sector-brief" className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
+                        <a href="#sector-brief" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">01.</span> PROFILE
                         </a>
-                        <a href="#sector-training" className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
+                        <a href="#sector-training" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">02.</span> TRAINING
                         </a>
-                        <a href="#sector-benefits" className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
+                        <a href="#sector-benefits" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">03.</span> BENEFITS
                         </a>
-                        <a href="#sector-roll" className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
+                        <a href="#sector-roll" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">04.</span> CADRE
                         </a>
-                        <a href="#sector-recon" className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
+                        <a href="#sector-recon" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">05.</span> GALLERY
                         </a>
-                        <a href="#sector-terminal" className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
+                        <a href="#sector-terminal" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">06.</span> ENLIST
                         </a>
                     </nav>
@@ -233,6 +275,8 @@ export default function Home() {
 
                         <Link 
                             href="/login" 
+                            onMouseEnter={() => playTacClick('hover')}
+                            onClick={() => playTacClick('confirm')}
                             className="px-4 py-2 border border-ncc-gold/45 bg-ncc-gold/10 text-ncc-gold rounded text-[10px] font-bold uppercase tracking-widest hover:bg-ncc-gold hover:text-black transition-all duration-300 shadow-md shadow-ncc-gold/5 whitespace-nowrap"
                         >
                             Portal Login
@@ -378,8 +422,8 @@ export default function Home() {
                                 <p>
                                     Our ANO (Associate NCC Officer), **Lt. Dr. G Jegadeesan**, commands and coordinates all contingent actions inside the campus. The NCC Command Office is situated on the **First Floor, Gnanavihar Block (opposite Gurunath Stores)**.
                                 </p>
-                                <div className="border-l-2 border-ncc-gold pl-4 text-xs text-ncc-khaki/90 bg-ncc-gold/5 py-3.5 rounded-r font-mono flex flex-col gap-2">
-                                    <div className="font-bold text-white uppercase tracking-wider text-[9px]">// OFFICIAL AIMS OF NCC:</div>
+                                <div className="border-l-2 border-ncc-gold pl-4 text-xs text-ncc-khaki/90 bg-ncc-gold/5 py-3.5 rounded-r font-sans flex flex-col gap-2">
+                                    <div className="font-bold text-white uppercase tracking-wider text-[9px] font-mono">// OFFICIAL AIMS OF NCC:</div>
                                     <ul className="list-disc pl-4 space-y-1 text-gray-300">
                                         <li>To develop character, comradeship, discipline, a secular outlook, the spirit of adventure, and the ideals of selfless service among young citizens.</li>
                                         <li>To create a pool of organized, trained, and motivated youth with leadership qualities in all walks of life, who will serve the nation regardless of the career they choose.</li>
@@ -942,103 +986,143 @@ export default function Home() {
 
                                 {recruitmentOpen ? (
                                     <>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="flex flex-col gap-1.5">
                                                 <label className="text-ncc-olive uppercase tracking-wider font-bold">Cadet Full Name</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={name} 
-                                                    onChange={e => setName(e.target.value)} 
-                                                    className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all"
-                                                    placeholder="John Doe"
-                                                    required
-                                                />
+                                                <div className="relative group">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                    <input 
+                                                        type="text" 
+                                                        value={name} 
+                                                        onChange={e => setName(e.target.value)} 
+                                                        onFocus={() => playTacClick('soft')}
+                                                        className="w-full px-7 py-2 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                                                        placeholder="John Doe"
+                                                        required
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                                </div>
                                             </div>
                                             <div className="flex flex-col gap-1.5">
                                                 <label className="text-ncc-olive uppercase tracking-wider font-bold">Register Number</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={regNo} 
-                                                    onChange={e => setRegNo(e.target.value)} 
-                                                    className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all"
-                                                    placeholder="123456789"
-                                                    required
-                                                />
+                                                <div className="relative group">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                    <input 
+                                                        type="text" 
+                                                        value={regNo} 
+                                                        onChange={e => setRegNo(e.target.value)} 
+                                                        onFocus={() => playTacClick('soft')}
+                                                        className="w-full px-7 py-2 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                                                        placeholder="127003001"
+                                                        required
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="flex flex-col gap-1.5">
                                                 <label className="text-ncc-olive uppercase tracking-wider font-bold">SASTRA Email Address</label>
-                                                <input 
-                                                    type="email" 
-                                                    value={email} 
-                                                    onChange={e => setEmail(e.target.value)} 
-                                                    className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all"
-                                                    placeholder="doe@sastra.edu"
-                                                    required
-                                                />
+                                                <div className="relative group">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                    <input 
+                                                        type="email" 
+                                                        value={email} 
+                                                        onChange={e => setEmail(e.target.value)} 
+                                                        onFocus={() => playTacClick('soft')}
+                                                        className="w-full px-7 py-2 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                                                        placeholder="doe@sastra.edu"
+                                                        required
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                                </div>
                                             </div>
                                             <div className="flex flex-col gap-1.5">
                                                 <label className="text-ncc-olive uppercase tracking-wider font-bold">Department & Year</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={dept} 
-                                                    onChange={e => setDept(e.target.value)} 
-                                                    className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all"
-                                                    placeholder="B.Tech CSE / II Year"
-                                                    required
-                                                />
+                                                <div className="relative group">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                    <input 
+                                                        type="text" 
+                                                        value={dept} 
+                                                        onChange={e => setDept(e.target.value)} 
+                                                        onFocus={() => playTacClick('soft')}
+                                                        className="w-full px-7 py-2 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                                                        placeholder="B.Tech CSE / II Year"
+                                                        required
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1.5">
                                             <label className="text-ncc-olive uppercase tracking-wider font-bold">Reason for Enlistment / Inquiries</label>
-                                            <textarea 
-                                                rows={3}
-                                                value={reason} 
-                                                onChange={e => setReason(e.target.value)} 
-                                                className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all resize-none"
-                                                placeholder="Describe your motivation to join SASTRA NCC..."
-                                            ></textarea>
+                                            <div className="relative group">
+                                                <span className="absolute left-3 top-4 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={reason} 
+                                                    onChange={e => setReason(e.target.value)} 
+                                                    onFocus={() => playTacClick('soft')}
+                                                    className="w-full px-7 py-2.5 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)] resize-none"
+                                                    placeholder="Describe your motivation to join SASTRA NCC..."
+                                                ></textarea>
+                                                <span className="absolute right-3 top-4 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                            </div>
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="flex flex-col gap-1.5">
                                                 <label className="text-ncc-olive uppercase tracking-wider font-bold">Your Name</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={name} 
-                                                    onChange={e => setName(e.target.value)} 
-                                                    className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all"
-                                                    placeholder="John Doe"
-                                                    required
-                                                />
+                                                <div className="relative group">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                    <input 
+                                                        type="text" 
+                                                        value={name} 
+                                                        onChange={e => setName(e.target.value)} 
+                                                        onFocus={() => playTacClick('soft')}
+                                                        className="w-full px-7 py-2 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                                                        placeholder="John Doe"
+                                                        required
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                                </div>
                                             </div>
                                             <div className="flex flex-col gap-1.5">
                                                 <label className="text-ncc-olive uppercase tracking-wider font-bold">SASTRA Email Address</label>
-                                                <input 
-                                                    type="email" 
-                                                    value={email} 
-                                                    onChange={e => setEmail(e.target.value)} 
-                                                    className="bg-black/60 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all"
-                                                    placeholder="doe@sastra.edu"
-                                                    required
-                                                />
+                                                <div className="relative group">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                    <input 
+                                                        type="email" 
+                                                        value={email} 
+                                                        onChange={e => setEmail(e.target.value)} 
+                                                        onFocus={() => playTacClick('soft')}
+                                                        className="w-full px-7 py-2 bg-black/60 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                                                        placeholder="doe@sastra.edu"
+                                                        required
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col gap-1.5">
                                             <label className="text-ncc-olive uppercase tracking-wider font-bold">Inquiry / Message</label>
-                                            <textarea 
-                                                rows={4}
-                                                value={reason} 
-                                                onChange={e => setReason(e.target.value)} 
-                                                className="bg-[#0c1008]/20 border border-ncc-olive/30 rounded p-2.5 text-white font-mono outline-none focus:border-ncc-gold transition-all resize-none"
-                                                placeholder="Type your message or inquiry regarding the upcoming boys contingent recruitment..."
-                                            ></textarea>
+                                            <div className="relative group">
+                                                <span className="absolute left-3 top-4 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">[</span>
+                                                <textarea 
+                                                    rows={4}
+                                                    value={reason} 
+                                                    onChange={e => setReason(e.target.value)} 
+                                                    onFocus={() => playTacClick('soft')}
+                                                    className="w-full px-7 py-2.5 bg-[#0c1008]/20 border border-ncc-olive/30 rounded text-white font-sans outline-none transition-all duration-300 focus:border-ncc-gold/75 focus:ring-1 focus:ring-ncc-gold/25 focus:shadow-[0_0_12px_rgba(212,175,55,0.25)] resize-none"
+                                                    placeholder="Type your message or inquiry regarding the upcoming boys contingent recruitment..."
+                                                ></textarea>
+                                                <span className="absolute right-3 top-4 font-mono text-sm text-ncc-olive/40 group-focus-within:text-ncc-gold group-focus-within:drop-shadow-[0_0_6px_rgba(212,175,55,0.85)] font-bold transition-all duration-300">]</span>
+                                            </div>
                                         </div>
                                     </>
                                 )}
@@ -1046,6 +1130,8 @@ export default function Home() {
                                 <button 
                                     type="submit"
                                     disabled={isSubmitting}
+                                    onMouseEnter={() => playTacClick('hover')}
+                                    onClick={() => playTacClick('confirm')}
                                     className={`w-full py-3 border font-bold text-center tracking-widest uppercase transition-all duration-300 ${
                                         isSubmitting 
                                             ? 'border-ncc-olive/40 bg-ncc-olive/5 text-gray-500 cursor-not-allowed'
