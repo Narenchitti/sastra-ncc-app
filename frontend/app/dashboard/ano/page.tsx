@@ -9,6 +9,24 @@ import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
 
+/** Format Date as YYYY-MM-DD in local timezone (not UTC) */
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Get Monday of the week containing `ref` (defaults to today). Non-mutating. */
+function getMonday(ref?: Date): Date {
+  const d = new Date(ref ?? Date.now());
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
   if (typeof window === 'undefined') return;
   const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
@@ -68,14 +86,7 @@ export default function ANODashboard() {
   const [eventEnd, setEventEnd] = useState('');
 
   // Schedule Navigation, Filtering, and Details
-  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Get Monday
-    const monday = new Date(today.setDate(diff));
-    monday.setHours(0, 0, 0, 0);
-    return monday;
-  });
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMonday());
   const [scheduleFilter, setScheduleFilter] = useState<'All' | 'Parade' | 'Theory' | 'Camp' | 'Event'>('All');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
 
@@ -157,7 +168,8 @@ export default function ANODashboard() {
   const closedPermissions = data.permissions.filter(p => ['APPROVED', 'DECLINED_BY_ANO', 'MEET_ANO'].includes(p.status));
   const pendingAchievements = data.achievements.filter(a => a.status === 'PENDING');
   const verifiedAchievements = data.achievements.filter(a => a.status === 'VERIFIED');
-  const nextEvent = data.events.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+  const todayStr = toLocalDateStr(new Date());
+  const nextEvent = data.events.filter(e => e.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date))[0];
 
   // Form Helpers
   const resetForm = () => {
@@ -201,7 +213,7 @@ export default function ANODashboard() {
 
     // Collect all events for this week for the Detailed Agenda
     const weekEvents = weekDates.flatMap(dateObj => {
-      const dateStr = dateObj.toISOString().split('T')[0];
+      const dateStr = toLocalDateStr(dateObj);
       return filteredEvents
         .filter(e => e.date === dateStr)
         .map(e => ({ ...e, dateObj }));
@@ -232,12 +244,7 @@ export default function ANODashboard() {
             </button>
             <button 
               onClick={() => {
-                const today = new Date();
-                const day = today.getDay();
-                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-                const monday = new Date(today.setDate(diff));
-                monday.setHours(0, 0, 0, 0);
-                setCurrentWeekStart(monday);
+                setCurrentWeekStart(getMonday());
               }}
               className="px-2.5 h-7 rounded-md border border-ncc-olive/25 text-xs font-sans font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
             >
@@ -283,11 +290,11 @@ export default function ANODashboard() {
         {/* 1. Mini Visual Grid (Quick Glance) */}
         <div className="grid grid-cols-7 gap-px bg-ncc-olive/10 border-b border-ncc-olive/10">
           {weekDates.map((dateObj, i) => {
-            const dateStr = dateObj.toISOString().split('T')[0];
+            const dateStr = toLocalDateStr(dateObj);
             const dayName = dateObj.toLocaleDateString('default', { weekday: 'short' });
             const dayNum = dateObj.getDate();
             const daysEvents = filteredEvents.filter(e => e.date === dateStr);
-            const isToday = dateStr === new Date().toISOString().split('T')[0];
+            const isToday = dateStr === toLocalDateStr(new Date());
 
             return (
               <div 

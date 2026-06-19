@@ -9,6 +9,24 @@ import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
 
+/** Format Date as YYYY-MM-DD in local timezone (not UTC) */
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Get Monday of the week containing `ref` (defaults to today). Non-mutating. */
+function getMonday(ref?: Date): Date {
+  const d = new Date(ref ?? Date.now());
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
   if (typeof window === 'undefined') return;
   const isMuted = localStorage.getItem('ncc_sound_muted') === 'true';
@@ -73,14 +91,7 @@ export default function CadetDashboard() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   // Schedule Navigation, Filtering, Details, and Leave Pre-filling
-  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Get Monday
-    const monday = new Date(today.setDate(diff));
-    monday.setHours(0, 0, 0, 0);
-    return monday;
-  });
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMonday());
   const [scheduleFilter, setScheduleFilter] = useState<'All' | 'Parade' | 'Theory' | 'Camp' | 'Event'>('All');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [leavePrefill, setLeavePrefill] = useState<{ startDate: string; endDate: string; reason: string } | null>(null);
@@ -231,12 +242,7 @@ export default function CadetDashboard() {
             </button>
             <button 
               onClick={() => {
-                const today = new Date();
-                const day = today.getDay();
-                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-                const monday = new Date(today.setDate(diff));
-                monday.setHours(0, 0, 0, 0);
-                setCurrentWeekStart(monday);
+                setCurrentWeekStart(getMonday());
                 playTacClick();
               }}
               className="px-3 h-8 rounded-md border border-ncc-olive/25 text-xs font-sans font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
@@ -283,13 +289,11 @@ export default function CadetDashboard() {
         {/* Calendar Grid */}
         <div className="grid grid-cols-1 md:grid-cols-7 gap-px bg-ncc-olive/10 border-b border-ncc-olive/10">
           {weekDates.map((dateObj, i) => {
-            const dateStr = dateObj.toISOString().split('T')[0];
+            const dateStr = toLocalDateStr(dateObj);
             const dayName = dateObj.toLocaleDateString('default', { weekday: 'short' });
             const dayNum = dateObj.getDate();
             const daysEvents = filteredEvents.filter(e => e.date === dateStr);
-            const isToday = currentTime 
-              ? dateStr === currentTime.toISOString().split('T')[0]
-              : dateStr === new Date().toISOString().split('T')[0];
+            const isToday = dateStr === toLocalDateStr(currentTime ?? new Date());
 
             return (
               <div key={i} className={`min-h-[140px] p-3 flex flex-col gap-2 transition-colors ${isToday ? 'bg-ncc-gold/5 border border-ncc-gold/25' : 'bg-black/30 hover:bg-white/[0.03]'}`}>
