@@ -229,7 +229,7 @@ Respond with a JSON object containing 'explanation' (why this plan fits syllabus
         
         from .telemetry import TelemetrySpan
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
         
         async with httpx.AsyncClient(timeout=30.0) as client:
             with TelemetrySpan("ai", "Gemini Training Schedule Planner"):
