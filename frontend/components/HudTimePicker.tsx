@@ -107,7 +107,7 @@ export default function HudTimePicker({ value, onChange, name, required, label }
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 top-full mt-2 left-0 w-[280px] bg-[#0a0e08]/98 border border-ncc-olive/30 rounded-md shadow-2xl shadow-black/60 backdrop-blur-sm animate-fade-in overflow-hidden">
+        <div className="absolute z-50 bottom-full mb-2 left-0 w-[280px] bg-[#0a0e08]/98 border border-ncc-olive/30 rounded-md shadow-2xl shadow-black/60 backdrop-blur-sm animate-fade-in overflow-hidden">
           {/* Mode Tabs */}
           <div className="flex border-b border-ncc-olive/15">
             <button

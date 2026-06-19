@@ -332,7 +332,7 @@ export default function ANODashboard() {
         {/* 2. Detailed Agenda List */}
         <div className="p-6 border-t border-ncc-olive/15 space-y-3 bg-black/25">
           <h4 className="font-heading font-bold text-ncc-olive/60 text-xs uppercase tracking-widest mb-2 font-mono">// Detailed Agenda</h4>
-          <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+          <div className="space-y-3">
             {weekEvents.length === 0 ? (
               <p className="text-xs text-ncc-olive/40 italic text-center py-6 font-sans">No events scheduled for this week.</p>
             ) : (
@@ -1389,9 +1389,9 @@ export default function ANODashboard() {
             <div>
               <h2 className="font-heading text-lg font-bold text-gray-500 mb-6 uppercase tracking-wide">Live Schedule Preview</h2>
               <CalendarView />
-              <div className="mt-6 bg-blue-50/50 border border-blue-200/50 p-4 rounded-xl text-xs text-blue-800 flex items-start gap-2.5">
-                <i className="fas fa-info-circle text-sm mt-0.5"></i>
-                <span>Events created or modified here will be immediately visible to all 52 Cadets on their dashboards.</span>
+              <div className="mt-6 bg-ncc-sky/5 border border-ncc-sky/20 p-4 rounded-md text-xs text-ncc-sky/70 flex items-start gap-2.5 font-sans">
+                <i className="fas fa-broadcast-tower text-sm mt-0.5 text-ncc-sky/50"></i>
+                <span>All published events are visible to cadets on their dashboards.</span>
               </div>
             </div>
           </div>
