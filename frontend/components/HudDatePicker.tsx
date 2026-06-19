@@ -113,23 +113,23 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
 
       {/* Calendar Popup */}
       {open && (
-        <div className="absolute z-50 bottom-full mb-2 left-0 w-[300px] bg-[#0a0e08]/98 border border-ncc-olive/30 rounded-md shadow-2xl shadow-black/60 backdrop-blur-sm animate-fade-in overflow-hidden">
+        <div className="absolute z-50 bottom-full mb-2 left-0 w-[300px] bg-[#0d120a] border-2 border-ncc-olive/60 rounded-md shadow-[0_0_20px_rgba(74,93,35,0.35)] animate-fade-in overflow-hidden">
           {/* Header — Month/Year + Nav */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-ncc-olive/15">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-ncc-olive/20 bg-black/40">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="w-7 h-7 rounded flex items-center justify-center text-ncc-olive/70 hover:text-ncc-gold hover:bg-ncc-gold/10 transition-colors"
+              className="w-7 h-7 rounded flex items-center justify-center text-ncc-khaki hover:text-ncc-gold hover:bg-ncc-gold/20 transition-colors"
             >
               <i className="fas fa-chevron-left text-[10px]"></i>
             </button>
-            <span className="text-xs font-sans font-bold text-gray-200 uppercase tracking-widest">
+            <span className="text-xs font-sans font-bold text-white uppercase tracking-widest">
               {MONTH_NAMES[viewMonth]} {viewYear}
             </span>
             <button
               type="button"
               onClick={() => navigate(1)}
-              className="w-7 h-7 rounded flex items-center justify-center text-ncc-olive/70 hover:text-ncc-gold hover:bg-ncc-gold/10 transition-colors"
+              className="w-7 h-7 rounded flex items-center justify-center text-ncc-khaki hover:text-ncc-gold hover:bg-ncc-gold/20 transition-colors"
             >
               <i className="fas fa-chevron-right text-[10px]"></i>
             </button>
@@ -138,7 +138,7 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
           {/* Day Labels */}
           <div className="grid grid-cols-7 gap-0 px-2 pt-2 pb-1">
             {DAY_LABELS.map(d => (
-              <div key={d} className="text-center text-[9px] font-sans font-bold text-ncc-olive/50 uppercase tracking-widest py-1">{d}</div>
+              <div key={d} className="text-center text-[9px] font-sans font-bold text-ncc-khaki uppercase tracking-widest py-1">{d}</div>
             ))}
           </div>
 
@@ -156,10 +156,10 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
                   onClick={() => selectDate(cell)}
                   className={`
                     h-8 rounded-sm text-xs font-mono font-semibold transition-all
-                    ${!cell.isCurrentMonth ? 'text-gray-600/40 hover:text-gray-500' : ''}
-                    ${cell.isCurrentMonth && !isSelected && !isToday ? 'text-gray-300 hover:bg-ncc-gold/10 hover:text-ncc-gold' : ''}
-                    ${isToday && !isSelected ? 'text-ncc-gold border border-ncc-gold/30 bg-ncc-gold/5' : ''}
-                    ${isSelected ? 'bg-ncc-sky/20 text-ncc-sky border border-ncc-sky/40 shadow-[0_0_8px_rgba(56,189,248,0.15)]' : ''}
+                    ${!cell.isCurrentMonth ? 'text-gray-600 hover:text-gray-400' : ''}
+                    ${cell.isCurrentMonth && !isSelected && !isToday ? 'text-white hover:bg-ncc-gold/20 hover:text-ncc-gold' : ''}
+                    ${isToday && !isSelected ? 'text-ncc-gold border-2 border-ncc-gold/60 bg-ncc-gold/15' : ''}
+                    ${isSelected ? 'bg-ncc-sky text-white border-2 border-ncc-sky-light shadow-[0_0_12px_rgba(56,189,248,0.3)] font-bold' : ''}
                   `}
                 >
                   {cell.day}
@@ -173,7 +173,7 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
             <button
               type="button"
               onClick={() => { onChange(todayStr); setOpen(false); }}
-              className="flex-1 py-1.5 text-[10px] font-sans font-bold uppercase tracking-widest text-ncc-gold/70 hover:text-ncc-gold bg-ncc-gold/5 hover:bg-ncc-gold/10 border border-ncc-gold/15 rounded-sm transition-colors"
+              className="flex-1 py-1.5 text-[10px] font-sans font-bold uppercase tracking-widest text-ncc-gold hover:bg-ncc-gold/20 border-2 border-ncc-gold/30 rounded-sm transition-colors"
             >
               Today
             </button>
@@ -181,7 +181,7 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
               <button
                 type="button"
                 onClick={() => { onChange(''); setOpen(false); }}
-                className="flex-1 py-1.5 text-[10px] font-sans font-bold uppercase tracking-widest text-ncc-red/70 hover:text-ncc-red bg-ncc-red/5 hover:bg-ncc-red/10 border border-ncc-red/15 rounded-sm transition-colors"
+                className="flex-1 py-1.5 text-[10px] font-sans font-bold uppercase tracking-widest text-ncc-red hover:bg-ncc-red/20 border-2 border-ncc-red/30 rounded-sm transition-colors"
               >
                 Clear
               </button>

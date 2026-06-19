@@ -461,8 +461,14 @@ export default function ANODashboard() {
             </div>
             <div className="overflow-hidden">
               <div className="text-white font-bold text-xs leading-tight truncate">{user.name}</div>
-              <div className="text-ncc-gold text-xs font-sans font-bold uppercase tracking-wider mt-0.5">{user.rank || 'Officer'}</div>
-              <div className="text-ncc-olive/50 text-xs font-sans mt-0.5">{user.role === 'ANO' ? 'Associate NCC Officer' : 'Command Staff'}</div>
+              {user.role === 'ANO' ? (
+                <div className="text-ncc-gold text-xs font-sans font-bold uppercase tracking-wider mt-0.5">Associate NCC Officer</div>
+              ) : (
+                <>
+                  <div className="text-ncc-sky text-xs font-sans font-bold uppercase tracking-wider mt-0.5">{user.rank} {user.regimentalNumber}</div>
+                  <div className="text-ncc-olive/50 text-[10px] font-sans mt-0.5">Batch {user.batchYear}</div>
+                </>
+              )}
             </div>
           </div>
           <button
@@ -494,7 +500,7 @@ export default function ANODashboard() {
           </div>
           <div className="flex gap-2">
             <span className="hud-badge hud-badge-rejected flex items-center gap-1.5 py-1 px-3">
-              <i className="fas fa-crown"></i> {isANO ? 'Commanding Officer' : user.rank}
+              <i className="fas fa-crown"></i> {isANO ? 'Associate NCC Officer' : user.rank}
             </span>
           </div>
         </header>

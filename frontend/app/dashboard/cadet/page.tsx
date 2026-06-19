@@ -568,8 +568,8 @@ export default function CadetDashboard() {
             </div>
             <div className="overflow-hidden">
               <div className="text-white font-bold text-xs leading-tight truncate font-sans">{user.name}</div>
-              <div className="text-ncc-sky text-xs font-sans font-bold uppercase tracking-wider mt-0.5">{user.rank}</div>
-              <div className="text-ncc-olive/60 text-xs font-sans mt-0.5">{getYearLabel(user.batchYear)} // {user.batchYear}</div>
+              <div className="text-ncc-sky text-xs font-sans font-bold uppercase tracking-wider mt-0.5">{user.rank} {user.regimentalNumber}</div>
+              <div className="text-ncc-olive/60 text-[10px] font-sans mt-0.5">Batch {user.batchYear}</div>
             </div>
           </div>
           <button
@@ -601,6 +601,9 @@ export default function CadetDashboard() {
             <h1 className="text-2xl font-heading font-bold text-white uppercase tracking-widest">{activeTab}</h1>
           </div>
           <div className="flex gap-2">
+            <span className="hud-badge hud-badge-rejected flex items-center gap-1.5 py-1 px-3">
+              <i className="fas fa-crown"></i> {user?.rank || 'Cadet'}
+            </span>
             {isManager && (
               <span className="hud-badge hud-badge-forwarded flex items-center gap-1.5 py-1 px-3">
                 <i className="fas fa-shield-alt"></i> Permission Manager

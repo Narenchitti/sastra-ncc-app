@@ -107,7 +107,7 @@ export default function HudTimePicker({ value, onChange, name, required, label }
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 bottom-full mb-2 left-0 w-[280px] bg-[#0a0e08]/98 border border-ncc-olive/30 rounded-md shadow-2xl shadow-black/60 backdrop-blur-sm animate-fade-in overflow-hidden">
+        <div className="absolute z-50 bottom-full mb-2 left-0 w-[280px] bg-[#0d120a] border-2 border-ncc-olive/60 rounded-md shadow-[0_0_20px_rgba(74,93,35,0.35)] animate-fade-in overflow-hidden">
           {/* Mode Tabs */}
           <div className="flex border-b border-ncc-olive/15">
             <button
@@ -115,8 +115,8 @@ export default function HudTimePicker({ value, onChange, name, required, label }
               onClick={() => setMode('presets')}
               className={`flex-1 py-2.5 text-[10px] font-sans font-bold uppercase tracking-widest transition-colors ${
                 mode === 'presets'
-                  ? 'text-ncc-gold border-b-2 border-ncc-gold bg-ncc-gold/5'
-                  : 'text-ncc-olive/50 hover:text-gray-300'
+                  ? 'text-ncc-gold border-b-2 border-ncc-gold bg-ncc-gold/15'
+                  : 'text-ncc-khaki hover:text-white'
               }`}
             >
               Quick Select
@@ -126,8 +126,8 @@ export default function HudTimePicker({ value, onChange, name, required, label }
               onClick={() => setMode('custom')}
               className={`flex-1 py-2.5 text-[10px] font-sans font-bold uppercase tracking-widest transition-colors ${
                 mode === 'custom'
-                  ? 'text-ncc-sky border-b-2 border-ncc-sky bg-ncc-sky/5'
-                  : 'text-ncc-olive/50 hover:text-gray-300'
+                  ? 'text-ncc-sky border-b-2 border-ncc-sky bg-ncc-sky/15'
+                  : 'text-ncc-khaki hover:text-white'
               }`}
             >
               Hour : Minute
@@ -144,14 +144,14 @@ export default function HudTimePicker({ value, onChange, name, required, label }
                     key={p.label}
                     type="button"
                     onClick={() => selectPreset(p.label)}
-                    className={`py-2.5 px-3 rounded-sm text-left transition-all border ${
+                    className={`py-2.5 px-3 rounded-sm text-left transition-all border-2 ${
                       isActive
-                        ? 'bg-ncc-sky/15 border-ncc-sky/40 text-ncc-sky'
-                        : 'bg-black/30 border-ncc-olive/15 text-gray-400 hover:border-ncc-gold/30 hover:text-ncc-gold hover:bg-ncc-gold/5'
+                        ? 'bg-ncc-sky/35 border-ncc-sky text-white font-bold shadow-[0_0_10px_rgba(75,156,211,0.2)]'
+                        : 'bg-[#12190f] border-ncc-olive/30 text-white hover:border-ncc-gold hover:text-ncc-gold hover:bg-ncc-gold/10'
                     }`}
                   >
                     <span className="block text-sm font-mono font-bold">{p.label}</span>
-                    <span className="block text-[9px] font-sans text-ncc-olive/50 uppercase tracking-wider mt-0.5">{p.desc}</span>
+                    <span className="block text-[9px] font-sans text-ncc-khaki uppercase tracking-wider mt-0.5">{p.desc}</span>
                   </button>
                 );
               })}
@@ -161,7 +161,7 @@ export default function HudTimePicker({ value, onChange, name, required, label }
             <div className="flex gap-0 h-[220px]">
               {/* Hour Column */}
               <div className="flex-1 border-r border-ncc-olive/15">
-                <div className="text-center text-[9px] font-sans font-bold text-ncc-olive/40 uppercase tracking-widest py-1.5 border-b border-ncc-olive/10 bg-black/20">Hour</div>
+                <div className="text-center text-[9px] font-sans font-bold text-ncc-khaki uppercase tracking-widest py-1.5 border-b border-ncc-olive/20 bg-black/40">Hour</div>
                 <div ref={hourRef} className="overflow-y-auto h-[calc(100%-28px)] scrollbar-thin">
                   {HOURS.map(h => {
                     const isActive = selHour === h;
@@ -173,14 +173,14 @@ export default function HudTimePicker({ value, onChange, name, required, label }
                         type="button"
                         data-hour={h}
                         onClick={() => selectHour(h)}
-                        className={`w-full py-1.5 px-3 text-left text-xs font-mono transition-colors flex justify-between items-center ${
+                        className={`w-full py-2 px-3 text-left text-xs font-mono transition-colors flex justify-between items-center border-b border-ncc-olive/10 ${
                           isActive
-                            ? 'bg-ncc-sky/15 text-ncc-sky font-bold'
-                            : 'text-gray-400 hover:bg-ncc-gold/5 hover:text-ncc-gold'
+                            ? 'bg-ncc-sky/35 text-white font-bold'
+                            : 'text-gray-200 hover:bg-ncc-gold/10 hover:text-ncc-gold'
                         }`}
                       >
                         <span>{h}</span>
-                        <span className="text-[9px] text-ncc-olive/40 uppercase">{ampm}</span>
+                        <span className="text-[9px] text-ncc-khaki uppercase">{ampm}</span>
                       </button>
                     );
                   })}
@@ -189,7 +189,7 @@ export default function HudTimePicker({ value, onChange, name, required, label }
 
               {/* Minute Column */}
               <div className="flex-1">
-                <div className="text-center text-[9px] font-sans font-bold text-ncc-olive/40 uppercase tracking-widest py-1.5 border-b border-ncc-olive/10 bg-black/20">Min</div>
+                <div className="text-center text-[9px] font-sans font-bold text-ncc-khaki uppercase tracking-widest py-1.5 border-b border-ncc-olive/20 bg-black/40">Min</div>
                 <div className="overflow-y-auto h-[calc(100%-28px)]">
                   {MINUTES.map(m => {
                     const isActive = selMinute === m;
@@ -198,10 +198,10 @@ export default function HudTimePicker({ value, onChange, name, required, label }
                         key={m}
                         type="button"
                         onClick={() => selectMinute(m)}
-                        className={`w-full py-1.5 px-3 text-left text-xs font-mono transition-colors ${
+                        className={`w-full py-2 px-3 text-left text-xs font-mono transition-colors border-b border-ncc-olive/10 ${
                           isActive
-                            ? 'bg-ncc-sky/15 text-ncc-sky font-bold'
-                            : 'text-gray-400 hover:bg-ncc-gold/5 hover:text-ncc-gold'
+                            ? 'bg-ncc-sky/35 text-white font-bold'
+                            : 'text-gray-200 hover:bg-ncc-gold/10 hover:text-ncc-gold'
                         }`}
                       >
                         :{m}
@@ -215,8 +215,8 @@ export default function HudTimePicker({ value, onChange, name, required, label }
 
           {/* Current Selection Footer */}
           {value && (
-            <div className="flex items-center justify-between px-3 py-2 border-t border-ncc-olive/15 bg-black/20">
-              <span className="text-[10px] font-sans text-ncc-olive/50 uppercase tracking-widest">Selected</span>
+            <div className="flex items-center justify-between px-3 py-2 border-t border-ncc-olive/25 bg-black/50">
+              <span className="text-[10px] font-sans text-ncc-khaki uppercase tracking-widest">Selected</span>
               <span className="text-sm font-mono font-bold text-ncc-gold">{displayValue}</span>
             </div>
           )}
