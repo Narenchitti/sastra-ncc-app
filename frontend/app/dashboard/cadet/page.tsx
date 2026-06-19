@@ -181,7 +181,7 @@ export default function CadetDashboard() {
         <div className="p-6 border-b border-ncc-olive/15 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h3 className="font-heading text-xl font-bold text-white uppercase tracking-wider">Weekly Training Schedule</h3>
-            <p className="text-ncc-gold font-bold uppercase text-[10px] tracking-widest mt-0.5 font-mono">{rangeLabel}</p>
+            <p className="text-ncc-gold font-bold uppercase text-xs tracking-widest mt-0.5 font-mono">{rangeLabel}</p>
           </div>
           {/* Week Navigation */}
           <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -208,7 +208,7 @@ export default function CadetDashboard() {
                 setCurrentWeekStart(monday);
                 playTacClick();
               }}
-              className="px-3 h-8 rounded-md border border-ncc-olive/25 text-[10px] font-mono font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
+              className="px-3 h-8 rounded-md border border-ncc-olive/25 text-xs font-sans font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
             >
               TODAY
             </button>
@@ -237,7 +237,7 @@ export default function CadetDashboard() {
               <button
                 key={f}
                 onClick={() => { setScheduleFilter(f); playTacClick(); }}
-                className={`px-3.5 py-1 rounded-sm text-[10px] font-mono font-bold tracking-widest uppercase transition-all border ${
+                className={`px-3.5 py-1.5 rounded-sm text-xs font-sans font-bold tracking-widest uppercase transition-all border ${
                   isActive 
                     ? 'bg-ncc-gold/15 border-ncc-gold/50 text-ncc-gold shadow-[0_0_10px_rgba(212,175,55,0.1)]' 
                     : 'bg-transparent border-ncc-olive/20 text-ncc-olive/70 hover:border-ncc-olive/40 hover:text-gray-300'
@@ -261,10 +261,10 @@ export default function CadetDashboard() {
               : dateStr === new Date().toISOString().split('T')[0];
 
             return (
-              <div key={i} className={`min-h-[140px] p-3 flex flex-col gap-2 transition-colors ${isToday ? 'bg-ncc-gold/5 border border-ncc-gold/20' : 'bg-black/30 hover:bg-white/[0.03]'}`}>
+              <div key={i} className={`min-h-[140px] p-3 flex flex-col gap-2 transition-colors ${isToday ? 'bg-ncc-gold/5 border border-ncc-gold/25' : 'bg-black/30 hover:bg-white/[0.03]'}`}>
                 <div className="text-center mb-1">
-                  <span className="block text-[9px] uppercase font-bold text-ncc-olive/60 tracking-widest font-mono">{dayName}</span>
-                  <span className={`text-base font-bold leading-none font-mono ${isToday ? 'text-ncc-gold shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'text-gray-400'}`}>{dayNum}</span>
+                  <span className="block text-xs uppercase font-bold text-ncc-olive/60 tracking-widest font-sans">{dayName}</span>
+                  <span className={`text-lg font-bold leading-none font-mono ${isToday ? 'text-ncc-gold shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'text-gray-400'}`}>{dayNum}</span>
                 </div>
                 <div className="flex flex-col gap-1.5 flex-grow justify-end">
                   {daysEvents.map(ev => {
@@ -280,7 +280,7 @@ export default function CadetDashboard() {
                       <div 
                         key={ev.id} 
                         onClick={() => { setSelectedEvent(ev); playTacClick(); }}
-                        className={`text-[10px] p-2.5 rounded-sm border-l-2 relative group cursor-pointer hover:scale-[1.02] transition-all duration-200 ${
+                        className={`text-xs p-2.5 rounded-sm border-l-2 relative group cursor-pointer hover:scale-[1.02] transition-all duration-200 ${
                           ev.type === 'Parade' ? 'bg-ncc-red/10 border-ncc-red text-red-300 hover:bg-ncc-red/15' : 
                           ev.type === 'Theory' ? 'bg-ncc-sky/10 border-ncc-sky text-sky-300 hover:bg-ncc-sky/15' : 
                           ev.type === 'Camp' ? 'bg-purple-900/30 border-purple-400 text-purple-300 hover:bg-purple-900/40' :
@@ -288,7 +288,7 @@ export default function CadetDashboard() {
                         }`}
                       >
                         <div className="font-bold truncate">{ev.title}</div>
-                        <div className="opacity-75 text-[9px] mt-0.5">{ev.startTime} - {ev.endTime}</div>
+                        <div className="opacity-75 text-xs mt-0.5 font-mono">{ev.startTime} - {ev.endTime}</div>
 
                         {/* Personal Attendance Indicator */}
                         {attRecord ? (
@@ -309,7 +309,7 @@ export default function CadetDashboard() {
                         {/* Rank Holder Action */}
                         {isRankHolder && (
                           <div onClick={(e) => { e.stopPropagation(); launchRegister(ev); }}
-                            className={`mt-2 text-center py-1 rounded-md cursor-pointer font-bold transition-all text-[9px] ${status.status === 'open' ? 'bg-green-600 text-white animate-pulse' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+                            className={`mt-2 text-center py-1 rounded-md cursor-pointer font-bold transition-all text-xs font-sans ${status.status === 'open' ? 'bg-green-600 text-white animate-pulse' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
                             {status.status === 'open' ? 'Mark Attendance' : 'Closed'}
                           </div>
                         )}
@@ -339,7 +339,7 @@ export default function CadetDashboard() {
             <div className="tricolor-bar absolute top-0 left-0 right-0"></div>
             <div>
               <h2 className="font-heading text-xl font-bold uppercase tracking-widest text-ncc-gold">Attendance Register</h2>
-              <div className="text-[10px] font-mono text-ncc-olive/80 flex gap-4 mt-1">
+              <div className="text-xs font-sans text-ncc-olive/80 flex gap-4 mt-1">
                 <span><i className="far fa-calendar-check mr-2 text-ncc-gold"></i> {registerEvent.title}</span>
                 <span><i className="far fa-clock mr-2 text-ncc-gold"></i> {registerEvent.startTime} - {registerEvent.endTime}</span>
               </div>
@@ -350,38 +350,38 @@ export default function CadetDashboard() {
           </div>
           <div className="flex-1 overflow-y-auto p-6 bg-black/40">
             {confirmStep === 1 ? (
-              <div className="text-center py-12 max-w-md mx-auto">
+              <div className="text-center py-12 max-w-md mx-auto font-sans">
                 <div className="w-16 h-16 bg-ncc-gold/10 rounded-full flex items-center justify-center text-3xl text-ncc-gold mb-6 mx-auto border border-ncc-gold/30 shadow-[0_0_20px_rgba(212,175,55,0.15)]">
                   <i className="fas fa-exclamation-triangle"></i>
                 </div>
                 <h3 className="font-heading text-xl font-bold text-white mb-2 uppercase tracking-wider">Confirm Submission?</h3>
-                <p className="text-gray-400 text-sm mb-8 font-mono">You are about to submit the attendance register for {sheetData.length} cadets. This register will become the official record.</p>
+                <p className="text-gray-300 text-sm mb-8">You are about to submit the attendance register for {sheetData.length} cadets. This register will become the official record.</p>
                 <div className="flex justify-center gap-4">
-                  <button onClick={() => setConfirmStep(0)} className="px-6 py-2.5 rounded-md border border-ncc-olive/30 bg-black/30 hover:bg-ncc-olive/10 font-semibold text-gray-300 transition-colors text-sm font-mono">Go Back</button>
-                  <button onClick={() => { finalSubmitAttendance(); playTacClick('confirm'); }} className="px-6 py-2.5 rounded-md bg-emerald-600/80 hover:bg-emerald-600 font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all text-sm font-mono border border-emerald-500/40">Confirm &amp; Submit</button>
+                  <button onClick={() => setConfirmStep(0)} className="px-6 py-2.5 rounded-md border border-ncc-olive/30 bg-black/30 hover:bg-ncc-olive/10 font-semibold text-gray-300 transition-colors text-sm">Go Back</button>
+                  <button onClick={() => { finalSubmitAttendance(); playTacClick('confirm'); }} className="px-6 py-2.5 rounded-md bg-emerald-600/80 hover:bg-emerald-600 font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all text-sm border border-emerald-500/40">Confirm &amp; Submit</button>
                 </div>
               </div>
             ) : (
               Object.entries(groupedData).map(([year, students]) => students.length > 0 && (
                 <div key={year} className="mb-8 last:mb-0">
-                  <h3 className="text-[9px] font-bold uppercase text-ncc-olive/60 border-b border-ncc-olive/15 pb-2 mb-4 sticky top-0 bg-[#080b06] z-10 tracking-widest font-mono">{year}</h3>
+                  <h3 className="text-xs font-bold uppercase text-ncc-olive/60 border-b border-ncc-olive/15 pb-2 mb-4 sticky top-0 bg-[#080b06] z-10 tracking-widest font-sans">{year}</h3>
                   <div className="space-y-2">
                     {students.map(stud => (
-                      <div key={stud.id} className="tac-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                       <div key={stud.id} className="tac-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-3 w-64">
                           <div className="w-10 h-10 rounded-sm flex items-center justify-center text-sm font-bold font-heading bg-ncc-gold/10 text-ncc-gold border border-ncc-gold/25">{stud.name.charAt(0)}</div>
                           <div>
-                            <div className="font-bold text-sm text-gray-200 leading-tight">{stud.name}</div>
-                            <div className="text-[10px] text-ncc-sky font-semibold uppercase tracking-wider mt-0.5 font-mono">{stud.rank}</div>
+                            <div className="font-bold text-sm text-gray-200 leading-tight font-sans">{stud.name}</div>
+                            <div className="text-xs text-ncc-sky font-bold uppercase tracking-wider mt-0.5 font-sans">{stud.rank}</div>
                           </div>
                         </div>
                         {stud.autoPermission ? (
-                          <div className="flex-1 bg-blue-900/20 border border-blue-500/30 text-blue-300 px-4 py-2.5 rounded-sm text-xs font-bold flex items-center justify-center gap-2">
+                          <div className="flex-1 bg-blue-900/20 border border-blue-500/30 text-blue-300 px-4 py-2.5 rounded-sm text-xs font-bold flex items-center justify-center gap-2 font-sans">
                             <i className="fas fa-file-signature text-sm"></i>
                             <span>Approved Leave ({stud.permissionType})</span>
                           </div>
                         ) : (
-                          <div className="flex-1 grid grid-cols-4 gap-1.5">
+                          <div className="flex-1 grid grid-cols-4 gap-1.5 font-sans">
                              {['Present', 'Absent', 'Late', 'Permission'].map(status => {
                               const isActive = attendanceMarks[stud.id] === status;
                               const btnColor = status === 'Present' ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.15)]' :
@@ -392,7 +392,7 @@ export default function CadetDashboard() {
                                 <button
                                   key={status}
                                   onClick={() => { setAttendanceMarks(prev => ({ ...prev, [stud.id]: status })); playTacClick(); }}
-                                  className={`py-1.5 rounded-sm text-[10px] font-mono font-bold border transition-all ${
+                                  className={`py-2 rounded-sm text-xs font-bold border transition-all ${
                                     isActive ? btnColor : 'bg-black/30 text-ncc-olive/60 border-ncc-olive/20 hover:border-ncc-olive/40 hover:text-gray-300'
                                   }`}
                                 >
@@ -411,8 +411,8 @@ export default function CadetDashboard() {
           </div>
           {confirmStep === 0 && (
             <div className="bg-black/50 p-5 border-t border-ncc-olive/15 flex justify-end gap-3 z-10">
-              <button onClick={() => setShowRegister(false)} className="px-6 py-2.5 rounded-md border border-ncc-olive/25 bg-black/30 hover:bg-ncc-olive/10 font-mono font-semibold text-gray-400 transition-colors text-xs">Cancel</button>
-              <button onClick={() => { setConfirmStep(1); playTacClick(); }} className="px-8 py-2.5 rounded-md bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold font-mono font-bold shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all text-xs uppercase tracking-widest">Review Submission</button>
+              <button onClick={() => setShowRegister(false)} className="px-6 py-2.5 rounded-md border border-ncc-olive/25 bg-black/30 hover:bg-ncc-olive/10 font-sans font-semibold text-gray-400 transition-colors text-xs">Cancel</button>
+              <button onClick={() => { setConfirmStep(1); playTacClick(); }} className="px-8 py-2.5 rounded-md bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold font-sans font-bold shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all text-xs uppercase tracking-widest">Review Submission</button>
             </div>
           )}
         </div>
@@ -471,7 +471,7 @@ export default function CadetDashboard() {
             <img src="/assets/images/ncc_logo.png" alt="NCC" className="h-9 animate-float" />
             <div>
               <h2 className="font-heading text-xl font-bold tracking-widest leading-none text-white uppercase">SASTRA NCC</h2>
-              <p className="text-[8px] text-ncc-gold font-mono tracking-[0.25em] uppercase mt-1">Cadet Portal</p>
+              <p className="text-xs text-ncc-gold font-sans font-bold tracking-[0.1em] uppercase mt-1">Cadet Portal</p>
             </div>
           </div>
         </div>
@@ -490,7 +490,7 @@ export default function CadetDashboard() {
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); playTacClick(); }}
-                className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-mono text-xs uppercase tracking-widest relative ${
+                className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-sans text-sm font-semibold uppercase tracking-wider relative ${
                   isActive 
                     ? 'tac-nav-active' 
                     : 'text-ncc-olive/60 hover:bg-ncc-olive/8 hover:text-gray-300 border border-transparent'
@@ -505,7 +505,7 @@ export default function CadetDashboard() {
           {isManager && (
             <button
               onClick={() => { setActiveTab('approvals'); playTacClick(); }}
-              className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-mono text-xs uppercase tracking-widest relative mt-3 pt-3 border-t border-ncc-olive/15 ${
+              className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-sans text-sm font-semibold uppercase tracking-wider relative mt-3 pt-3 border-t border-ncc-olive/15 ${
                 activeTab === 'approvals'
                   ? 'tac-nav-active'
                   : 'text-ncc-olive/60 hover:bg-ncc-olive/8 hover:text-gray-300 border-transparent'
@@ -515,7 +515,7 @@ export default function CadetDashboard() {
               <i className="fas fa-check-double w-4 text-center text-xs text-emerald-400"></i>
               <span>Approvals</span>
               {pendingRequests.length > 0 && (
-                <span className="text-[9px] bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-1.5 py-0.5 rounded-sm ml-auto font-bold font-mono animate-pulse">
+                <span className="text-xs bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-1.5 py-0.5 rounded-sm ml-auto font-bold font-sans animate-pulse">
                   {pendingRequests.length}
                 </span>
               )}
@@ -530,14 +530,14 @@ export default function CadetDashboard() {
               {user.name.charAt(0)}
             </div>
             <div className="overflow-hidden">
-              <div className="text-white font-bold text-xs leading-tight truncate">{user.name}</div>
-              <div className="text-ncc-sky text-[8px] font-mono font-bold uppercase tracking-wider mt-0.5">{user.rank}</div>
-              <div className="text-ncc-olive/50 text-[8px] font-mono mt-0.5">{getYearLabel(user.batchYear)} // {user.batchYear}</div>
+              <div className="text-white font-bold text-xs leading-tight truncate font-sans">{user.name}</div>
+              <div className="text-ncc-sky text-xs font-sans font-bold uppercase tracking-wider mt-0.5">{user.rank}</div>
+              <div className="text-ncc-olive/60 text-xs font-sans mt-0.5">{getYearLabel(user.batchYear)} // {user.batchYear}</div>
             </div>
           </div>
           <button
             onClick={() => { playTacClick(); localStorage.removeItem('user'); localStorage.removeItem('access_token'); router.push('/'); }}
-            className="w-full py-2 rounded-sm border border-ncc-olive/20 text-[10px] font-mono hover:bg-ncc-red/10 hover:border-ncc-red/30 hover:text-ncc-red text-ncc-olive/50 font-semibold transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+            className="w-full py-2 rounded-sm border border-ncc-olive/20 text-xs font-sans hover:bg-ncc-red/10 hover:border-ncc-red/30 hover:text-ncc-red text-ncc-olive/50 font-semibold transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             <i className="fas fa-sign-out-alt"></i>
             <span>Sign Out</span>
@@ -548,7 +548,7 @@ export default function CadetDashboard() {
       {/* ── MAIN CONTENT AREA ── */}
       <main className="md:ml-64 w-full p-6 md:p-10 overflow-x-hidden min-h-screen flex flex-col relative z-10">
         {message && (
-          <div className="fixed top-5 right-5 bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-4 py-3 rounded-md z-50 animate-fade-in shadow-xl flex items-center gap-3 backdrop-blur-sm font-mono text-xs">
+          <div className="fixed top-5 right-5 bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-4 py-3 rounded-md z-50 animate-fade-in shadow-xl flex items-center gap-3 backdrop-blur-sm font-sans text-xs">
             <i className="fas fa-check-circle text-emerald-400"></i>
             <span>{message}</span>
             <button onClick={() => setMessage('')} className="ml-4 text-emerald-500/60 hover:text-emerald-300 transition-colors">
@@ -560,7 +560,7 @@ export default function CadetDashboard() {
         {/* Sticky Top Header */}
         <header className="flex justify-between items-center mb-8 pb-5 border-b border-ncc-olive/20">
           <div>
-            <div className="text-[9px] font-mono text-ncc-olive/50 uppercase tracking-widest mb-1">// cadet.ops.console</div>
+            <div className="text-xs font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">// cadet.ops.console</div>
             <h1 className="text-2xl font-heading font-bold text-white uppercase tracking-widest">{activeTab}</h1>
           </div>
           <div className="flex gap-2">
@@ -586,7 +586,7 @@ export default function CadetDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               
               <div className="tac-card-sky p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Personal Attendance</div>
+                <div className="text-xs text-ncc-olive/60 font-sans font-semibold uppercase tracking-wider mb-1">Personal Attendance</div>
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="text-4xl font-heading font-bold text-ncc-sky">
                     {attPct(attMyRecords) !== null ? `${attPct(attMyRecords)}%` : '100%'}
@@ -601,14 +601,14 @@ export default function CadetDashboard() {
               </div>
 
               <div className="tac-card-red p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Pending Permissions</div>
+                <div className="text-xs text-ncc-olive/60 font-sans font-semibold uppercase tracking-wider mb-1">Pending Permissions</div>
                 <div className="text-4xl font-heading font-bold text-ncc-red mt-2">
                   {data.permissions.filter(p => p.cadetId === user.id && p.status.includes('PENDING')).length}
                 </div>
               </div>
 
               <div className="tac-card-gold p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Total Achievements</div>
+                <div className="text-xs text-ncc-olive/60 font-sans font-semibold uppercase tracking-wider mb-1">Total Achievements</div>
                 <div className="text-4xl font-heading font-bold text-ncc-gold mt-2">
                   {data.achievements.filter(a => a.cadetId === user.id).length}
                 </div>
@@ -620,12 +620,12 @@ export default function CadetDashboard() {
             {isSUO && pendingRequests.length > 0 && (
               <div className="tac-card-sky p-5 flex justify-between items-center animate-fade-in">
                 <div>
-                  <h3 className="text-ncc-sky font-mono font-bold mb-1 text-sm flex items-center gap-2">
+                  <h3 className="text-ncc-sky font-sans font-bold mb-1 text-sm flex items-center gap-2">
                     <i className="fas fa-info-circle"></i> ENDORSEMENT REQUIRED
                   </h3>
-                  <p className="text-gray-400 text-[11px] font-mono">{pendingRequests.length} cadet permission request(s) awaiting your endorsement.</p>
+                  <p className="text-gray-400 text-xs font-sans">{pendingRequests.length} cadet permission request(s) awaiting your endorsement.</p>
                 </div>
-                <button onClick={() => { setActiveTab('approvals'); playTacClick('confirm'); }} className="bg-ncc-sky/15 border border-ncc-sky/40 text-ncc-sky px-5 py-2 rounded-sm font-mono font-bold text-[10px] hover:bg-ncc-sky/25 transition-colors uppercase tracking-widest">
+                <button onClick={() => { setActiveTab('approvals'); playTacClick('confirm'); }} className="bg-ncc-sky/15 border border-ncc-sky/40 text-ncc-sky px-5 py-2 rounded-sm font-sans font-bold text-xs hover:bg-ncc-sky/25 transition-colors uppercase tracking-widest">
                   Review
                 </button>
               </div>
@@ -637,16 +637,16 @@ export default function CadetDashboard() {
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ncc-red/70 to-transparent"></div>
                 <div className="z-10">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="hud-badge hud-badge-rejected"><i className="fas fa-broadcast-tower text-[8px]"></i> NEXT MISSION</span>
-                    <span className="text-ncc-olive/50 text-[9px] font-mono uppercase tracking-widest">Mandatory Attendance</span>
+                    <span className="hud-badge hud-badge-rejected"><i className="fas fa-broadcast-tower text-[10px]"></i> NEXT MISSION</span>
+                    <span className="text-ncc-olive/60 text-xs font-sans uppercase tracking-wider">Mandatory Attendance</span>
                   </div>
                   <h2 className="text-2xl font-heading font-bold text-white leading-tight uppercase tracking-wider">{upcomingEvent.title}</h2>
-                  <div className="flex flex-wrap gap-4 mt-4 text-[10px] font-mono text-gray-400">
+                  <div className="flex flex-wrap gap-4 mt-4 text-xs font-sans text-gray-300">
                     <span className="flex items-center gap-1.5">
                       <i className="far fa-calendar text-ncc-red"></i> 
                       {new Date(upcomingEvent.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </span>
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5 font-mono">
                       <i className="far fa-clock text-ncc-red"></i> 
                       {upcomingEvent.startTime}
                     </span>
@@ -657,7 +657,7 @@ export default function CadetDashboard() {
                   </div>
                 </div>
                 <div className="flex gap-3 z-10">
-                  <button onClick={() => { setActiveTab('schedule'); playTacClick(); }} className="px-5 py-2.5 bg-black/30 border border-ncc-red/30 hover:border-ncc-red/60 text-ncc-red font-mono font-bold rounded-sm transition-all text-[10px] uppercase tracking-widest">
+                  <button onClick={() => { setActiveTab('schedule'); playTacClick(); }} className="px-5 py-2.5 bg-black/30 border border-ncc-red/30 hover:border-ncc-red/60 text-ncc-red font-sans font-bold rounded-sm transition-all text-xs uppercase tracking-widest">
                     View Schedule
                   </button>
                 </div>
@@ -671,7 +671,7 @@ export default function CadetDashboard() {
                   <h2 className="text-xl font-heading font-bold text-ncc-olive/50 leading-none uppercase">No training events scheduled currently</h2>
                 </div>
                 <div className="flex gap-3 z-10">
-                  <button onClick={() => { setActiveTab('schedule'); playTacClick(); }} className="px-5 py-2.5 bg-black/30 border border-ncc-olive/20 hover:border-ncc-olive/40 text-ncc-olive/60 font-mono font-bold rounded-sm transition-all text-[10px] uppercase tracking-widest">
+                  <button onClick={() => { setActiveTab('schedule'); playTacClick(); }} className="px-5 py-2.5 bg-black/30 border border-ncc-olive/20 hover:border-ncc-olive/40 text-ncc-olive/60 font-sans font-bold rounded-sm transition-all text-xs uppercase tracking-widest">
                     View Schedule
                   </button>
                 </div>
@@ -689,7 +689,7 @@ export default function CadetDashboard() {
                   <i className="fas fa-shield-halved"></i>
                 </div>
                 <h3 className="font-heading text-base font-bold text-ncc-gold uppercase tracking-widest">Unity &amp; Discipline</h3>
-                <p className="text-gray-500 text-[10px] font-mono max-w-sm mx-auto mt-2 leading-loose tracking-wide">Mark attendance registers on time and submit achievements for verification to your Captain ANO Officer.</p>
+                <p className="text-gray-400 text-xs font-sans max-w-sm mx-auto mt-2 leading-relaxed tracking-wide">Mark attendance registers on time and submit achievements for verification to your Captain ANO Officer.</p>
               </div>
             </div>
           </div>
@@ -700,16 +700,16 @@ export default function CadetDashboard() {
           <div className="animate-fade-in space-y-6 flex-grow">
             <div className="tac-card p-5">
               <h2 className="font-heading text-base font-bold text-white uppercase tracking-widest">Cadet Request Registry</h2>
-              <p className="text-ncc-olive/60 text-[10px] font-mono mt-0.5">Review, endorse, or forward incoming permission requests.</p>
+              <p className="text-ncc-olive/60 text-xs font-sans mt-0.5">Review, endorse, or forward incoming permission requests.</p>
             </div>
             <div className="space-y-4">
-              <h3 className="font-mono text-[9px] font-bold text-ncc-olive/50 uppercase tracking-widest border-b border-ncc-olive/15 pb-2">Pending Endorsements ({pendingRequests.length})</h3>
+              <h3 className="font-sans text-xs font-bold text-ncc-olive/50 uppercase tracking-widest border-b border-ncc-olive/15 pb-2">Pending Endorsements ({pendingRequests.length})</h3>
               {pendingRequests.map(p => (
                 <div key={p.id} className="tac-card-gold p-5 flex flex-col gap-4">
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-heading text-base font-bold text-white uppercase tracking-wider leading-none">{p.cadetName}</h3>
-                      <div className="text-[10px] text-ncc-olive/60 mt-2 flex items-center gap-2 font-mono">
+                      <div className="text-xs text-ncc-olive/60 mt-2 flex items-center gap-2 font-mono">
                         <i className="far fa-calendar-alt text-ncc-red"></i> {p.startDate} → {p.endDate}
                       </div>
                     </div>
@@ -719,13 +719,13 @@ export default function CadetDashboard() {
                       </a>
                     )}
                   </div>
-                  <div className="bg-black/30 border border-ncc-olive/15 p-4 rounded-sm text-gray-300 text-xs font-mono">
-                    <strong className="block text-[9px] font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Reason for Leave</strong>
+                  <div className="bg-black/30 border border-ncc-olive/15 p-4 rounded-sm text-gray-300 text-xs font-sans">
+                    <strong className="block text-xs font-bold text-ncc-olive/60 uppercase tracking-widest mb-1 font-sans">Reason for Leave</strong>
                     {p.reason}
                   </div>
                   <form className="flex flex-col md:flex-row gap-3 items-stretch md:items-end border-t border-ncc-olive/10 pt-4 mt-1">
                     <div className="flex-1">
-                      <label className="text-[9px] font-mono font-bold text-ncc-olive/60 uppercase tracking-widest mb-1.5 block">Review Comments</label>
+                      <label className="text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1.5 block">Review Comments</label>
                       <input id={`comment-${p.id}`} name="comment" className="hud-input" placeholder="e.g. Verified medical certificate. Recommended." required />
                     </div>
                     <div className="flex gap-2">
@@ -733,14 +733,14 @@ export default function CadetDashboard() {
                         const input = document.getElementById(`comment-${p.id}`) as HTMLInputElement;
                         if (!input.value) { alert('Please add a comment'); return; }
                         handleSuoAction(p.id, 'FORWARD', input.value); playTacClick('confirm');
-                      }} className="bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 px-4 py-2.5 rounded-sm font-mono font-bold text-[10px] uppercase tracking-wider hover:bg-emerald-600/30 transition-colors flex items-center gap-1.5">
+                      }} className="bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 px-4 py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-wider hover:bg-emerald-600/30 transition-colors flex items-center gap-1.5">
                         <i className="fas fa-check"></i> Forward
                       </button>
                       <button type="button" onClick={() => {
                         const input = document.getElementById(`comment-${p.id}`) as HTMLInputElement;
                         if (!input.value) { alert('Please add a comment'); return; }
                         handleSuoAction(p.id, 'REJECT', input.value); playTacClick('error');
-                      }} className="bg-ncc-red/15 text-ncc-red border border-ncc-red/35 px-4 py-2.5 rounded-sm font-mono font-bold text-[10px] uppercase tracking-wider hover:bg-ncc-red/25 transition-colors flex items-center gap-1.5">
+                      }} className="bg-ncc-red/15 text-ncc-red border border-ncc-red/35 px-4 py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-wider hover:bg-ncc-red/25 transition-colors flex items-center gap-1.5">
                         <i className="fas fa-times"></i> Reject
                       </button>
                     </div>
@@ -748,7 +748,7 @@ export default function CadetDashboard() {
                 </div>
               ))}
               {pendingRequests.length === 0 && (
-                <div className="text-center py-12 tac-card border border-dashed border-ncc-olive/20 text-ncc-olive/40 text-[11px] font-mono">
+                <div className="text-center py-12 tac-card border border-dashed border-ncc-olive/20 text-ncc-olive/40 text-xs font-sans">
                   <i className="fas fa-check-circle text-2xl mb-2 block opacity-30"></i>
                   No new requests pending your endorsement.
                 </div>
@@ -756,28 +756,28 @@ export default function CadetDashboard() {
             </div>
             
             <div className="space-y-4 pt-2">
-              <h3 className="font-mono text-[9px] font-bold text-ncc-olive/50 uppercase tracking-widest border-b border-ncc-olive/15 pb-2">History</h3>
+              <h3 className="font-sans text-xs font-bold text-ncc-olive/50 uppercase tracking-widest border-b border-ncc-olive/15 pb-2">History</h3>
               <div className="space-y-3">
                 {pastApprovals.map(p => (
                   <div key={p.id} className="tac-card p-5">
                     <div className="flex justify-between items-start gap-4">
                       <div className="space-y-2 flex-grow">
                         <div className="font-bold text-gray-200 text-sm leading-snug">{p.reason}</div>
-                        <div className="text-[10px] text-ncc-olive/50 font-mono">{p.startDate} to {p.endDate}</div>
+                        <div className="text-xs text-ncc-olive/50 font-mono">{p.startDate} to {p.endDate}</div>
 
                         {p.suoComment && (
-                          <div className="text-[10px] bg-black/30 p-2.5 rounded-sm border border-ncc-olive/15 mt-2 font-mono">
-                            <strong className="text-ncc-olive/60 block mb-0.5">// SUO Comment:</strong> {p.suoComment}
+                          <div className="text-xs bg-black/30 p-2.5 rounded-sm border border-ncc-olive/15 mt-2 font-sans">
+                            <strong className="text-ncc-olive/60 block mb-0.5 font-sans">// SUO Comment:</strong> {p.suoComment}
                           </div>
                         )}
                         {p.anoComment && (
-                          <div className="text-[10px] bg-black/30 p-2.5 rounded-sm border border-ncc-olive/15 mt-1 font-mono">
-                            <strong className="text-ncc-olive/60 block mb-0.5">// ANO Comment:</strong> {p.anoComment}
+                          <div className="text-xs bg-black/30 p-2.5 rounded-sm border border-ncc-olive/15 mt-1 font-sans">
+                            <strong className="text-ncc-olive/60 block mb-0.5 font-sans">// ANO Comment:</strong> {p.anoComment}
                           </div>
                         )}
                         
                         {p.status === 'MEET_ANO' && (
-                          <div className="bg-amber-900/20 border-l-2 border-amber-500 p-3 text-amber-300 text-[10px] rounded-r-sm mt-3 flex items-start gap-2 font-mono">
+                          <div className="bg-amber-900/20 border-l-2 border-amber-500 p-3 text-amber-300 text-xs rounded-r-sm mt-3 flex items-start gap-2 font-sans">
                             <i className="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
                             <div>
                               <div className="font-bold">ANO Action Required</div>
@@ -814,12 +814,12 @@ export default function CadetDashboard() {
             {isRankHolder && (
               <div className="tac-card-gold p-5 flex items-center justify-between">
                 <div>
-                  <h3 className="font-mono text-xs font-bold text-ncc-gold flex items-center gap-2 uppercase tracking-widest">
+                  <h3 className="font-sans text-xs font-bold text-ncc-gold flex items-center gap-2 uppercase tracking-widest">
                     <i className="fas fa-clipboard-check"></i> Attendance Marking Authorized
                   </h3>
-                  <p className="text-[10px] text-ncc-olive/60 font-mono mt-1">Submit the bulk attendance register for cadets from your rank panel.</p>
+                  <p className="text-xs text-ncc-olive/60 font-sans mt-1.5">Submit the bulk attendance register for cadets from your rank panel.</p>
                 </div>
-                <button onClick={() => { launchRegister(); playTacClick('confirm'); }} className="bg-ncc-gold/15 border border-ncc-gold/40 text-ncc-gold px-5 py-2.5 rounded-sm font-mono font-bold text-[10px] uppercase tracking-widest hover:bg-ncc-gold/25 transition-all shadow-[0_0_12px_rgba(212,175,55,0.1)]">
+                <button onClick={() => { launchRegister(); playTacClick('confirm'); }} className="bg-ncc-gold/15 border border-ncc-gold/40 text-ncc-gold px-5 py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-gold/25 transition-all shadow-[0_0_12px_rgba(212,175,55,0.1)]">
                   Launch Register
                 </button>
               </div>
@@ -837,7 +837,7 @@ export default function CadetDashboard() {
               <form action={async (fd) => { fd.append('cadetId', user.id); fd.append('cadetName', `${user.rank} ${user.name}`); await submitPermission(fd); setMessage('Permission Submitted Successfully!'); setLeavePrefill(null); refreshData(); playTacClick('confirm'); }} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">From Date</label>
+                    <label className="block text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">From Date</label>
                     <input 
                       name="startDate" 
                       type="date" 
@@ -848,7 +848,7 @@ export default function CadetDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">To Date</label>
+                    <label className="block text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">To Date</label>
                     <input 
                       name="endDate" 
                       type="date" 
@@ -860,7 +860,7 @@ export default function CadetDashboard() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">Reason Detailed</label>
+                  <label className="block text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">Reason Detailed</label>
                   <textarea 
                     name="reason" 
                     className="hud-input h-28 py-2" 
@@ -871,10 +871,10 @@ export default function CadetDashboard() {
                   ></textarea>
                 </div>
                 <div>
-                  <label className="block text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">Evidence Document (Optional)</label>
-                  <input type="file" name="evidence" className="w-full text-[10px] text-ncc-olive/60 font-mono file:mr-3 file:py-2 file:px-3 file:rounded-sm file:border file:border-ncc-olive/25 file:text-[10px] file:font-mono file:bg-black/40 file:text-ncc-olive/70 hover:file:bg-ncc-olive/10 file:transition-all cursor-pointer" />
+                  <label className="block text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">Evidence Document (Optional)</label>
+                  <input type="file" name="evidence" className="w-full text-xs text-ncc-olive/60 font-sans file:mr-3 file:py-2 file:px-3 file:rounded-sm file:border file:border-ncc-olive/25 file:text-xs file:font-sans file:bg-black/40 file:text-ncc-olive/70 hover:file:bg-ncc-olive/10 file:transition-all cursor-pointer" />
                 </div>
-                <button className="w-full bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold py-3 rounded-sm font-mono font-bold text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.18)]">
+                <button className="w-full bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold py-3 rounded-sm font-sans font-bold text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.18)]">
                   Submit Request
                 </button>
               </form>
@@ -882,41 +882,41 @@ export default function CadetDashboard() {
 
             {/* History */}
             <div className="space-y-4">
-              <h3 className="font-mono text-[9px] font-bold text-ncc-olive/50 uppercase tracking-widest border-b border-ncc-olive/15 pb-2">My Request History</h3>
+              <h3 className="font-sans text-xs font-bold text-ncc-olive/50 uppercase tracking-widest border-b border-ncc-olive/15 pb-2">My Request History</h3>
               <div className="space-y-3">
                 {data.permissions.filter(p => p.cadetId === user.id).map(p => (
                   <div key={p.id} className="tac-card p-4">
                     <div className="flex justify-between items-start gap-4">
                       <div className="space-y-2 flex-grow">
                         <div className="font-bold text-gray-200 text-xs leading-snug">{p.reason}</div>
-                        <div className="text-[9px] text-ncc-olive/50 font-mono">{p.startDate} → {p.endDate}</div>
+                        <div className="text-xs text-ncc-olive/50 font-mono">{p.startDate} → {p.endDate}</div>
 
                         {p.suoComment && (
-                          <div className="text-[9px] bg-black/30 p-2 rounded-sm border border-ncc-olive/15 mt-2 font-mono">
+                          <div className="text-xs bg-black/30 p-2.5 rounded-sm border border-ncc-olive/15 mt-2 font-sans">
                             <strong className="text-ncc-olive/60 block mb-0.5">// SUO:</strong> {p.suoComment}
                           </div>
                         )}
                         {p.anoComment && (
-                          <div className="text-[9px] bg-black/30 p-2 rounded-sm border border-ncc-olive/15 mt-1 font-mono">
+                          <div className="text-xs bg-black/30 p-2.5 rounded-sm border border-ncc-olive/15 mt-1 font-sans">
                             <strong className="text-ncc-olive/60 block mb-0.5">// ANO:</strong> {p.anoComment}
                           </div>
                         )}
                         {p.aiStatus && (
-                          <div className={`text-[9px] p-2 rounded-sm border mt-1 flex flex-col gap-1 font-mono ${
+                          <div className={`text-xs p-2.5 rounded-sm border mt-1 flex flex-col gap-1 font-sans ${
                             p.aiStatus === 'VERIFIED' ? 'bg-emerald-900/15 border-emerald-500/25 text-emerald-300' :
                             p.aiStatus === 'FLAGGED' ? 'bg-amber-900/15 border-amber-500/25 text-amber-300' :
                             p.aiStatus === 'ERROR' ? 'bg-ncc-red/10 border-ncc-red/25 text-red-400' :
                             'bg-black/30 border-ncc-olive/15 text-gray-400'
                           }`}>
-                            <div className="flex items-center gap-1 font-bold text-[8px] uppercase tracking-widest">
-                              <i className="fas fa-robot text-[8px]"></i> AI Audit
+                            <div className="flex items-center gap-1 font-bold text-xs uppercase tracking-widest">
+                              <i className="fas fa-robot text-xs"></i> AI Audit
                             </div>
                             <div>{p.aiRemarks}</div>
                           </div>
                         )}
 
                         {p.status === 'MEET_ANO' && (
-                          <div className="bg-amber-900/20 border-l-2 border-amber-500 p-2.5 text-amber-300 text-[9px] rounded-r-sm mt-2 flex items-start gap-2 font-mono animate-pulse">
+                          <div className="bg-amber-900/20 border-l-2 border-amber-500 p-2.5 text-amber-300 text-xs rounded-r-sm mt-2 flex items-start gap-2 font-sans animate-pulse">
                             <i className="fas fa-exclamation-triangle text-amber-400 mt-0.5"></i>
                             <div>
                               <div className="font-bold">ANO Action Required</div>
@@ -945,7 +945,7 @@ export default function CadetDashboard() {
                               refreshData();
                             }
                           }}>
-                            <button className="text-[9px] text-ncc-red/70 hover:text-ncc-red font-mono font-semibold transition-colors uppercase tracking-widest">
+                            <button className="text-xs text-ncc-red/70 hover:text-ncc-red font-sans font-semibold transition-colors uppercase tracking-widest">
                               [Withdraw]
                             </button>
                           </form>
@@ -955,7 +955,7 @@ export default function CadetDashboard() {
                   </div>
                 ))}
                 {data.permissions.filter(p => p.cadetId === user.id).length === 0 && (
-                  <div className="text-center text-ncc-olive/40 py-12 tac-card border border-dashed border-ncc-olive/15 text-[11px] font-mono">
+                  <div className="text-center text-ncc-olive/40 py-12 tac-card border border-dashed border-ncc-olive/15 text-xs font-sans">
                     No request history found.
                   </div>
                 )}
@@ -992,11 +992,11 @@ export default function CadetDashboard() {
 
                     <h4 className="font-heading text-base font-bold text-white mb-1 leading-snug uppercase">{ach.title}</h4>
                     {ach.location && (
-                      <div className="text-[10px] text-ncc-olive/60 font-mono mb-1 flex items-center gap-1">
+                      <div className="text-xs text-ncc-olive/60 font-sans mb-1 flex items-center gap-1">
                         <i className="fas fa-map-marker-alt text-ncc-red/60"></i> {ach.location}
                       </div>
                     )}
-                    <p className="text-[9px] text-ncc-olive/50 font-mono mb-4">{ach.date} {ach.endDate && `→ ${ach.endDate}`}</p>
+                    <p className="text-xs text-ncc-olive/50 font-mono mb-4">{ach.date} {ach.endDate && `→ ${ach.endDate}`}</p>
 
                     {/* Submit Button */}
                     {(ach.status === 'DRAFT' || ach.status === 'REJECTED' || !ach.status) && (
@@ -1008,13 +1008,13 @@ export default function CadetDashboard() {
                           refreshData(); playTacClick('confirm');
                         }
                       }}>
-                        <button className="w-full text-center bg-ncc-gold/10 hover:bg-ncc-gold/18 text-ncc-gold border border-ncc-gold/30 py-2 rounded-sm text-[10px] font-mono font-bold transition-all flex items-center justify-center gap-1.5">
-                          <i className="fas fa-paper-plane text-[9px]"></i> Submit for Verification
+                        <button className="w-full text-center bg-ncc-gold/10 hover:bg-ncc-gold/18 text-ncc-gold border border-ncc-gold/30 py-2 rounded-sm text-xs font-sans font-bold transition-all flex items-center justify-center gap-1.5">
+                          <i className="fas fa-paper-plane text-xs"></i> Submit for Verification
                         </button>
                       </form>
                     )}
                     {ach.anoComment && ach.status === 'REJECTED' && (
-                      <div className="mt-2 text-[9px] text-red-400 bg-ncc-red/10 p-2 rounded-sm border border-ncc-red/25 font-mono">
+                      <div className="mt-2 text-xs text-red-400 bg-ncc-red/10 p-2.5 rounded-sm border border-ncc-red/25 font-sans">
                         <strong>// ANO Feedback:</strong> {ach.anoComment}
                       </div>
                     )}
@@ -1028,7 +1028,7 @@ export default function CadetDashboard() {
               <div className="flex justify-between items-center mb-5 border-b border-ncc-gold/15 pb-4">
                 <h3 className="font-heading text-sm font-bold text-ncc-gold uppercase tracking-widest">{editingAch ? 'Edit Achievement' : 'Add Achievement'}</h3>
                 {editingAch && (
-                  <button onClick={() => setEditingAch(null)} className="text-[10px] text-ncc-olive/50 hover:text-ncc-red font-mono transition-colors">
+                  <button onClick={() => setEditingAch(null)} className="text-xs text-ncc-olive/50 hover:text-ncc-red font-sans transition-colors">
                     Cancel
                   </button>
                 )}
@@ -1043,12 +1043,12 @@ export default function CadetDashboard() {
               }} className="space-y-4">
 
                 <div>
-                  <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Title / Honor</label>
+                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Title / Honor</label>
                   <input name="title" defaultValue={editingAch?.title} className="hud-input" placeholder="e.g. Best Shooter Award" required />
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Category</label>
+                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Category</label>
                   <select name="category" className="hud-input py-2" onChange={(e) => setAchCategory(e.target.value)} value={achCategory}>
                     <option value="Camp">Camp / Drill</option>
                     <option value="Sports">Sports / Firing</option>
@@ -1057,35 +1057,35 @@ export default function CadetDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Location / Venue</label>
+                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Location / Venue</label>
                   <input name="location" defaultValue={editingAch?.location} className="hud-input" placeholder="e.g. Perambalur, Trichy, New Delhi" />
                 </div>
 
                 {achCategory === 'Camp' ? (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Start Date</label>
+                      <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Start Date</label>
                       <input name="date" type="date" defaultValue={editingAch?.date} className="hud-input" required />
                     </div>
                     <div>
-                      <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">End Date</label>
+                      <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">End Date</label>
                       <input name="endDate" type="date" defaultValue={editingAch?.endDate} className="hud-input" required />
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Date</label>
+                    <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Date</label>
                     <input name="date" type="date" defaultValue={editingAch?.date} className="hud-input" required />
                   </div>
                 )}
 
                 <div>
-                  <label className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Detailed Description</label>
+                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Detailed Description</label>
                   <textarea name="description" defaultValue={editingAch?.description} className="hud-input h-24 py-2" placeholder="Provide extra description about this achievement..." required></textarea>
                 </div>
 
                 <div className="flex gap-2 pt-1">
-                  <button className="w-full bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold py-2.5 rounded-sm font-mono font-bold text-[10px] uppercase tracking-widest transition-all">
+                  <button className="w-full bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-widest transition-all">
                     {editingAch ? 'Update Record' : 'Save As Draft'}
                   </button>
                   {editingAch && (
@@ -1098,7 +1098,7 @@ export default function CadetDashboard() {
                         setEditingAch(null);
                         refreshData();
                       }
-                    }} className="px-4 py-2.5 bg-ncc-red/15 text-ncc-red rounded-sm font-mono text-sm hover:bg-ncc-red/25 border border-ncc-red/30 transition-colors">
+                    }} className="px-4 py-2.5 bg-ncc-red/15 text-ncc-red rounded-sm font-sans text-sm hover:bg-ncc-red/25 border border-ncc-red/30 transition-colors">
                       <i className="fas fa-trash"></i>
                     </button>
                   )}
@@ -1119,7 +1119,7 @@ export default function CadetDashboard() {
                 { label: 'Others (Theory)',  val: attPct(attOthers),     total: attOthers.length,    cls: 'tac-card-gold', bar: 'neon-bar-fill-gold', textColor: 'text-ncc-gold' },
               ].map(({ label, val, total, cls, bar, textColor }) => (
                 <div key={label} className={`${cls} p-5 relative overflow-hidden`}>
-                  <div className="text-[9px] font-mono font-bold uppercase text-ncc-olive/60 tracking-widest">{label}</div>
+                  <div className="text-xs font-sans font-bold uppercase text-ncc-olive/60 tracking-widest">{label}</div>
                   {total === 0 ? (
                     <div className="text-2xl font-bold text-ncc-olive/30 mt-3">—</div>
                   ) : (
@@ -1131,7 +1131,7 @@ export default function CadetDashboard() {
                         <div className={`h-full rounded-full ${bar}`}
                           style={{ width: `${val}%` }} />
                       </div>
-                      <div className="text-[9px] text-ncc-olive/50 mt-2 font-mono uppercase tracking-wider">{total} session{total !== 1 ? 's' : ''} logged</div>
+                      <div className="text-xs text-ncc-olive/50 mt-2 font-sans uppercase tracking-wider">{total} session{total !== 1 ? 's' : ''} logged</div>
                     </>
                   )}
                 </div>
@@ -1149,28 +1149,28 @@ export default function CadetDashboard() {
                 <button
                   key={key}
                   onClick={() => { setAttFilter(key); playTacClick(); }}
-                  className={`px-3.5 py-1.5 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest border transition-all ${
+                  className={`px-3.5 py-1.5 rounded-sm text-xs font-sans font-bold uppercase tracking-widest border transition-all ${
                     attFilter === key 
                       ? 'bg-ncc-gold/15 border-ncc-gold/50 text-ncc-gold' 
                       : 'bg-transparent border-ncc-olive/20 text-ncc-olive/60 hover:border-ncc-olive/40 hover:text-gray-300'
                   }`}
                 >
                   {label}
-                  <span className={`ml-2 text-[8px] px-1.5 py-0.5 rounded-sm font-mono ${attFilter === key ? 'bg-ncc-gold/20 text-ncc-gold' : 'bg-ncc-olive/10 text-ncc-olive/50'}`}>{count}</span>
+                  <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-sm font-mono ${attFilter === key ? 'bg-ncc-gold/20 text-ncc-gold' : 'bg-ncc-olive/10 text-ncc-olive/50'}`}>{count}</span>
                 </button>
               ))}
             </div>
 
             {/* Grid Table */}
             {attFiltered.length === 0 ? (
-              <div className="text-center py-16 tac-card border border-dashed border-ncc-olive/15 text-ncc-olive/40 font-mono text-[11px]">
+              <div className="text-center py-16 tac-card border border-dashed border-ncc-olive/15 text-ncc-olive/40 font-sans text-xs">
                 <i className="fas fa-calendar-times text-4xl mb-3 block opacity-20"></i>
                 No attendance logs found for this category.
               </div>
             ) : (
               <div className="tac-card overflow-hidden">
                 <table className="w-full text-sm border-collapse">
-                  <thead className="border-b border-ncc-olive/15 text-[9px] font-mono font-bold text-ncc-olive/60 uppercase tracking-widest text-left bg-black/30">
+                  <thead className="border-b border-ncc-olive/15 text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest text-left bg-black/30">
                     <tr>
                       <th className="px-5 py-3">Date</th>
                       <th className="px-5 py-3">Activity</th>
@@ -1188,12 +1188,12 @@ export default function CadetDashboard() {
                       const statusIcon: Record<string, string>  = { Present: 'fa-check-circle', Late: 'fa-clock', Permission: 'fa-file-signature', Absent: 'fa-times-circle' };
                       return (
                         <tr key={i} className="hover:bg-ncc-olive/4 transition-colors">
-                          <td className="px-5 py-3 font-mono text-[10px] text-ncc-olive/60 whitespace-nowrap">
+                          <td className="px-5 py-3 font-mono text-xs text-ncc-olive/60 whitespace-nowrap">
                             {new Date(ev.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </td>
                           <td className="px-5 py-3">
                             <div className="font-bold text-gray-200 text-xs leading-tight">{ev.title}</div>
-                            <div className="text-[9px] text-ncc-olive/50 font-mono mt-0.5">{ev.location}</div>
+                            <div className="text-xs text-ncc-olive/50 font-sans mt-0.5">{ev.location}</div>
                           </td>
                           <td className="px-5 py-3 hidden md:table-cell">
                             <span className={`hud-badge ${
@@ -1205,7 +1205,7 @@ export default function CadetDashboard() {
                               {ev.type}
                             </span>
                           </td>
-                          <td className="px-5 py-3 hidden md:table-cell text-[10px] text-ncc-olive/60 font-mono">
+                          <td className="px-5 py-3 hidden md:table-cell text-xs text-ncc-olive/60 font-mono">
                             {session ? (
                               <span className={`flex items-center gap-1.5 font-bold ${session === 'Morning' ? 'text-amber-400' : 'text-ncc-sky'}`}>
                                 <i className={`fas fa-${session === 'Morning' ? 'sun' : 'moon'} text-[9px]`}></i> {session}
@@ -1293,14 +1293,14 @@ export default function CadetDashboard() {
                   </div>
 
                   {/* Details list */}
-                  <div className="space-y-3 my-5 text-sm text-gray-400 font-mono">
+                  <div className="space-y-3 my-5 text-sm text-gray-400 font-sans">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-sm bg-ncc-red/10 border border-ncc-red/25 flex items-center justify-center text-ncc-red text-xs">
                         <i className="far fa-calendar-alt"></i>
                       </div>
                       <div>
-                        <div className="text-[9px] text-ncc-olive/60 uppercase tracking-widest">Date</div>
-                        <div className="text-[11px] text-gray-200">
+                        <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest">Date</div>
+                        <div className="text-xs text-gray-200">
                           {new Date(ev.date).toLocaleDateString('default', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
                       </div>
@@ -1311,8 +1311,8 @@ export default function CadetDashboard() {
                         <i className="far fa-clock"></i>
                       </div>
                       <div>
-                        <div className="text-[9px] text-ncc-olive/60 uppercase tracking-widest">Time</div>
-                        <div className="text-[11px] text-gray-200">{ev.startTime} — {ev.endTime}</div>
+                        <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest">Time</div>
+                        <div className="text-xs text-gray-200">{ev.startTime} — {ev.endTime}</div>
                       </div>
                     </div>
 
@@ -1321,8 +1321,8 @@ export default function CadetDashboard() {
                         <i className="fas fa-map-marker-alt"></i>
                       </div>
                       <div>
-                        <div className="text-[9px] text-ncc-olive/60 uppercase tracking-widest">Location</div>
-                        <div className="text-[11px] text-gray-200">{ev.location}</div>
+                        <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest">Location</div>
+                        <div className="text-xs text-gray-200">{ev.location}</div>
                       </div>
                     </div>
 
@@ -1332,8 +1332,8 @@ export default function CadetDashboard() {
                         <i className="fas fa-hourglass-half"></i>
                       </div>
                       <div>
-                        <div className="text-[9px] text-ncc-olive/60 uppercase tracking-widest">Status</div>
-                        <div className="text-[11px] text-gray-200 flex items-center gap-1.5">
+                        <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest">Status</div>
+                        <div className="text-xs text-gray-200 flex items-center gap-1.5">
                           <span className={`w-1.5 h-1.5 rounded-full ${countdownText === 'Ongoing' ? 'bg-emerald-400 animate-pulse' : countdownText === 'Completed' ? 'bg-ncc-olive/30' : 'bg-ncc-sky'}`}></span>
                           {countdownText}
                         </div>
@@ -1342,10 +1342,10 @@ export default function CadetDashboard() {
 
                     {/* Attendance Card */}
                     <div className="border border-ncc-olive/15 rounded-sm p-3 bg-black/30">
-                      <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-ncc-olive/60 mb-2">My Attendance</div>
+                      <div className="text-xs font-sans font-bold uppercase tracking-widest text-ncc-olive/60 mb-2">My Attendance</div>
                       {attRecord ? (
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-ncc-olive/60 font-mono">Marked Status:</span>
+                          <span className="text-xs text-ncc-olive/60 font-sans">Marked Status:</span>
                           <span className={`hud-badge ${
                             attRecord.status === 'Present' ? 'hud-badge-approved' :
                             attRecord.status === 'Absent' ? 'hud-badge-rejected' :
@@ -1357,14 +1357,14 @@ export default function CadetDashboard() {
                         </div>
                       ) : approvedLeave ? (
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-ncc-olive/60 font-mono">Duty Leave:</span>
+                          <span className="text-xs text-ncc-olive/60 font-sans">Duty Leave:</span>
                           <span className="hud-badge hud-badge-forwarded">
                             <i className="fas fa-check-circle"></i>
                             Approved Leave
                           </span>
                         </div>
                       ) : (
-                        <div className="text-[10px] text-ncc-olive/40 font-mono italic">No attendance record logged.</div>
+                        <div className="text-xs text-ncc-olive/40 font-sans italic">No attendance record logged.</div>
                       )}
                     </div>
                   </div>
@@ -1376,7 +1376,7 @@ export default function CadetDashboard() {
                       href={gCalUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="flex-1 border border-ncc-olive/25 hover:border-ncc-olive/40 text-ncc-olive/60 hover:text-gray-300 font-mono font-bold rounded-sm transition-all py-2.5 text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+                      className="flex-1 border border-ncc-olive/25 hover:border-ncc-olive/40 text-ncc-olive/60 hover:text-gray-300 font-sans font-bold rounded-sm transition-all py-2.5 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
                     >
                       <i className="fab fa-google"></i> Calendar
                     </a>
@@ -1394,7 +1394,7 @@ export default function CadetDashboard() {
                           setSelectedEvent(null);
                           playTacClick('confirm');
                         }}
-                        className="flex-[2] bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold font-mono font-bold rounded-sm transition-all py-2.5 text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+                        className="flex-[2] bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold font-sans font-bold rounded-sm transition-all py-2.5 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
                       >
                         <i className="fas fa-file-signature"></i> Request Leave
                       </button>

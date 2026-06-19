@@ -94,7 +94,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#080b06] overflow-hidden font-mono select-none">
+    <div className="relative min-h-screen w-full bg-[#080b06] overflow-hidden font-sans select-none">
 
       {/* ── Custom Target Cursor ── */}
       <TargetCursor />
@@ -130,7 +130,7 @@ export default function LoginPage() {
               <span className="font-sans font-black text-xs text-white leading-none tracking-widest uppercase">
                 06/34 (TN) INDEP COY
               </span>
-              <span className="text-[8px] font-mono text-ncc-gold font-black uppercase mt-0.5 tracking-wider">
+              <span className="text-[10px] font-mono text-ncc-gold font-black uppercase mt-0.5 tracking-wider">
                 NCC ARMY WING
               </span>
             </div>
@@ -138,7 +138,7 @@ export default function LoginPage() {
 
           {/* Bottom Mission Brief */}
           <div className="max-w-xl mt-16 md:mt-0">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-ncc-olive/10 border border-ncc-olive/25 text-ncc-gold text-[8px] font-mono tracking-widest uppercase mb-5">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-ncc-olive/10 border border-ncc-olive/25 text-ncc-gold text-[10px] font-mono tracking-widest uppercase mb-5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
               SECURE LINK // PORTAL ONLINE
             </div>
@@ -146,15 +146,15 @@ export default function LoginPage() {
               Command &amp; Control <br />
               <span className="text-ncc-gold">Portal Gateway</span>
             </h2>
-            <p className="text-[10px] lg:text-[11px] font-mono text-gray-400 mt-5 leading-loose uppercase tracking-widest max-w-sm">
+            <p className="text-xs lg:text-xs font-sans text-gray-400 mt-5 leading-relaxed uppercase tracking-wider max-w-sm">
               Official Administrative Gateway — Boys Contingent, SASTRA Deemed University.
               Authorized Personnel Access Only.
             </p>
 
             {/* Auth Terminal Feed */}
-            <div className="mt-8 bg-black/55 border border-ncc-olive/25 rounded-lg p-4 font-mono text-[9px] leading-relaxed max-w-sm backdrop-blur-sm">
+            <div className="mt-8 bg-black/55 border border-ncc-olive/25 rounded-lg p-4 font-mono text-[11px] leading-relaxed max-w-sm backdrop-blur-sm">
               <div className="flex items-center gap-2 text-ncc-olive/70 mb-2 border-b border-ncc-olive/15 pb-2">
-                <i className="fas fa-terminal text-[8px]" />
+                <i className="fas fa-terminal text-[10px]" />
                 <span className="uppercase tracking-widest">auth.log</span>
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               </div>
@@ -189,7 +189,7 @@ export default function LoginPage() {
                 <h1 className="font-heading text-lg font-black text-white tracking-widest uppercase">
                   Command Portal
                 </h1>
-                <p className="text-ncc-olive/70 text-[8px] font-mono tracking-widest mt-1 uppercase">
+                <p className="text-ncc-olive/70 text-[10px] font-mono tracking-widest mt-1 uppercase">
                   06/34 (TN) INDEP COY NCC (ARMY)
                 </p>
                 <div className="mt-3 w-full h-px bg-gradient-to-r from-transparent via-ncc-olive/30 to-transparent" />
@@ -200,8 +200,8 @@ export default function LoginPage() {
 
                 {/* Email */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[8px] font-bold text-ncc-olive/80 uppercase tracking-widest font-mono flex items-center gap-1.5">
-                    <i className="fas fa-user-shield text-[7px]" />
+                  <label className="text-xs font-bold text-ncc-olive/80 uppercase tracking-widest font-sans flex items-center gap-1.5">
+                    <i className="fas fa-user-shield text-[9px]" />
                     Identity Link (Email)
                   </label>
                   <div className="relative">
@@ -217,7 +217,7 @@ export default function LoginPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('email'); addLog('SYS: EMAIL IDENTITY FIELD ACTIVE...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/15 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.12)]"
+                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.12)]"
                     />
                     <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-colors duration-300 ${
                       activeField === 'email' ? 'text-ncc-sky' : 'text-ncc-olive/40'
@@ -227,8 +227,8 @@ export default function LoginPage() {
 
                 {/* Password */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[8px] font-bold text-ncc-olive/80 uppercase tracking-widest font-mono flex items-center gap-1.5">
-                    <i className="fas fa-key text-[7px]" />
+                  <label className="text-xs font-bold text-ncc-olive/80 uppercase tracking-widest font-sans flex items-center gap-1.5">
+                    <i className="fas fa-key text-[9px]" />
                     Command Key (Password)
                   </label>
                   <div className="relative">
@@ -243,7 +243,7 @@ export default function LoginPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('password'); addLog('SYS: COMMAND KEY FIELD ACTIVE...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/15 text-xs font-mono transition-all duration-300 focus:border-ncc-red/55 focus:ring-1 focus:ring-ncc-red/25 focus:shadow-[0_0_12px_rgba(210,16,52,0.12)]"
+                      className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-red/55 focus:ring-1 focus:ring-ncc-red/25 focus:shadow-[0_0_12px_rgba(210,16,52,0.12)]"
                     />
                     <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-colors duration-300 ${
                       activeField === 'password' ? 'text-ncc-red' : 'text-ncc-olive/40'
@@ -253,7 +253,7 @@ export default function LoginPage() {
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-center gap-2 text-[9.5px] text-red-400 bg-ncc-red/8 border border-ncc-red/25 py-2 px-3 rounded-md font-mono animate-fade-in">
+                  <div className="flex items-center gap-2 text-xs text-red-400 bg-ncc-red/8 border border-ncc-red/25 py-2 px-3 rounded-md font-mono animate-fade-in">
                     <i className="fas fa-shield-halved animate-pulse text-ncc-red" />
                     <span>{error.toUpperCase()}</span>
                   </div>
@@ -263,7 +263,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-ncc-gold/20 to-ncc-olive/20 border border-ncc-gold/40 text-ncc-gold text-[10px] font-mono font-bold py-3 rounded-md hover:bg-ncc-gold/25 hover:border-ncc-gold/65 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2.5"
+                  className="w-full relative overflow-hidden bg-gradient-to-r from-ncc-gold/20 to-ncc-olive/20 border border-ncc-gold/40 text-ncc-gold text-sm font-sans font-bold py-3 rounded-md hover:bg-ncc-gold/25 hover:border-ncc-gold/65 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2.5"
                   onMouseEnter={() => playTacClick()}
                 >
                   {/* Scan animation overlay */}
@@ -288,10 +288,10 @@ export default function LoginPage() {
               <div className="text-center mt-4">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-1.5 text-[8.5px] font-mono uppercase tracking-widest text-ncc-sky/70 hover:text-white transition-colors duration-300 group"
+                  className="inline-flex items-center gap-1.5 text-xs font-sans uppercase tracking-widest text-ncc-sky/70 hover:text-white transition-colors duration-300 group"
                   onMouseEnter={() => playTacClick()}
                 >
-                  <i className="fas fa-file-signature text-[8px]" />
+                  <i className="fas fa-file-signature text-[9px]" />
                   <span>Request Enlistment (Sign Up)</span>
                 </Link>
               </div>
@@ -300,7 +300,7 @@ export default function LoginPage() {
               <div className="text-center mt-5 pt-4 border-t border-ncc-olive/15">
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-2 text-[8px] font-mono uppercase tracking-widest text-ncc-olive/55 hover:text-ncc-gold transition-colors duration-300 group"
+                  className="inline-flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-ncc-olive/55 hover:text-ncc-gold transition-colors duration-300 group"
                   onMouseEnter={() => playTacClick()}
                 >
                   <i className="fas fa-arrow-left transition-transform group-hover:-translate-x-1 duration-200" />

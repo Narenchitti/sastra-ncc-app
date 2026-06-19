@@ -157,7 +157,7 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen bg-[#080b06] text-gray-300 font-mono relative overflow-x-hidden selection:bg-ncc-gold selection:text-black">
+        <main className="min-h-screen bg-[#080b06] text-gray-300 font-sans relative overflow-x-hidden selection:bg-ncc-gold selection:text-black">
             {/* Custom target crosshair reticle cursor */}
             <TargetCursor />
 
@@ -249,12 +249,12 @@ export default function Home() {
                     <div className="col-span-1 lg:col-span-3 order-2 lg:order-1 flex flex-row lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
-                            <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Telemetry Status</div>
+                            <div className="text-xs text-ncc-olive font-bold uppercase tracking-wider mb-1">Telemetry Status</div>
                             <div className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
                                 COMM-LINK ONLINE
                             </div>
-                            <div className="text-[8.5px] text-gray-500 mt-2 font-mono flex flex-col gap-0.5">
+                            <div className="text-[10px] text-gray-500 mt-2 font-mono flex flex-col gap-0.5">
                                 <span>INDEP COY: ACTIVE</span>
                                 <span>SYS LINK: SASTRA_NET</span>
                             </div>
@@ -262,16 +262,16 @@ export default function Home() {
 
                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
-                            <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Coordinates Grid</div>
-                            <div className="text-[11px] font-bold text-ncc-gold font-mono uppercase tracking-wider">
+                            <div className="text-xs text-ncc-olive font-bold uppercase tracking-wider mb-1">Coordinates Grid</div>
+                            <div className="text-xs font-bold text-ncc-gold font-mono uppercase tracking-wider">
                                 LAT 10.7725° N <br /> LNG 79.0161° E
                             </div>
-                            <div className="text-[8px] text-gray-500 mt-1 uppercase font-mono">SASTRA CAMPUS, THANJAVUR</div>
+                            <div className="text-[10px] text-gray-500 mt-1 uppercase font-mono">SASTRA CAMPUS, THANJAVUR</div>
                         </div>
 
                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-ncc-gold"></div>
-                            <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Platoon Strength</div>
+                            <div className="text-xs text-ncc-olive font-bold uppercase tracking-wider mb-1">Platoon Strength</div>
                             <div className="text-xl font-black text-white tracking-widest font-heading">
                                 110 <span className="text-xs text-ncc-gold font-mono font-bold">/ 110 CADETS</span>
                             </div>
@@ -325,25 +325,25 @@ export default function Home() {
                     <div className="col-span-1 lg:col-span-3 order-3 flex flex-row lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-ncc-gold"></div>
-                            <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">BATTALION ID</div>
-                            <div className="text-[12px] font-bold text-white uppercase tracking-wider">34 (TN) NCC (ARMY)</div>
-                            <div className="text-[8px] text-ncc-khaki mt-1 font-mono uppercase">TRICHY GROUP // TN, P & AN DIR</div>
+                            <div className="text-xs text-ncc-olive font-bold uppercase tracking-wider mb-1">BATTALION ID</div>
+                            <div className="text-sm font-bold text-white uppercase tracking-wider">34 (TN) NCC (ARMY)</div>
+                            <div className="text-[10px] text-ncc-khaki mt-1 font-mono uppercase">TRICHY GROUP // TN, P & AN DIR</div>
                         </div>
 
                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-ncc-gold"></div>
-                            <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">Motto of NCC</div>
-                            <div className="text-[12px] font-black text-ncc-red uppercase tracking-widest font-heading">
+                            <div className="text-xs text-ncc-olive font-bold uppercase tracking-wider mb-1">Motto of NCC</div>
+                            <div className="text-sm font-black text-ncc-red uppercase tracking-widest font-heading">
                                 UNITY & DISCIPLINE
                             </div>
-                            <div className="text-[8px] text-gray-500 mt-1 uppercase font-mono">Ekta aur Anushasan</div>
+                            <div className="text-[10px] text-gray-500 mt-1 uppercase font-mono">Ekta aur Anushasan</div>
                         </div>
 
                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-md p-4 rounded-lg flex-1 min-w-[200px] relative">
                             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-ncc-gold"></div>
-                            <div className="text-[8.5px] text-ncc-olive font-bold uppercase tracking-wider mb-1">UNIT COMMANDER</div>
-                            <div className="text-[11px] font-bold text-white uppercase tracking-wider">COL. KAPIL TULI</div>
-                            <div className="text-[8px] text-ncc-gold font-bold uppercase tracking-wider">COMMANDING OFFICER</div>
+                            <div className="text-xs text-ncc-olive font-bold uppercase tracking-wider mb-1">UNIT COMMANDER</div>
+                            <div className="text-sm font-bold text-white uppercase tracking-wider">COL. KAPIL TULI</div>
+                            <div className="text-[10px] text-ncc-gold font-bold uppercase tracking-wider">COMMANDING OFFICER</div>
                         </div>
                     </div>
 
@@ -389,13 +389,13 @@ export default function Home() {
                             </div>
 
                             <div className="md:col-span-4 flex flex-col justify-center items-center bg-[#070b04]/70 border border-ncc-olive/20 p-6 rounded-xl relative shadow-inner">
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 bg-[#0c1008] border border-ncc-olive/20 rounded-full text-[8.5px] font-bold text-ncc-gold uppercase tracking-widest whitespace-nowrap">COMMAND CRESTS</div>
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 bg-[#0c1008] border border-ncc-olive/20 rounded-full text-[10px] font-bold text-ncc-gold uppercase tracking-widest whitespace-nowrap">COMMAND CRESTS</div>
                                 <div className="flex gap-4 items-center justify-center mb-2">
                                     <img src="/assets/images/sastra_logo.png" alt="SASTRA Crest" className="h-20 object-contain opacity-85 hover:opacity-100 transition-opacity duration-300" />
                                     <img src="/assets/images/40_years_logo.png" alt="SASTRA 40 Years" className="h-20 object-contain opacity-85 hover:opacity-100 transition-opacity duration-300" />
                                 </div>
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center mt-2 font-heading">SASTRA Deemed University</span>
-                                <span className="text-[8px] text-ncc-olive font-bold mt-1 font-mono uppercase tracking-wider">40 YEARS OF EXCELLENCE</span>
+                                <span className="text-xs font-bold text-white uppercase tracking-wider text-center mt-2 font-heading">SASTRA Deemed University</span>
+                                <span className="text-[10px] text-ncc-olive font-bold mt-1 font-mono uppercase tracking-wider">40 YEARS OF EXCELLENCE</span>
                             </div>
 
                         </div>
@@ -726,30 +726,30 @@ export default function Home() {
                         
                         {/* Personnel ANO */}
                         <div className="border border-ncc-olive/20 bg-[#0c1008]/55 backdrop-blur-sm p-5 rounded-xl text-center relative flex flex-col items-center">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-ncc-gold text-black text-[8px] font-black uppercase tracking-widest rounded-b font-mono">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-ncc-gold text-black text-[10px] font-black uppercase tracking-widest rounded-b font-mono">
                                 CONTINGENT COMMAND
                             </div>
                             <div className="w-20 h-20 bg-ncc-olive/20 border border-ncc-olive/30 rounded-full flex items-center justify-center text-ncc-gold text-2xl mb-4 font-bold font-mono">
                                 ANO
                             </div>
                             <h3 className="text-base font-bold font-heading text-white uppercase tracking-wide">Lt. Dr. G Jegadeesan</h3>
-                            <span className="text-[9px] text-ncc-gold font-bold font-mono tracking-widest uppercase mt-1">Associate NCC Officer</span>
-                            <p className="text-[10px] text-gray-500 font-sans mt-3 leading-relaxed">
+                            <span className="text-xs text-ncc-gold font-bold tracking-widest uppercase mt-1">Associate NCC Officer</span>
+                            <p className="text-xs text-gray-400 font-sans mt-3 leading-relaxed">
                                 Associate NCC Officer in charge of the boys contingent inside SASTRA University.
                             </p>
                         </div>
 
                         {/* Personnel SUO */}
                         <div className="border border-ncc-olive/20 bg-[#0c1008]/55 backdrop-blur-sm p-5 rounded-xl text-center relative flex flex-col items-center">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-ncc-red text-white text-[8px] font-black uppercase tracking-widest rounded-b font-mono">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-ncc-red text-white text-[10px] font-black uppercase tracking-widest rounded-b font-mono">
                                 CADRE HQ
                             </div>
                             <div className="w-20 h-20 bg-ncc-olive/20 border border-ncc-olive/30 rounded-full flex items-center justify-center text-ncc-gold text-2xl mb-4 font-bold font-mono">
                                 SUO
                             </div>
                             <h3 className="text-base font-bold font-heading text-white uppercase tracking-wide">Awaiting Selection</h3>
-                            <span className="text-[9px] text-ncc-gold font-bold font-mono tracking-widest uppercase mt-1">Senior Under Officer</span>
-                            <p className="text-[10px] text-gray-500 font-sans mt-3 leading-relaxed">
+                            <span className="text-xs text-ncc-gold font-bold tracking-widest uppercase mt-1">Senior Under Officer</span>
+                            <p className="text-xs text-gray-400 font-sans mt-3 leading-relaxed">
                                 Chief cadet appointment. In charge of the Platoon drill, parades, and squad coordination.
                             </p>
                         </div>
@@ -760,8 +760,8 @@ export default function Home() {
                                 CUO
                             </div>
                             <h3 className="text-base font-bold font-heading text-white uppercase tracking-wide">Awaiting Selection</h3>
-                            <span className="text-[9px] text-ncc-gold font-bold font-mono tracking-widest uppercase mt-1">Company Under Officer</span>
-                            <p className="text-[10px] text-gray-500 font-sans mt-3 leading-relaxed">
+                            <span className="text-xs text-ncc-gold font-bold tracking-widest uppercase mt-1">Company Under Officer</span>
+                            <p className="text-xs text-gray-400 font-sans mt-3 leading-relaxed">
                                 Cadet appointment coordinating squads, camp deployments, and logistics link.
                             </p>
                         </div>
@@ -772,8 +772,8 @@ export default function Home() {
                                 CSM
                             </div>
                             <h3 className="text-base font-bold font-heading text-white uppercase tracking-wide">Awaiting Selection</h3>
-                            <span className="text-[9px] text-ncc-gold font-bold font-mono tracking-widest uppercase mt-1">Company Sergeant Major</span>
-                            <p className="text-[10px] text-gray-500 font-sans mt-3 leading-relaxed">
+                            <span className="text-xs text-ncc-gold font-bold tracking-widest uppercase mt-1">Company Sergeant Major</span>
+                            <p className="text-xs text-gray-400 font-sans mt-3 leading-relaxed">
                                 Cadet appointment managing daily parade attendance, reports, and discipline rosters.
                             </p>
                         </div>

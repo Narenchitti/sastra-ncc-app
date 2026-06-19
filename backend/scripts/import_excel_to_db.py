@@ -165,4 +165,8 @@ async def import_cadets():
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(import_cadets())
+    try:
+        asyncio.run(import_cadets())
+    finally:
+        import os
+        os._exit(0)

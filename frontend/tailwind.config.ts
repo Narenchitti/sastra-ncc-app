@@ -19,6 +19,7 @@ const config: Config = {
                 'ncc-khaki': '#C3B091',    // Army khaki
             },
             fontFamily: {
+                sans: ['var(--font-inter)', 'sans-serif'],
                 heading: ['var(--font-oswald)', 'sans-serif'],
                 body: ['var(--font-inter)', 'sans-serif'],
                 mono: ['Fira Code', 'Courier New', 'Courier', 'monospace'],

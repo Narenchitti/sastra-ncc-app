@@ -182,7 +182,7 @@ export default function ANODashboard() {
         <div className="p-5 border-b border-ncc-olive/15 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h3 className="font-heading text-lg font-bold text-white uppercase tracking-wider">Weekly Schedule</h3>
-            <p className="text-ncc-gold font-bold uppercase text-[10px] tracking-widest mt-0.5 font-mono">{rangeLabel}</p>
+            <p className="text-ncc-gold font-bold uppercase text-xs tracking-widest mt-0.5 font-mono">{rangeLabel}</p>
           </div>
           {/* Week Navigation */}
           <div className="flex items-center gap-1.5 self-start sm:self-auto">
@@ -208,7 +208,7 @@ export default function ANODashboard() {
                 monday.setHours(0, 0, 0, 0);
                 setCurrentWeekStart(monday);
               }}
-              className="px-2.5 h-7 rounded-md border border-ncc-olive/25 text-[10px] font-mono font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
+              className="px-2.5 h-7 rounded-md border border-ncc-olive/25 text-xs font-sans font-semibold hover:border-ncc-gold/40 hover:text-ncc-gold transition-colors text-ncc-olive/70"
             >
               TODAY
             </button>
@@ -223,7 +223,7 @@ export default function ANODashboard() {
               className="w-7 h-7 rounded-md border border-ncc-olive/25 flex items-center justify-center hover:border-ncc-gold/40 transition-colors text-ncc-olive/70 hover:text-ncc-gold"
               title="Next Week"
             >
-              <i className="fas fa-chevron-right text-[10px]"></i>
+              <i className="fas fa-chevron-right text-xs"></i>
             </button>
           </div>
         </div>
@@ -237,7 +237,7 @@ export default function ANODashboard() {
               <button
                 key={f}
                 onClick={() => { setScheduleFilter(f); playTacClick(); }}
-                className={`px-3 py-1 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all border ${
+                className={`px-3 py-1 rounded-sm text-xs font-sans font-bold uppercase tracking-widest transition-all border ${
                   isActive 
                     ? 'bg-ncc-gold/15 border-ncc-gold/50 text-ncc-gold' 
                     : 'bg-transparent border-ncc-olive/20 text-ncc-olive/70 hover:border-ncc-olive/40 hover:text-gray-300'
@@ -374,7 +374,7 @@ export default function ANODashboard() {
             <img src="/assets/images/ncc_logo.png" alt="NCC" className="h-9 animate-float" />
             <div>
               <h2 className="font-heading text-xl font-bold tracking-widest leading-none text-white uppercase">SASTRA NCC</h2>
-              <p className="text-[8px] text-ncc-gold font-mono tracking-[0.25em] uppercase mt-1">Command Center</p>
+              <p className="text-xs text-ncc-gold font-sans tracking-[0.1em] uppercase mt-1.5">Command Center</p>
             </div>
           </div>
         </div>
@@ -393,7 +393,7 @@ export default function ANODashboard() {
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); playTacClick(); }}
-                className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-mono text-xs uppercase tracking-widest relative ${
+                className={`w-full text-left px-4 py-2.5 rounded-sm transition-all flex items-center gap-3 font-sans text-sm font-semibold uppercase tracking-wider relative ${
                   isActive 
                     ? 'tac-nav-active' 
                     : 'text-ncc-olive/60 hover:bg-ncc-olive/8 hover:text-gray-300 border border-transparent'
@@ -403,7 +403,7 @@ export default function ANODashboard() {
                 <i className={`fas fa-${item.icon} w-4 text-center text-xs ${isActive ? 'text-ncc-gold' : 'text-ncc-olive/60'}`}></i>
                 <span>{item.label}</span>
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="text-[9px] bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-1.5 py-0.5 rounded-sm ml-auto font-bold font-mono animate-pulse">
+                  <span className="text-xs bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-1.5 py-0.5 rounded-sm ml-auto font-bold font-sans animate-pulse">
                     {item.badge}
                   </span>
                 )}
@@ -420,13 +420,13 @@ export default function ANODashboard() {
             </div>
             <div className="overflow-hidden">
               <div className="text-white font-bold text-xs leading-tight truncate">{user.name}</div>
-              <div className="text-ncc-gold text-[8px] font-mono font-bold uppercase tracking-wider mt-0.5">{user.rank || 'Officer'}</div>
-              <div className="text-ncc-olive/50 text-[8px] font-mono mt-0.5">{user.role === 'ANO' ? 'Associate NCC Officer' : 'Command Staff'}</div>
+              <div className="text-ncc-gold text-xs font-sans font-bold uppercase tracking-wider mt-0.5">{user.rank || 'Officer'}</div>
+              <div className="text-ncc-olive/50 text-xs font-sans mt-0.5">{user.role === 'ANO' ? 'Associate NCC Officer' : 'Command Staff'}</div>
             </div>
           </div>
           <button
             onClick={() => { playTacClick(); localStorage.removeItem('user'); localStorage.removeItem('access_token'); router.push('/'); }}
-            className="w-full py-2 rounded-sm border border-ncc-olive/20 text-[10px] font-mono hover:bg-ncc-red/10 hover:border-ncc-red/30 hover:text-ncc-red text-ncc-olive/50 font-semibold transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+            className="w-full py-2 rounded-sm border border-ncc-olive/20 text-xs font-sans hover:bg-ncc-red/10 hover:border-ncc-red/30 hover:text-ncc-red text-ncc-olive/50 font-semibold transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             <i className="fas fa-sign-out-alt"></i>
             <span>Sign Out</span>
@@ -446,7 +446,7 @@ export default function ANODashboard() {
         {/* Sticky Top Header */}
         <header className="flex justify-between items-center mb-8 pb-5 border-b border-ncc-olive/20">
           <div>
-            <div className="text-[9px] font-mono text-ncc-olive/50 uppercase tracking-widest mb-1">// ano.command.console</div>
+            <div className="text-xs font-mono text-ncc-olive/50 uppercase tracking-widest mb-1">// ano.command.console</div>
             <h1 className="text-2xl font-heading font-bold text-white uppercase tracking-widest">
               {activeTab === 'command' ? 'Command Center' : activeTab}
             </h1>
@@ -464,27 +464,27 @@ export default function ANODashboard() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               
               <div className="tac-card-sky p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Total Strength</div>
+                <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">Total Strength</div>
                 <div className="text-4xl font-heading font-bold text-ncc-sky mt-2">{data.users.filter(u => u.role === 'CADET').length}</div>
-                <div className="text-[9px] text-ncc-olive/50 font-mono mt-1 uppercase">Active Cadets</div>
+                <div className="text-xs text-ncc-olive/50 font-sans mt-1.5 uppercase">Active Cadets</div>
               </div>
 
               <div className="tac-card-gold p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Action Required</div>
+                <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">Action Required</div>
                 <div className="text-4xl font-heading font-bold text-ncc-gold mt-2">{allActionRequired.length}</div>
-                <div className="text-[9px] text-ncc-olive/50 font-mono mt-1 uppercase">{pendingReview.length} new · {pendingApprovals.length} forwarded</div>
+                <div className="text-xs text-ncc-olive/50 font-sans mt-1.5 uppercase">{pendingReview.length} new · {pendingApprovals.length} forwarded</div>
               </div>
 
               <div className="tac-card-red p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">SUO Rejections</div>
+                <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">SUO Rejections</div>
                 <div className="text-4xl font-heading font-bold text-ncc-red mt-2">{suoRejections.length}</div>
-                <div className="text-[9px] text-ncc-olive/50 font-mono mt-1 uppercase">Review Needed</div>
+                <div className="text-xs text-ncc-olive/50 font-sans mt-1.5 uppercase">Review Needed</div>
               </div>
 
               <div className="tac-card p-5 relative overflow-hidden">
-                <div className="text-[9px] text-ncc-olive/60 font-mono uppercase tracking-widest mb-1">Next Event</div>
+                <div className="text-xs text-ncc-olive/60 font-sans uppercase tracking-widest mb-1">Next Event</div>
                 <div className="text-base font-heading font-bold text-white mt-2 truncate">{nextEvent ? nextEvent.title : 'None'}</div>
-                <div className="text-[9px] text-emerald-400 font-mono font-bold mt-1 uppercase">{nextEvent ? nextEvent.date : '—'}</div>
+                <div className="text-xs text-emerald-400 font-mono font-bold mt-1.5 uppercase">{nextEvent ? nextEvent.date : '—'}</div>
               </div>
 
             </div>
@@ -503,7 +503,7 @@ export default function ANODashboard() {
                     <div key={p.id} className="border-b border-ncc-olive/10 last:border-0 py-3 flex justify-between items-center gap-4">
                       <div>
                         <div className="font-bold text-xs text-gray-200">{p.cadetName}</div>
-                        <div className="text-[10px] text-ncc-olive/50 mt-0.5 line-clamp-1 font-mono">{p.reason}</div>
+                        <div className="text-xs text-ncc-olive/50 mt-1 line-clamp-1 font-sans">{p.reason}</div>
                       </div>
                       <span className={`hud-badge flex-shrink-0 ${
                         p.status === 'PENDING_REVIEW' ? 'hud-badge-pending' :
@@ -512,7 +512,7 @@ export default function ANODashboard() {
                       </span>
                     </div>
                   ))}
-                  {data.permissions.length === 0 && <p className="text-[10px] text-ncc-olive/40 italic text-center py-6 font-mono">No recent activity.</p>}
+                  {data.permissions.length === 0 && <p className="text-xs text-ncc-olive/40 italic text-center py-6 font-sans">No recent activity.</p>}
                 </div>
               </div>
             </div>
@@ -526,7 +526,7 @@ export default function ANODashboard() {
             {/* Cadet Enlistment Approvals (Signup verification) */}
             {data.users.filter(u => u.status === 'PENDING_APPROVAL').length > 0 && (
               <div className="space-y-4">
-                <h3 className="font-mono text-[9px] font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 flex items-center gap-2 uppercase tracking-widest">
+                <h3 className="font-sans text-xs font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 flex items-center gap-2 uppercase tracking-widest">
                   <i className="fas fa-user-plus"></i> Cadet Enlistment Approvals (Awaiting Verification)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -537,11 +537,11 @@ export default function ANODashboard() {
                           <span className="font-heading font-bold text-sm text-white uppercase tracking-wider">{pendingUser.name}</span>
                           <span className="hud-badge hud-badge-pending text-ncc-sky border-ncc-sky/30">Enlistment Pending</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-[9px] uppercase tracking-wider text-gray-400 font-mono">
-                          <div><span className="text-ncc-sky/70">Rank:</span> {pendingUser.rank}</div>
-                          <div><span className="text-ncc-sky/70">Reg No:</span> {pendingUser.regimentalNumber || 'N/A'}</div>
-                          <div><span className="text-ncc-sky/70">Branch:</span> {pendingUser.dob || 'N/A'}</div>
-                          <div><span className="text-ncc-sky/70">Email:</span> {pendingUser.email}</div>
+                        <div className="grid grid-cols-2 gap-2 text-xs uppercase tracking-wider text-gray-400 font-mono">
+                          <div><span className="text-ncc-sky/70 font-sans">Rank:</span> {pendingUser.rank}</div>
+                          <div><span className="text-ncc-sky/70 font-sans">Reg No:</span> {pendingUser.regimentalNumber || 'N/A'}</div>
+                          <div><span className="text-ncc-sky/70 font-sans">Branch:</span> {pendingUser.dob || 'N/A'}</div>
+                          <div><span className="text-ncc-sky/70 font-sans">Email:</span> {pendingUser.email}</div>
                         </div>
                       </div>
                       
@@ -560,7 +560,7 @@ export default function ANODashboard() {
                               }
                             }
                           }}
-                          className="px-4 py-2 rounded-sm bg-emerald-600/15 border border-emerald-500/40 text-emerald-400 font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600/25 transition-all w-1/2"
+                          className="px-4 py-2 rounded-sm bg-emerald-600/15 border border-emerald-500/40 text-emerald-400 font-sans font-bold text-xs uppercase tracking-widest hover:bg-emerald-600/25 transition-all w-1/2"
                         >
                           Approve
                         </button>
@@ -578,7 +578,7 @@ export default function ANODashboard() {
                               }
                             }
                           }}
-                          className="px-4 py-2 rounded-sm bg-ncc-red/15 border border-ncc-red/40 text-ncc-red font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/25 transition-all w-1/2"
+                          className="px-4 py-2 rounded-sm bg-ncc-red/15 border border-ncc-red/40 text-ncc-red font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-red/25 transition-all w-1/2"
                         >
                           Reject
                         </button>
@@ -593,10 +593,10 @@ export default function ANODashboard() {
             {isANO && (
               <div className="tac-card-sky p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
                 <div>
-                  <h3 className="font-mono font-bold text-ncc-sky text-sm flex items-center gap-2 uppercase tracking-widest">
+                  <h3 className="font-sans font-bold text-ncc-sky text-sm flex items-center gap-2 uppercase tracking-widest">
                     <i className="fas fa-user-shield text-ncc-red animate-pulse"></i> Permission Manager
                   </h3>
-                  <p className="text-[10px] text-gray-400 mt-1 max-w-md leading-relaxed font-mono">
+                  <p className="text-xs text-gray-400 mt-1.5 max-w-md leading-relaxed font-sans">
                     Designate a cadet to review and filter incoming permission requests before they reach you.
                   </p>
                 </div>
@@ -607,7 +607,7 @@ export default function ANODashboard() {
                 }} className="flex items-center gap-3 w-full md:w-auto z-10">
                   <select 
                     name="managerId" 
-                    className="hud-input md:w-64" 
+                    className="hud-input md:w-64 text-sm" 
                     value={selectedManagerId || ''} 
                     onChange={(e) => setSelectedManagerId(e.target.value)}
                     required
@@ -620,7 +620,7 @@ export default function ANODashboard() {
                   <button 
                     type="submit" 
                     disabled={selectedManagerId === data.permissionManagerId && !!selectedManagerId}
-                    className={`px-5 py-2.5 rounded-sm font-mono font-bold text-[10px] uppercase tracking-widest text-white transition-all border ${
+                    className={`px-5 py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-widest text-white transition-all border ${
                       selectedManagerId === data.permissionManagerId && !!selectedManagerId
                         ? 'bg-emerald-600/80 border-emerald-500/40 cursor-default'
                         : 'bg-ncc-sky/15 border-ncc-sky/40 hover:bg-ncc-sky/25 text-ncc-sky'
@@ -632,11 +632,11 @@ export default function ANODashboard() {
               </div>
             )}
 
-            <div className="bg-ncc-gold/8 border border-ncc-gold/25 rounded-md p-4 text-[10px] text-ncc-gold/80 flex items-center gap-3 font-mono">
+            <div className="bg-ncc-gold/8 border border-ncc-gold/25 rounded-md p-4 text-xs text-ncc-gold/80 flex items-center gap-3 font-sans">
               <div className="w-7 h-7 rounded-sm bg-ncc-gold/10 flex items-center justify-center text-ncc-gold flex-shrink-0 border border-ncc-gold/25">
                 <i className="fas fa-crown text-xs"></i>
               </div>
-              <span><strong className="text-ncc-gold">ANO Final Authority:</strong> You can Approve or Decline any request at any stage, overriding any Manager designation.</span>
+              <span><strong className="text-ncc-gold font-sans">ANO Final Authority:</strong> You can Approve or Decline any request at any stage, overriding any Manager designation.</span>
             </div>
 
             {/* Reusable action panels */}
@@ -647,12 +647,12 @@ export default function ANODashboard() {
             ] as const).map(({ label, subtitle, items, accent, badgeCls, badgeText }) =>
               items.length > 0 && (
                 <div key={label} className="space-y-4">
-                  <h3 className={`font-mono text-[9px] font-bold border-b pb-2 flex items-center gap-2 uppercase tracking-widest ${
+                  <h3 className={`font-sans text-xs font-bold border-b pb-2 flex items-center gap-2 uppercase tracking-widest ${
                     label === 'Pending Review' ? 'text-ncc-sky border-ncc-sky/20' :
                     label === 'Manager Override Zone' ? 'text-ncc-red border-ncc-red/20' : 'text-ncc-gold border-ncc-gold/20'
                   }`}>
                     {label}
-                    {subtitle && <span className="text-[8px] font-normal text-ncc-olive/40 lowercase">{subtitle}</span>}
+                    {subtitle && <span className="text-xs font-normal text-ncc-olive/40 lowercase">{subtitle}</span>}
                   </h3>
                   {items.map(p => (
                     <div key={p.id} className={`${accent} p-5 flex flex-col md:flex-row gap-5 relative overflow-hidden`}>
@@ -661,16 +661,16 @@ export default function ANODashboard() {
                           <span className="font-heading font-bold text-sm text-white uppercase tracking-wider">{p.cadetName}</span>
                           <span className={`hud-badge ${badgeCls}`}>{badgeText}</span>
                           {p.evidenceUrl && (
-                            <a href={p.evidenceUrl} target="_blank" rel="noopener noreferrer" className="hud-badge hud-badge-forwarded flex items-center gap-1.5 py-1 px-2.5 hover:border-ncc-sky/60 transition-colors">
-                              <i className="fas fa-paperclip text-[9px]"></i> Evidence
+                            <a href={p.evidenceUrl} target="_blank" rel="noopener noreferrer" className="hud-badge hud-badge-forwarded flex items-center gap-1.5 py-1 px-2.5 hover:border-ncc-sky/60 transition-colors font-sans">
+                              <i className="fas fa-paperclip text-xs"></i> Evidence
                             </a>
                           )}
                         </div>
-                        <div className="bg-black/30 border border-ncc-olive/15 p-3.5 rounded-sm text-gray-300 text-xs mb-3 leading-relaxed font-mono">
-                          <strong className="block text-[9px] font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Reason</strong>
+                        <div className="bg-black/30 border border-ncc-olive/15 p-3.5 rounded-sm text-gray-300 text-xs mb-3 leading-relaxed font-sans">
+                          <strong className="block text-xs font-bold text-ncc-olive/60 uppercase tracking-widest mb-1 font-sans">Reason</strong>
                           {p.reason}
                         </div>
-                        <div className="text-[10px] font-mono text-ncc-olive/60 flex items-center gap-2">
+                        <div className="text-xs font-mono text-ncc-olive/60 flex items-center gap-2">
                           <i className="far fa-calendar text-ncc-red"></i> {p.startDate} → {p.endDate}
                         </div>
                         {p.suoComment && (
@@ -727,34 +727,34 @@ export default function ANODashboard() {
                       {isANO ? (
                         <div className="w-full md:w-56 space-y-2.5 flex flex-col justify-between">
                           <div>
-                            <label className="text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1 block">Remarks</label>
+                            <label className="text-xs font-sans text-ncc-olive/60 uppercase tracking-widest mb-1 block">Remarks</label>
                             <textarea 
                               value={actionComments[p.id] || ''}
                               onChange={(e) => setActionComments(prev => ({ ...prev, [p.id]: e.target.value }))} 
-                              className="hud-input h-20 py-2 resize-none" 
+                              className="hud-input h-20 py-2 resize-none text-sm font-sans" 
                               placeholder="Enter remarks..."
                             ></textarea>
                           </div>
                           <div className="grid grid-cols-2 gap-1.5">
                             <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('confirm'); refreshData(); }}>
-                              <button className="w-full bg-emerald-600/80 border border-emerald-500/40 text-white py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-colors">
+                              <button className="w-full bg-emerald-600/80 border border-emerald-500/40 text-white py-2 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-colors">
                                 Approve
                               </button>
                             </form>
                             <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('error'); refreshData(); }}>
-                              <button className="w-full bg-ncc-red/20 border border-ncc-red/40 text-ncc-red py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/30 transition-colors">
+                              <button className="w-full bg-ncc-red/20 border border-ncc-red/40 text-ncc-red py-2 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-red/30 transition-colors">
                                 Decline
                               </button>
                             </form>
                             <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'MEET_ANO'); fd.append('comment', actionComments[p.id] || 'Please report to ANO office.'); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick(); refreshData(); }} className="col-span-2">
-                              <button className="w-full bg-ncc-gold/10 border border-ncc-gold/30 text-ncc-gold py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-gold/20 transition-colors flex items-center justify-center gap-1.5">
-                                <i className="fas fa-user-clock text-[9px]"></i> Call for Meeting
+                              <button className="w-full bg-ncc-gold/10 border border-ncc-gold/30 text-ncc-gold py-2 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-gold/20 transition-colors flex items-center justify-center gap-1.5">
+                                <i className="fas fa-user-clock text-xs"></i> Call for Meeting
                               </button>
                             </form>
                           </div>
                         </div>
                       ) : (
-                        <div className="w-full md:w-56 text-[10px] font-mono text-ncc-olive/40 italic flex items-center justify-center border border-dashed border-ncc-olive/20 p-4 rounded-sm text-center">
+                        <div className="w-full md:w-56 text-xs font-sans text-ncc-olive/40 italic flex items-center justify-center border border-dashed border-ncc-olive/20 p-4 rounded-sm text-center">
                           ANO review required for final decision.
                         </div>
                       )}
@@ -765,7 +765,7 @@ export default function ANODashboard() {
             )}
 
             {allActionRequired.length === 0 && (
-              <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed text-xs font-mono">
+              <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed text-xs font-sans">
                 <i className="fas fa-check-circle text-2xl mb-2 block text-emerald-500/50"></i>
                 ALL CLEAR — no active requests pending review.
               </div>
@@ -774,7 +774,7 @@ export default function ANODashboard() {
             {/* Closed requests — ANO can still override */}
             {closedPermissions.length > 0 && (
               <div className="space-y-3 pt-6 border-t border-ncc-olive/15">
-                <h3 className="font-mono text-[9px] font-bold text-ncc-olive/60 flex items-center gap-2 uppercase tracking-widest">
+                <h3 className="font-sans text-xs font-bold text-ncc-olive/60 flex items-center gap-2 uppercase tracking-widest">
                   Closed Requests <span className="text-[8px] font-normal text-ncc-olive/40 lowercase">(ANO can override)</span>
                 </h3>
                 <div className="space-y-2">
@@ -804,26 +804,26 @@ export default function ANODashboard() {
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-ncc-olive/60 font-mono leading-relaxed">{p.reason}</div>
-                        <div className="text-[10px] font-mono text-ncc-olive/50 mt-1.5"><i className="far fa-calendar text-ncc-red mr-1"></i> {p.startDate} → {p.endDate}</div>
-                        {p.anoComment && <div className="mt-1.5 text-[10px] text-ncc-olive/50 bg-black/30 px-3 py-2 rounded-sm border border-ncc-olive/10 font-mono leading-relaxed">ANO note: {p.anoComment}</div>}
+                        <div className="text-xs text-ncc-olive/60 font-sans leading-relaxed">{p.reason}</div>
+                        <div className="text-xs font-mono text-ncc-olive/50 mt-1.5"><i className="far fa-calendar text-ncc-red mr-1"></i> {p.startDate} → {p.endDate}</div>
+                        {p.anoComment && <div className="mt-1.5 text-xs text-ncc-olive/50 bg-black/30 px-3 py-2 rounded-sm border border-ncc-olive/10 font-sans leading-relaxed">ANO note: {p.anoComment}</div>}
                       </div>
                       {isANO && (
                         <div className="flex items-center gap-2 self-center w-full md:w-auto">
                           <textarea 
                             value={actionComments[p.id] || ''}
                             onChange={(e) => setActionComments(prev => ({ ...prev, [p.id]: e.target.value }))} 
-                            className="hud-input h-12 w-36 text-[10px] py-2" 
+                            className="hud-input h-12 w-36 text-xs font-sans py-2" 
                             placeholder="Override remark..."
                           ></textarea>
                           <div className="flex flex-col gap-1 w-20">
                             <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'APPROVED'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('confirm'); refreshData(); }}>
-                              <button className="bg-emerald-600/80 border border-emerald-500/40 text-white px-2 py-1.5 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600 w-full transition-colors">
+                              <button className="bg-emerald-600/80 border border-emerald-500/40 text-white px-2 py-1.5 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 w-full transition-colors">
                                 Approve
                               </button>
                             </form>
                             <form action={async (fd) => { fd.append('permId', p.id); fd.append('status', 'DECLINED_BY_ANO'); fd.append('comment', actionComments[p.id] || ''); fd.append('role', 'ANO'); await updatePermissionStatus(fd); playTacClick('error'); refreshData(); }}>
-                              <button className="bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-2 py-1.5 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/30 w-full transition-colors">
+                              <button className="bg-ncc-red/20 border border-ncc-red/40 text-ncc-red px-2 py-1.5 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-red/30 w-full transition-colors">
                                 Decline
                               </button>
                             </form>
@@ -842,9 +842,9 @@ export default function ANODashboard() {
         {activeTab === 'achievements' && (
           <div className="space-y-6 animate-fade-in flex-grow">
             <div className="space-y-4">
-              <h3 className="font-mono text-[9px] font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 uppercase tracking-widest">Pending Verification Queue</h3>
+              <h3 className="font-sans text-xs font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 uppercase tracking-widest">Pending Verification Queue</h3>
               {pendingAchievements.length === 0 ? (
-                <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed font-mono text-xs">
+                <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed font-sans text-xs">
                   <i className="fas fa-medal text-3xl mb-2 block opacity-30"></i>
                   No pending achievements to verify.
                 </div>
@@ -861,10 +861,10 @@ export default function ANODashboard() {
                           </div>
                           <div>
                             <div className="font-bold text-gray-200 text-sm">{cadet?.rank} {cadet?.name}</div>
-                            <div className="text-[9px] text-ncc-olive/50 font-mono flex items-center gap-2 mt-0.5">
+                            <div className="text-xs text-ncc-olive/50 font-mono flex items-center gap-2 mt-0.5">
                               <span className="bg-black/30 px-1.5 py-0.5 rounded-sm border border-ncc-olive/15">{cadet?.regimentalNumber || 'No Regt #'}</span>
                               <span>·</span>
-                              <span>Batch {cadet?.batchYear}</span>
+                              <span className="font-sans">Batch {cadet?.batchYear}</span>
                             </div>
                           </div>
                         </div>
@@ -890,29 +890,29 @@ export default function ANODashboard() {
                       {isANO ? (
                         <div className="w-full md:w-56 space-y-2.5 flex flex-col justify-between">
                           <div>
-                            <label className="text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1 block">Remarks</label>
+                            <label className="text-xs font-sans text-ncc-olive/60 uppercase tracking-widest mb-1 block">Remarks</label>
                             <textarea 
                               value={actionComments[a.id] || ''}
                               onChange={(e) => setActionComments(prev => ({ ...prev, [a.id]: e.target.value }))} 
-                              className="hud-input h-20 py-2 resize-none" 
+                              className="hud-input h-20 py-2 resize-none text-sm font-sans" 
                               placeholder="Rejection Reason..."
                             ></textarea>
                           </div>
                           <div className="grid grid-cols-2 gap-1.5">
                             <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'VERIFIED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); playTacClick('confirm'); refreshData(); }}>
-                              <button className="w-full bg-emerald-600/80 border border-emerald-500/40 text-white py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-colors">
+                              <button className="w-full bg-emerald-600/80 border border-emerald-500/40 text-white py-2 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-colors">
                                 Verify
                               </button>
                             </form>
                             <form action={async (fd) => { fd.append('id', a.id); fd.append('status', 'REJECTED'); fd.append('comment', actionComments[a.id] || ''); await verifyAchievement(fd); playTacClick('error'); refreshData(); }}>
-                              <button className="w-full bg-ncc-red/20 border border-ncc-red/40 text-ncc-red py-2 rounded-sm font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/30 transition-colors">
+                              <button className="w-full bg-ncc-red/20 border border-ncc-red/40 text-ncc-red py-2 rounded-sm font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-red/30 transition-colors">
                                 Reject
                               </button>
                             </form>
                           </div>
                         </div>
                       ) : (
-                        <div className="w-full md:w-56 text-[10px] font-mono text-ncc-olive/40 italic flex items-center justify-center border border-dashed border-ncc-olive/20 p-4 rounded-sm text-center">
+                        <div className="w-full md:w-56 text-xs font-sans text-ncc-olive/40 italic flex items-center justify-center border border-dashed border-ncc-olive/20 p-4 rounded-sm text-center">
                           ANO verification required.
                         </div>
                       )}
@@ -926,20 +926,20 @@ export default function ANODashboard() {
             <div className="space-y-4 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-ncc-olive/15 pb-3 mb-4 gap-4">
                 <div>
-                  <h3 className="font-mono text-[9px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="font-sans text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                     <i className="fas fa-database"></i> Verified Achievement Registry
                   </h3>
-                  <p className="text-[10px] text-ncc-olive/40 font-mono mt-0.5">Central roster of verified achievements in the unit</p>
+                  <p className="text-xs text-ncc-olive/40 font-sans mt-0.5">Central roster of verified achievements in the unit</p>
                 </div>
                 <div className="relative w-full md:w-56">
                   <input
                     type="text"
                     placeholder="Search Cadet Name..."
-                    className="hud-input pl-8 pr-4 py-2 text-[10px] w-full"
+                    className="hud-input pl-8 pr-4 py-2 text-sm w-full"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <i className="fas fa-search absolute left-3 top-3 text-[9px] text-ncc-olive/50"></i>
+                  <i className="fas fa-search absolute left-3 top-3 text-xs text-ncc-olive/50"></i>
                 </div>
               </div>
 
@@ -961,7 +961,7 @@ export default function ANODashboard() {
                             </div>
                             <div>
                               <h4 className="font-heading font-bold text-gray-200 text-sm uppercase tracking-wider">{cadet.rank} {cadet.name}</h4>
-                              <div className="text-[9px] text-ncc-olive/50 font-mono flex items-center gap-2 mt-0.5">
+                              <div className="text-xs text-ncc-olive/50 font-mono flex items-center gap-2 mt-0.5">
                                 <span className="bg-black/30 border border-ncc-olive/15 px-1.5 py-0.5 rounded-sm">{cadet.regimentalNumber || 'No Regt #'}</span>
                                 <span>·</span>
                                 <span className="text-emerald-400 font-bold">{cadetAchievements.length} Verified Records</span>
@@ -973,7 +973,7 @@ export default function ANODashboard() {
                         {/* Achievements List Table */}
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs text-left border-collapse">
-                            <thead className="bg-black/20 text-[9px] font-mono font-bold text-ncc-olive/60 uppercase border-b border-ncc-olive/10">
+                            <thead className="bg-black/20 text-xs font-sans font-bold text-ncc-olive/60 uppercase border-b border-ncc-olive/10">
                               <tr>
                                 <th className="px-5 py-3">Achievement Title</th>
                                 <th className="px-5 py-3">Category</th>
@@ -986,21 +986,21 @@ export default function ANODashboard() {
                                 <tr key={a.id} className="hover:bg-white/[0.02] transition-colors">
                                   <td className="px-5 py-3">
                                     <div className="font-bold text-gray-300 text-xs">{a.title}</div>
-                                    <div className="text-[10px] text-ncc-olive/50 font-mono mt-0.5 max-w-xs">{a.description}</div>
+                                    <div className="text-xs text-ncc-olive/50 font-sans mt-0.5 max-w-xs">{a.description}</div>
                                   </td>
                                   <td className="px-5 py-3">
                                     <span className="hud-badge hud-badge-verified">{a.category}</span>
                                   </td>
-                                  <td className="px-5 py-3 font-mono text-[10px] text-ncc-olive/60">
+                                  <td className="px-5 py-3 font-mono text-xs text-ncc-olive/60">
                                     {a.date}
                                   </td>
                                   <td className="px-5 py-3 text-right">
                                     {a.certificateUrl ? (
-                                      <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-ncc-sky hover:text-ncc-sky/80 font-mono font-bold text-[10px] inline-flex items-center gap-1">
-                                        <i className="fas fa-external-link-alt text-[9px]"></i> View
+                                      <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-ncc-sky hover:text-ncc-sky/80 font-sans font-bold text-xs inline-flex items-center gap-1">
+                                        <i className="fas fa-external-link-alt text-xs"></i> View
                                       </a>
                                     ) : (
-                                      <span className="text-ncc-olive/30 text-[10px] font-mono italic">No File</span>
+                                      <span className="text-ncc-olive/30 text-xs font-sans italic">No File</span>
                                     )}
                                   </td>
                                 </tr>
@@ -1034,7 +1034,7 @@ export default function ANODashboard() {
                 <button
                   type="button"
                   onClick={() => { setScheduleMethod('manual'); playTacClick(); }}
-                  className={`px-4 py-2 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all border ${
+                  className={`px-4 py-2 rounded-sm text-xs font-sans font-bold uppercase tracking-widest transition-all border ${
                     scheduleMethod === 'manual'
                       ? 'bg-ncc-sky/15 border-ncc-sky/40 text-ncc-sky'
                       : 'bg-transparent border-ncc-olive/20 text-ncc-olive/60 hover:border-ncc-olive/40 hover:text-gray-300'
@@ -1045,7 +1045,7 @@ export default function ANODashboard() {
                 <button
                   type="button"
                   onClick={() => { setScheduleMethod('ai'); playTacClick(); }}
-                  className={`px-4 py-2 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all border flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-sm text-xs font-sans font-bold uppercase tracking-widest transition-all border flex items-center gap-1.5 ${
                     scheduleMethod === 'ai'
                       ? 'bg-ncc-gold/15 border-ncc-gold/40 text-ncc-gold'
                       : 'bg-transparent border-ncc-olive/20 text-ncc-olive/60 hover:border-ncc-olive/40 hover:text-gray-300'
@@ -1063,7 +1063,7 @@ export default function ANODashboard() {
                       <input type="hidden" name="id" value={editingId || ''} />
 
                       <div>
-                        <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Event Type</label>
+                        <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Event Type</label>
                         <select name="type" className="hud-input cursor-pointer" onChange={handleTypeChange} value={eventType}>
                           <option value="Parade">Parade</option>
                           <option value="Theory">Theory Class</option>
@@ -1073,28 +1073,28 @@ export default function ANODashboard() {
                       </div>
 
                       <div>
-                        <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Title (Auto-filled but editable)</label>
+                        <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Title (Auto-filled but editable)</label>
                         <input name="title" className="hud-input" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required />
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Date</label>
+                          <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Date</label>
                           <input name="date" type="date" className="hud-input" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
                         </div>
                         <div>
-                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Location</label>
+                          <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Location</label>
                           <input name="location" className="hud-input" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">Start Time</label>
+                          <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Start Time</label>
                           <input name="startTime" type="time" className="hud-input" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required />
                         </div>
                         <div>
-                          <label className="block text-[9px] font-mono text-ncc-olive/60 uppercase tracking-widest mb-1">End Time</label>
+                          <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">End Time</label>
                           <input name="endTime" type="time" className="hud-input" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required />
                         </div>
                       </div>
@@ -1104,12 +1104,12 @@ export default function ANODashboard() {
                           <button 
                             type="button" 
                             onClick={() => { resetForm(); playTacClick(); }} 
-                            className="flex-1 bg-transparent border border-ncc-olive/25 hover:border-ncc-olive/50 text-ncc-olive/60 hover:text-gray-300 font-mono font-bold rounded-sm transition-colors py-2.5 text-[10px] uppercase tracking-widest"
+                            className="flex-1 bg-transparent border border-ncc-olive/25 hover:border-ncc-olive/50 text-ncc-olive/60 hover:text-gray-300 font-sans font-bold rounded-sm transition-colors py-2.5 text-xs uppercase tracking-widest"
                           >
                             Cancel
                           </button>
                         )}
-                        <button className="flex-[2] bg-ncc-sky/15 border border-ncc-sky/40 hover:bg-ncc-sky/25 text-ncc-sky font-mono font-bold rounded-sm transition-colors py-2.5 text-[10px] uppercase tracking-widest">
+                        <button className="flex-[2] bg-ncc-sky/15 border border-ncc-sky/40 hover:bg-ncc-sky/25 text-ncc-sky font-sans font-bold rounded-sm transition-colors py-2.5 text-xs uppercase tracking-widest">
                           {editingId ? 'Update Event' : 'Publish to Unit Calendar'}
                         </button>
                       </div>
@@ -1120,10 +1120,10 @@ export default function ANODashboard() {
                 <div className="space-y-5">
                   {/* AI Console Card */}
                   <div className="tac-card-gold p-5 relative overflow-hidden">
-                    <h3 className="font-mono font-bold text-ncc-gold text-sm flex items-center gap-2 mb-1.5 uppercase tracking-widest">
+                    <h3 className="font-heading font-bold text-ncc-gold text-sm flex items-center gap-2 mb-1.5 uppercase tracking-widest">
                       <i className="fas fa-magic"></i> Autonomous Curriculum Planner
                     </h3>
-                    <p className="text-[10px] text-ncc-olive/60 font-mono leading-relaxed mb-4">
+                    <p className="text-xs text-ncc-olive/60 font-sans leading-relaxed mb-4">
                       Let the AI agent plan a 4-week weekend syllabus schedule. It audits recently taught events to avoid duplication and balances topic categories.
                     </p>
 
@@ -1163,12 +1163,12 @@ export default function ANODashboard() {
                           type="submit"
                           disabled={aiScheduleLoading}
                           onClick={() => { if (!aiScheduleLoading) playTacClick(); }}
-                          className="absolute right-2 top-1.5 px-3 py-1.5 bg-ncc-gold/20 border border-ncc-gold/40 hover:bg-ncc-gold/30 text-ncc-gold font-mono font-bold text-[9px] uppercase tracking-widest rounded-sm transition-all disabled:opacity-40 flex items-center gap-1"
+                          className="absolute right-2 top-1.5 px-3 py-1.5 bg-ncc-gold/20 border border-ncc-gold/40 hover:bg-ncc-gold/30 text-ncc-gold font-sans font-bold text-xs uppercase tracking-widest rounded-sm transition-all disabled:opacity-40 flex items-center gap-1"
                         >
                           {aiScheduleLoading ? (
                             <><i className="fas fa-spinner animate-spin"></i> Planning</>
                           ) : (
-                            <><span>Plan</span><i className="fas fa-chevron-right text-[8px]"></i></>
+                            <><span>Plan</span><i className="fas fa-chevron-right text-xs"></i></>
                           )}
                         </button>
                       </div>
@@ -1184,7 +1184,7 @@ export default function ANODashboard() {
                             key={idx}
                             type="button"
                             onClick={() => { setAiScheduleQuery(pr); playTacClick(); }}
-                            className="px-2.5 py-1.5 bg-black/20 border border-ncc-olive/15 hover:border-ncc-gold/30 text-ncc-olive/60 hover:text-ncc-gold text-[9px] font-mono font-bold rounded-sm transition-colors"
+                            className="px-2.5 py-1.5 bg-black/20 border border-ncc-olive/15 hover:border-ncc-gold/30 text-ncc-olive/60 hover:text-ncc-gold text-xs font-sans font-bold rounded-sm transition-colors"
                           >
                             {pr}
                           </button>
@@ -1195,8 +1195,8 @@ export default function ANODashboard() {
 
                   {/* Proposed Plan Explanation */}
                   {aiPlanningExplanation && (
-                    <div className="bg-black/40 text-ncc-olive/70 border border-ncc-olive/20 p-5 rounded-sm shadow-inner text-[10px] font-mono leading-relaxed">
-                      <div className="text-[10px] font-bold text-ncc-sky uppercase tracking-widest mb-1.5 font-mono flex items-center gap-1.5">
+                    <div className="bg-black/40 text-ncc-olive/70 border border-ncc-olive/20 p-5 rounded-sm shadow-inner text-xs font-sans leading-relaxed">
+                      <div className="text-xs font-bold text-ncc-sky uppercase tracking-widest mb-1.5 font-sans flex items-center gap-1.5">
                         <i className="fas fa-clipboard-list"></i> Planning Explanation
                       </div>
                       {aiPlanningExplanation}
@@ -1207,7 +1207,7 @@ export default function ANODashboard() {
                   {aiProposedEvents.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex justify-between items-center pb-2 border-b border-ncc-olive/15">
-                        <h4 className="font-mono font-bold text-gray-200 text-xs uppercase tracking-widest">Proposed Draft Schedule</h4>
+                        <h4 className="font-sans font-bold text-gray-200 text-xs uppercase tracking-widest">Proposed Draft Schedule</h4>
                         <button
                           type="button"
                           onClick={async () => {
@@ -1228,7 +1228,7 @@ export default function ANODashboard() {
                               alert(err.message || 'Publication failed');
                             }
                           }}
-                          className="px-3 py-1.5 bg-emerald-600/80 border border-emerald-500/40 text-white font-mono font-bold text-[9px] uppercase tracking-widest rounded-sm transition-all flex items-center gap-1.5"
+                          className="px-3 py-1.5 bg-emerald-600/80 border border-emerald-500/40 text-white font-sans font-bold text-xs uppercase tracking-widest rounded-sm transition-all flex items-center gap-1.5"
                         >
                           <i className="fas fa-calendar-check"></i> Publish Drafts
                         </button>
@@ -1241,7 +1241,7 @@ export default function ANODashboard() {
                             <div className="space-y-3">
                               {/* Title */}
                               <div>
-                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Title</label>
+                                <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Title</label>
                                 <input
                                   type="text"
                                   className="w-full text-xs font-bold text-gray-800 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
@@ -1258,7 +1258,7 @@ export default function ANODashboard() {
                               <div className="grid grid-cols-2 gap-3">
                                 {/* Date */}
                                 <div>
-                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
+                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
                                   <input
                                     type="date"
                                     className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
@@ -1273,7 +1273,7 @@ export default function ANODashboard() {
                                 </div>
                                 {/* Location */}
                                 <div>
-                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Location</label>
+                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Location</label>
                                   <input
                                     type="text"
                                     className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
@@ -1291,7 +1291,7 @@ export default function ANODashboard() {
                               <div className="grid grid-cols-2 gap-3">
                                 {/* Start Time */}
                                 <div>
-                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Start Time</label>
+                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Start Time</label>
                                   <input
                                     type="time"
                                     className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
@@ -1307,7 +1307,7 @@ export default function ANODashboard() {
                                 </div>
                                 {/* End Time */}
                                 <div>
-                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
+                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
                                   <input
                                     type="time"
                                     className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
@@ -1325,10 +1325,10 @@ export default function ANODashboard() {
 
                               {/* Gear list */}
                               <div>
-                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Required Equipment</label>
+                                <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Required Equipment</label>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {evt.equipment.map((eq: string, eqIdx: number) => (
-                                    <span key={eqIdx} className="text-[9px] font-bold bg-slate-100 text-gray-500 border border-slate-200/50 px-2 py-0.5 rounded">
+                                    <span key={eqIdx} className="text-xs font-sans font-bold bg-slate-100 text-gray-500 border border-slate-200/50 px-2 py-0.5 rounded">
                                       {eq}
                                     </span>
                                   ))}
@@ -1415,7 +1415,7 @@ export default function ANODashboard() {
                       ) : (
                         <>
                           <span>Run Query</span>
-                          <i className="fas fa-chevron-right text-[10px]"></i>
+                          <i className="fas fa-chevron-right text-xs"></i>
                         </>
                       )}
                     </button>
@@ -1434,7 +1434,7 @@ export default function ANODashboard() {
                         key={idx}
                         type="button"
                         onClick={() => setConsoleQuery(sug)}
-                        className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-600 text-[10px] font-bold rounded-lg transition-colors"
+                        className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-600 text-xs font-sans font-bold rounded-lg transition-colors"
                       >
                         {sug}
                       </button>
@@ -1462,13 +1462,13 @@ export default function ANODashboard() {
                     : 'bg-red-50 border-red-200 text-red-900'
                 }`}>
                   <div className="flex items-center justify-between border-b pb-2.5 border-current/10">
-                    <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 font-mono">
+                    <span className="text-xs font-sans font-bold uppercase tracking-widest flex items-center gap-1.5">
                       <i className={`fas ${
                         queryResult.success && !queryResult.explanation?.includes('⚠️') ? 'fa-robot text-ncc-sky' : 'fa-exclamation-triangle text-red-500'
                       }`}></i>
                       AI Adjutant Remark
                     </span>
-                    <span className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest ${
+                    <span className={`text-xs font-sans font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest ${
                       queryResult.success && !queryResult.explanation?.includes('⚠️') ? 'bg-ncc-navy border border-white/10 text-ncc-sky' : 'bg-red-600 text-white'
                     }`}>
                       {queryResult.success && !queryResult.explanation?.includes('⚠️') ? 'Status OK' : 'Execution Denied'}
@@ -1484,7 +1484,7 @@ export default function ANODashboard() {
                   <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
                     <details className="group">
                       <summary className="flex items-center justify-between p-4 cursor-pointer select-none bg-slate-50 border-b border-gray-150">
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider font-sans flex items-center gap-1.5">
                           <i className="fas fa-code text-gray-400"></i> Compile Diagnostics (Generated Read-Only SQL)
                         </span>
                         <span className="text-xs text-gray-400 group-open:rotate-180 transition-transform">
@@ -1504,7 +1504,7 @@ export default function ANODashboard() {
                     <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
                       <div>
                         <h4 className="font-heading font-bold text-gray-800 text-sm">Query Results</h4>
-                        <p className="text-[10px] text-gray-400 font-semibold mt-0.5 font-mono">Found {queryResult.data.length} records</p>
+                        <p className="text-xs text-gray-400 font-semibold mt-0.5 font-mono">Found {queryResult.data.length} records</p>
                       </div>
                     </div>
 
@@ -1515,7 +1515,7 @@ export default function ANODashboard() {
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left border-collapse">
-                          <thead className="bg-slate-50 text-[10px] font-bold text-gray-400 uppercase border-b border-gray-100">
+                          <thead className="bg-slate-50 text-xs font-sans font-bold text-gray-400 uppercase border-b border-gray-100">
                             <tr>
                               {Object.keys(queryResult.data[0]).map((colName) => (
                                 <th key={colName} className="px-6 py-3.5 whitespace-nowrap">
@@ -1579,7 +1579,7 @@ export default function ANODashboard() {
                   {/* Header */}
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                      <span className={`text-xs font-sans font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
                         ev.type === 'Parade' ? 'bg-red-50 border border-red-200 text-red-700' :
                         ev.type === 'Theory' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
                         ev.type === 'Camp' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
@@ -1649,19 +1649,19 @@ export default function ANODashboard() {
                           <div className="grid grid-cols-4 gap-2 pt-2 text-center">
                             <div className="bg-white p-2 rounded-lg border border-gray-100">
                               <span className="block text-sm font-bold text-green-600">{presentCount}</span>
-                              <span className="text-[8px] text-gray-400 uppercase font-bold">Present</span>
+                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Present</span>
                             </div>
                             <div className="bg-white p-2 rounded-lg border border-gray-100">
                               <span className="block text-sm font-bold text-red-500">{absentCount}</span>
-                              <span className="text-[8px] text-gray-400 uppercase font-bold">Absent</span>
+                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Absent</span>
                             </div>
                             <div className="bg-white p-2 rounded-lg border border-gray-100">
                               <span className="block text-sm font-bold text-blue-500">{leaveCount}</span>
-                              <span className="text-[8px] text-gray-400 uppercase font-bold">Leave/Late</span>
+                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Leave/Late</span>
                             </div>
                             <div className="bg-white p-2 rounded-lg border border-gray-100">
                               <span className="block text-sm font-bold text-gray-400">{unmarkedCount}</span>
-                              <span className="text-[8px] text-gray-400 uppercase font-bold">Pending</span>
+                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Pending</span>
                             </div>
                           </div>
                         </div>
@@ -1714,14 +1714,14 @@ export default function ANODashboard() {
                 <h3 className="font-heading text-lg font-bold text-slate-100 flex items-center gap-2">
                   <i className="fas fa-chart-line text-ncc-sky"></i> Observability Telemetry
                 </h3>
-                <p className="text-[10px] text-slate-400 font-mono mt-0.5">Live API Latency & Tracing Logs</p>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">Live API Latency & Tracing Logs</p>
               </div>
               <button onClick={() => setShowDiagnostics(false)} className="text-slate-400 hover:text-slate-200 transition-colors p-2 rounded-lg hover:bg-slate-800">
                 <i className="fas fa-times text-lg"></i>
               </button>
             </div>
 
-            {/* Performance Averages */}
+             {/* Performance Averages */}
             {telemetryLogs.length > 0 && (() => {
               const avgTotal = telemetryLogs.reduce((acc, l) => acc + l.durationMs, 0) / telemetryLogs.length;
               const dbTimes = telemetryLogs.flatMap(l => l.spans.filter((s: any) => s.category === 'database').map((s: any) => s.durationMs));
@@ -1732,15 +1732,15 @@ export default function ANODashboard() {
               return (
                 <div className="p-6 bg-slate-900/20 border-b border-slate-800 grid grid-cols-3 gap-4 text-center">
                   <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
-                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wider">Avg Latency</span>
+                    <span className="block text-xs font-sans font-bold text-slate-500 uppercase tracking-wider">Avg Latency</span>
                     <span className="block text-sm font-bold text-ncc-sky font-mono mt-1">{avgTotal.toFixed(1)}ms</span>
                   </div>
                   <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
-                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wider">Avg DB Overhead</span>
+                    <span className="block text-xs font-sans font-bold text-slate-500 uppercase tracking-wider">Avg DB Overhead</span>
                     <span className="block text-sm font-bold text-emerald-400 font-mono mt-1">{avgDb.toFixed(1)}ms</span>
                   </div>
                   <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
-                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wider">Avg AI Inference</span>
+                    <span className="block text-xs font-sans font-bold text-slate-500 uppercase tracking-wider">Avg AI Inference</span>
                     <span className="block text-sm font-bold text-yellow-400 font-mono mt-1">{avgAi.toFixed(1)}ms</span>
                   </div>
                 </div>
@@ -1775,7 +1775,7 @@ export default function ANODashboard() {
                         className="p-4 cursor-pointer select-none flex justify-between items-center hover:bg-slate-900/20"
                       >
                         <div className="flex items-center gap-2.5 overflow-hidden">
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded font-mono ${
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded font-mono ${
                             trace.method === 'POST' ? 'bg-blue-950 text-blue-400 border border-blue-900/60' : 'bg-slate-800 text-slate-300'
                           }`}>
                             {trace.method}
@@ -1785,7 +1785,7 @@ export default function ANODashboard() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className={`text-[10px] font-mono font-bold ${
+                          <span className={`text-xs font-mono font-bold ${
                             trace.statusCode < 300 ? 'text-emerald-400' : 'text-red-500'
                           }`}>
                             {trace.statusCode}
@@ -1801,7 +1801,7 @@ export default function ANODashboard() {
 
                       {/* Expanded Trace Details */}
                       {isExpanded && (
-                        <div className="p-4 border-t border-slate-800 bg-slate-950/60 space-y-4 font-mono text-[10px]">
+                        <div className="p-4 border-t border-slate-800 bg-slate-950/60 space-y-4 font-mono text-xs">
                           {/* Segment bar chart */}
                           <div className="space-y-1.5">
                             <div className="flex justify-between text-slate-400">
@@ -1820,7 +1820,7 @@ export default function ANODashboard() {
                               )}
                             </div>
                             {/* Legend labels */}
-                            <div className="flex justify-between text-[8px] text-slate-500 pt-0.5">
+                            <div className="flex justify-between text-xs text-slate-500 pt-0.5">
                               <span className="flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> DB ({dbPct}%)
                               </span>
@@ -1837,10 +1837,10 @@ export default function ANODashboard() {
 
                           {/* Trace span list */}
                           <div className="space-y-2 border-t border-slate-800 pt-3">
-                            <div className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Span Breakdown</div>
+                            <div className="text-slate-400 uppercase tracking-widest text-xs font-sans font-bold">Span Breakdown</div>
                             
                             {trace.spans.length === 0 ? (
-                              <div className="text-slate-600 italic text-[9px]">No sub-spans recorded.</div>
+                              <div className="text-slate-600 italic text-xs">No sub-spans recorded.</div>
                             ) : (
                               trace.spans.map((s: any, sIdx: number) => (
                                 <div key={sIdx} className="flex justify-between items-center text-slate-300 bg-slate-900/20 p-2 rounded border border-slate-800/40">

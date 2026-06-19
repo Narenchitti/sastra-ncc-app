@@ -91,7 +91,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#080b06] overflow-x-hidden font-mono select-none">
+    <div className="relative min-h-screen w-full bg-[#080b06] overflow-x-hidden font-sans select-none">
       {/* ── Custom Target Cursor ── */}
       <TargetCursor />
 
@@ -125,7 +125,7 @@ export default function SignupPage() {
               <span className="font-sans font-black text-xs text-white leading-none tracking-widest uppercase">
                 06/34 (TN) INDEP COY
               </span>
-              <span className="text-[8px] font-mono text-ncc-sky font-black uppercase mt-0.5 tracking-wider">
+              <span className="text-[10px] font-mono text-ncc-sky font-black uppercase mt-0.5 tracking-wider">
                 NCC ARMY ENLISTMENT
               </span>
             </div>
@@ -133,7 +133,7 @@ export default function SignupPage() {
 
           {/* Center Info and Log */}
           <div className="max-w-xl mt-12 md:mt-0">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-ncc-sky/10 border border-ncc-sky/25 text-ncc-sky text-[8px] font-mono tracking-widest uppercase mb-5">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-ncc-sky/10 border border-ncc-sky/25 text-ncc-sky text-[10px] font-mono tracking-widest uppercase mb-5">
               <span className="w-1.5 h-1.5 rounded-full bg-ncc-sky animate-ping" />
               ENLISTMENT NETWORK // LINK ESTABLISHED
             </div>
@@ -141,15 +141,15 @@ export default function SignupPage() {
               Cadet Registration &amp; <br />
               <span className="text-ncc-sky">Enlistment Terminal</span>
             </h2>
-            <p className="text-[10px] lg:text-[11px] font-mono text-gray-400 mt-5 leading-loose uppercase tracking-widest max-w-sm">
+            <p className="text-xs lg:text-xs font-sans text-gray-400 mt-5 leading-relaxed uppercase tracking-wider max-w-sm">
               Official cadet enlistment form. Submit details to create your secure identity card record.
               All signups require validation by the ANO, SUO, or CUO.
             </p>
 
             {/* Auth Terminal Feed */}
-            <div className="mt-8 bg-black/55 border border-ncc-sky/25 rounded-lg p-4 font-mono text-[9px] leading-relaxed max-w-sm backdrop-blur-sm">
+            <div className="mt-8 bg-black/55 border border-ncc-sky/25 rounded-lg p-4 font-mono text-[11px] leading-relaxed max-w-sm backdrop-blur-sm">
               <div className="flex items-center gap-2 text-ncc-sky/70 mb-2 border-b border-ncc-sky/15 pb-2">
-                <i className="fas fa-terminal text-[8px]" />
+                <i className="fas fa-terminal text-[10px]" />
                 <span className="uppercase tracking-widest">enlistment.log</span>
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-ncc-sky animate-pulse" />
               </div>
@@ -175,7 +175,7 @@ export default function SignupPage() {
                 <h1 className="font-heading text-lg font-black text-white tracking-widest uppercase">
                   Register Account
                 </h1>
-                <p className="text-ncc-sky/70 text-[8px] font-mono tracking-widest mt-1 uppercase">
+                <p className="text-ncc-sky/70 text-[10px] font-mono tracking-widest mt-1 uppercase">
                   Submit Nom Roll Telemetry
                 </p>
                 <div className="mt-3 w-full h-px bg-gradient-to-r from-transparent via-ncc-sky/30 to-transparent" />
@@ -188,7 +188,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Full Name
                     </label>
                     <input
@@ -199,13 +199,13 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('name'); addLog('SYS: ENTERING NAME...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
 
                   {/* Email */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Email address
                     </label>
                     <input
@@ -216,7 +216,7 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('email'); addLog('SYS: ENTERING EMAIL...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
                 </div>
@@ -225,7 +225,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Password */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Password
                     </label>
                     <input
@@ -236,13 +236,13 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('password'); addLog('SYS: SECURING PASSWORD...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
 
                   {/* Rank */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Rank
                     </label>
                     <select
@@ -251,7 +251,7 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('rank'); addLog('SYS: SELECTING RANK...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55 appearance-none cursor-pointer"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 appearance-none cursor-pointer"
                     >
                       <option value="Cadet">Cadet (CDT)</option>
                       <option value="Lance Corporal">Lance Corporal (L/CPL)</option>
@@ -269,7 +269,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Regimental No */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Regimental No
                     </label>
                     <input
@@ -280,13 +280,13 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('regimentalNo'); addLog('SYS: ENTERING REGIMENTAL NUMBER...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
 
                   {/* University Registration No */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       University Reg No
                     </label>
                     <input
@@ -297,7 +297,7 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('regNo'); addLog('SYS: ENTERING UNIVERSITY REGISTER NUMBER...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
                 </div>
@@ -306,7 +306,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Date of Birth */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Date of Birth
                     </label>
                     <input
@@ -317,13 +317,13 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('dob'); addLog('SYS: ENTERING DATE OF BIRTH...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
 
                   {/* Year / Branch */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Year &amp; Branch
                     </label>
                     <input
@@ -334,7 +334,7 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('yearBranch'); addLog('SYS: ENTERING ACADEMIC STREAM...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
                 </div>
@@ -343,7 +343,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Hostel Info */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Hostel &amp; Room Info
                     </label>
                     <input
@@ -354,13 +354,13 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('hostelInfo'); addLog('SYS: ENTERING RESIDENCY RECORD...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/10 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55"
                     />
                   </div>
 
                   {/* Batch Passout Year */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] font-bold text-ncc-sky/80 uppercase tracking-widest font-mono">
+                    <label className="text-xs font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Batch Year (Passout)
                     </label>
                     <select
@@ -369,7 +369,7 @@ export default function SignupPage() {
                       disabled={isLoading}
                       onFocus={() => { setActiveField('batchYear'); addLog('SYS: SELECTING BATCH YEAR...'); playTacClick(); }}
                       onBlur={() => setActiveField(null)}
-                      className="w-full px-3 py-2 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-xs font-mono transition-all duration-300 focus:border-ncc-sky/55 appearance-none cursor-pointer"
+                      className="w-full px-3 py-2.5 rounded bg-black/45 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 appearance-none cursor-pointer"
                     >
                       <option value="2026">2026 (Batch 5)</option>
                       <option value="2027">2027 (Batch 6)</option>
@@ -381,14 +381,14 @@ export default function SignupPage() {
 
                 {/* Alerts */}
                 {error && (
-                  <div className="flex items-center gap-2 text-[9.5px] text-red-400 bg-red-950/20 border border-red-500/30 py-2 px-3 rounded font-mono animate-fade-in">
+                  <div className="flex items-center gap-2 text-xs text-red-400 bg-red-950/20 border border-red-500/30 py-2 px-3 rounded font-mono animate-fade-in">
                     <i className="fas fa-shield-halved animate-pulse text-red-500" />
                     <span>{error.toUpperCase()}</span>
                   </div>
                 )}
 
                 {successMsg && (
-                  <div className="flex items-center gap-2 text-[9.5px] text-emerald-400 bg-emerald-950/20 border border-emerald-500/30 py-2 px-3 rounded font-mono animate-fade-in">
+                  <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/20 border border-emerald-500/30 py-2 px-3 rounded font-mono animate-fade-in">
                     <i className="fas fa-check-circle animate-pulse text-emerald-500" />
                     <span>{successMsg.toUpperCase()}</span>
                   </div>
@@ -398,7 +398,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-ncc-sky/20 to-ncc-olive/20 border border-ncc-sky/40 text-ncc-sky text-[10px] font-mono font-bold py-2.5 rounded hover:bg-ncc-sky/25 hover:border-ncc-sky/65 hover:shadow-[0_0_20px_rgba(75,156,211,0.2)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2.5"
+                  className="w-full relative overflow-hidden bg-gradient-to-r from-ncc-sky/20 to-ncc-olive/20 border border-ncc-sky/40 text-ncc-sky text-sm font-sans font-bold py-3 rounded hover:bg-ncc-sky/25 hover:border-ncc-sky/65 hover:shadow-[0_0_20px_rgba(75,156,211,0.2)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest flex justify-center items-center gap-2.5"
                   onMouseEnter={() => playTacClick()}
                 >
                   {isLoading && (
@@ -419,7 +419,7 @@ export default function SignupPage() {
               </form>
 
               {/* Navigation Back */}
-              <div className="text-center mt-5 pt-3 border-t border-ncc-sky/15 flex justify-between items-center text-[8px] font-mono uppercase tracking-widest">
+              <div className="text-center mt-5 pt-3 border-t border-ncc-sky/15 flex justify-between items-center text-xs font-sans uppercase tracking-widest">
                 <Link
                   href="/login"
                   className="text-ncc-sky/55 hover:text-white transition-colors duration-300 flex items-center gap-1"
