@@ -81,6 +81,28 @@ async def import_cadets():
         logger.error("Required columns (Reg no, Name, Rank) not identified. Ingestion aborted.")
         return
 
+    # Seed default ANO user
+    ano_id = "6ced2391-0526-446a-bf3f-32565eb09a0d"
+    hashed_ano_pwd = bcrypt.hashpw(b"12345678", bcrypt.gensalt()).decode("utf-8")
+    ano_user = UserBase(
+        id=ano_id,
+        name="Capt. ANO Officer",
+        email="ano@sastra.ncc",
+        password=hashed_ano_pwd,
+        rank="Captain",
+        role="ANO",
+        batch_year=0,
+        regimental_number="ANO/2023/1001",
+        registration_number="ANO/1001",
+        dob="01-01-1980",
+        year_branch="Faculty, Associate NCC Officer",
+        hostel_info="Staff Quarters",
+        camp_count=0,
+        status="APPROVED"
+    )
+    logger.info("Seeding ANO account (ano@sastra.ncc)...")
+    await database.save_user(ano_user)
+
     count = 0
     # Iterate data rows starting from row 2
     for r_idx in range(2, sheet.max_row + 1):

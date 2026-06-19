@@ -1,11 +1,10 @@
 import os
 import json
 import logging
-import sqlite3
 import datetime
 import httpx
 from typing import Dict, Any, List
-from .sqlite_db import DB_PATH
+from . import database
 
 logger = logging.getLogger("app.scheduler_agent")
 
@@ -18,20 +17,6 @@ def load_syllabus() -> List[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Failed to load syllabus: {e}")
         return []
-
-def get_recent_event_titles() -> List[str]:
-    """Retrieves titles of recently scheduled events from SQLite to check covered topics."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT title FROM events ORDER BY date DESC LIMIT 30")
-        rows = cursor.fetchall()
-        return [r[0] for r in rows]
-    except Exception as e:
-        logger.error(f"Error fetching event history: {e}")
-        return []
-    finally:
-        conn.close()
 
 def get_next_month_weekends() -> List[str]:
     """Calculates all Saturdays of next calendar month."""
@@ -55,7 +40,17 @@ def get_next_month_weekends() -> List[str]:
 
 async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
     syllabus = load_syllabus()
-    history = get_recent_event_titles()
+    
+    # Fetch recent events history
+    try:
+        db_events = await database.get_events()
+        # Sort by date descending
+        db_events.sort(key=lambda e: e.date, reverse=True)
+        history = [e.title for e in db_events[:30]]
+    except Exception as e:
+        logger.error(f"Error fetching event history: {e}")
+        history = []
+        
     weekends = get_next_month_weekends()
     
     api_key = os.getenv("GEMINI_API_KEY")

@@ -371,6 +371,26 @@ async def delete_achievement(ach_id: str, current_user: dict = Depends(get_curre
 
 # ── Attendance (protected) ─────────────────────────────────────────────────
 
+async def recalculate_user_camp_count(user_id: str):
+    # Fetch all attendance for this user marked 'Present'
+    all_att = await database.get_attendance()
+    user_presents = [a for a in all_att if a.user_id == user_id and a.status == "Present"]
+    
+    if not user_presents:
+        camp_count = 0
+    else:
+        # Fetch all events to filter by type 'Camp'
+        all_events = await database.get_events()
+        camp_ids = {e.id for e in all_events if e.type == "Camp"}
+        camp_count = sum(1 for a in user_presents if a.event_id in camp_ids)
+        
+    # Get user, update, and save
+    all_users = await database.get_users()
+    user = next((u for u in all_users if u.id == user_id), None)
+    if user:
+        user.camp_count = camp_count
+        await database.save_user(user)
+
 @router.post("/attendance/bulk")
 async def submit_bulk_attendance(data: Dict[str, Any], current_user: dict = Depends(get_current_user)):
     role = current_user.get("role")
@@ -382,6 +402,11 @@ async def submit_bulk_attendance(data: Dict[str, Any], current_user: dict = Depe
     records = data.get("records", [])
     marked_by = data.get("markedBy")
 
+    # Fetch events to check type
+    events = await database.get_events()
+    event = next((e for e in events if e.id == event_id), None)
+    is_camp = event and event.type == "Camp"
+
     for r in records:
         att = AttendanceBase(
             event_id=event_id,
@@ -390,6 +415,9 @@ async def submit_bulk_attendance(data: Dict[str, Any], current_user: dict = Depe
             marked_by=marked_by
         )
         await database.mark_attendance(att)
+        
+        if is_camp:
+            await recalculate_user_camp_count(r["userId"])
 
     return {"success": True}
 
