@@ -250,6 +250,7 @@ async def delete_event(event_id: str):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM events WHERE id = ?", (event_id,))
+    cursor.execute("DELETE FROM attendance WHERE event_id = ?", (event_id,))
     conn.commit()
     conn.close()
 

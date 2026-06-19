@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from typing import List, Dict, Any
+import datetime
 
 from ..services import database, news
+from ..services.notifications import send_discord_notification
 from ..schemas.models import UserBase, UserPublic, EventBase, PermissionBase, AchievementBase, AttendanceBase, APIModel
 from ..core.auth import verify_password, create_access_token, get_current_user
 
@@ -147,6 +149,28 @@ async def get_news():
 
 # ── Events (public) ──────────────────────────────────────────────────────────
 
+def validate_event_times_and_dates(event: EventBase):
+    valid_types = {"Parade", "Theory", "Camp", "Event"}
+    if event.type not in valid_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid event type '{event.type}'. Must be one of: {', '.join(valid_types)}"
+        )
+
+    try:
+        datetime.datetime.strptime(event.date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Must be YYYY-MM-DD")
+
+    try:
+        start = datetime.datetime.strptime(event.start_time, "%H:%M")
+        end = datetime.datetime.strptime(event.end_time, "%H:%M")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid time format. Must be HH:MM")
+
+    if start >= end:
+        raise HTTPException(status_code=400, detail="Event start time must be before end time")
+
 @router.get("/events/public", response_model=List[EventBase])
 async def get_public_events():
     return await database.get_events()
@@ -165,7 +189,23 @@ async def save_event(event: EventBase, current_user: dict = Depends(get_current_
     rank = current_user.get("rank")
     if role != "ANO" and rank not in ["SUO", "CUO"]:
         raise HTTPException(status_code=403, detail="Only ANO or SUO/CUO can create/edit events")
+    
+    validate_event_times_and_dates(event)
     await database.save_event(event)
+    
+    # Broadcast to Discord
+    description = (
+        f"**Type:** {event.type}\n"
+        f"**Date:** {event.date}\n"
+        f"**Time:** {event.start_time} - {event.end_time}\n"
+        f"**Location:** {event.location}"
+    )
+    send_discord_notification(
+        title=f"New Event Published: {event.title}",
+        description=description,
+        color=3447003
+    )
+    
     return {"success": True}
 
 
@@ -532,11 +572,26 @@ async def save_events_bulk(data: Dict[str, Any], current_user: dict = Depends(ge
         raise HTTPException(status_code=400, detail="No events provided")
         
     import uuid
+    event_objs = []
     for ev_dict in events_data:
         if "id" not in ev_dict or not ev_dict["id"]:
             ev_dict["id"] = str(uuid.uuid4())
         event_obj = EventBase(**ev_dict)
+        validate_event_times_and_dates(event_obj)
+        event_objs.append(event_obj)
+        
+    for event_obj in event_objs:
         await database.save_event(event_obj)
+        
+    # Broadcast to Discord as a single batch summary
+    description = f"**Total Events Published:** {len(event_objs)}\n\n"
+    for e in event_objs:
+        description += f"• **{e.title}** ({e.type}) on {e.date} at {e.location} ({e.start_time} - {e.end_time})\n"
+    send_discord_notification(
+        title="Training Calendar Batch Published",
+        description=description,
+        color=2121755
+    )
         
     return {"success": True, "count": len(events_data)}
 
