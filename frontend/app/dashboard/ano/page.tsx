@@ -8,6 +8,8 @@ import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
+import HudDatePicker from '@/components/HudDatePicker';
+import HudTimePicker from '@/components/HudTimePicker';
 
 /** Format Date as YYYY-MM-DD in local timezone (not UTC) */
 function toLocalDateStr(d: Date): string {
@@ -1123,7 +1125,7 @@ export default function ANODashboard() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Date</label>
-                          <input name="date" type="date" className="hud-input" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
+                          <HudDatePicker name="date" value={eventDate} onChange={setEventDate} required />
                         </div>
                         <div>
                           <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Location</label>
@@ -1134,11 +1136,11 @@ export default function ANODashboard() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Start Time</label>
-                          <input name="startTime" type="time" className="hud-input" value={eventStart} onChange={(e) => setEventStart(e.target.value)} required />
+                          <HudTimePicker name="startTime" value={eventStart} onChange={setEventStart} required label="Start" />
                         </div>
                         <div>
                           <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">End Time</label>
-                          <input name="endTime" type="time" className="hud-input" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} required />
+                          <HudTimePicker name="endTime" value={eventEnd} onChange={setEventEnd} required label="End" />
                         </div>
                       </div>
 
@@ -1302,13 +1304,11 @@ export default function ANODashboard() {
                                 {/* Date */}
                                 <div>
                                   <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
-                                  <input
-                                    type="date"
-                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                  <HudDatePicker
                                     value={evt.date}
-                                    onChange={(e) => {
+                                    onChange={(val) => {
                                       const updated = [...aiProposedEvents];
-                                      updated[idx].date = e.target.value;
+                                      updated[idx].date = val;
                                       setAiProposedEvents(updated);
                                     }}
                                     required
@@ -1335,33 +1335,31 @@ export default function ANODashboard() {
                                 {/* Start Time */}
                                 <div>
                                   <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Start Time</label>
-                                  <input
-                                    type="time"
-                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                  <HudTimePicker
                                     value={evt.startTime || evt.start_time}
-                                    onChange={(e) => {
+                                    onChange={(val) => {
                                       const updated = [...aiProposedEvents];
-                                      updated[idx].startTime = e.target.value;
-                                      updated[idx].start_time = e.target.value;
+                                      updated[idx].startTime = val;
+                                      updated[idx].start_time = val;
                                       setAiProposedEvents(updated);
                                     }}
                                     required
+                                    label="Start"
                                   />
                                 </div>
                                 {/* End Time */}
                                 <div>
                                   <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
-                                  <input
-                                    type="time"
-                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                  <HudTimePicker
                                     value={evt.endTime || evt.end_time}
-                                    onChange={(e) => {
+                                    onChange={(val) => {
                                       const updated = [...aiProposedEvents];
-                                      updated[idx].endTime = e.target.value;
-                                      updated[idx].end_time = e.target.value;
+                                      updated[idx].endTime = val;
+                                      updated[idx].end_time = val;
                                       setAiProposedEvents(updated);
                                     }}
                                     required
+                                    label="End"
                                   />
                                 </div>
                               </div>
