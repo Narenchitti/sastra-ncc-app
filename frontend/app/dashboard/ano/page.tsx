@@ -321,50 +321,50 @@ export default function ANODashboard() {
         </div>
 
         {/* 2. Detailed Agenda List */}
-        <div className="bg-slate-50 p-6 space-y-3">
-          <h4 className="font-heading font-bold text-gray-400 text-xs uppercase tracking-wider mb-2">Detailed Agenda</h4>
+        <div className="p-6 border-t border-ncc-olive/15 space-y-3 bg-black/25">
+          <h4 className="font-heading font-bold text-ncc-olive/60 text-xs uppercase tracking-widest mb-2 font-mono">// Detailed Agenda</h4>
           <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
             {weekEvents.length === 0 ? (
-              <p className="text-sm text-gray-400 italic text-center py-6">No events scheduled for this week.</p>
+              <p className="text-xs text-ncc-olive/40 italic text-center py-6 font-sans">No events scheduled for this week.</p>
             ) : (
               weekEvents.map(ev => (
                 <div 
                   key={ev.id} 
                   onClick={() => setSelectedEvent(ev)}
-                  className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center gap-4 hover:border-ncc-navy transition-all group cursor-pointer hover:shadow"
+                  className="tac-card p-4 flex flex-col md:flex-row md:items-center gap-4 hover:border-ncc-gold/45 transition-all group cursor-pointer hover:shadow-xl"
                 >
                   {/* Date Badge */}
-                  <div className="flex-shrink-0 w-12 text-center border-r border-gray-100 pr-4">
-                    <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{ev.dateObj.toLocaleDateString('default', { weekday: 'short' })}</span>
-                    <span className="block text-xl font-heading font-bold text-gray-800 leading-none mt-1">{ev.dateObj.getDate()}</span>
+                  <div className="flex-shrink-0 w-12 text-center border-r border-ncc-olive/15 pr-4">
+                    <span className="block text-[10px] font-bold text-ncc-olive/60 uppercase tracking-widest font-mono">{ev.dateObj.toLocaleDateString('default', { weekday: 'short' })}</span>
+                    <span className="block text-xl font-heading font-bold text-white leading-none mt-1">{ev.dateObj.getDate()}</span>
                   </div>
 
                   {/* Event Details */}
                   <div className="flex-grow">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                        ev.type === 'Parade' ? 'bg-red-50 border border-red-200 text-red-700' :
-                        ev.type === 'Theory' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
-                        ev.type === 'Camp' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
-                        'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                      <span className={`hud-badge ${
+                        ev.type === 'Parade' ? 'hud-badge-rejected' :
+                        ev.type === 'Theory' ? 'hud-badge-forwarded' :
+                        ev.type === 'Camp' ? 'hud-badge-verified' :
+                        'hud-badge-approved'
                       }`}>
                         {ev.type}
                       </span>
-                      <h5 className="font-bold text-gray-800 text-sm group-hover:text-ncc-navy transition-colors">{ev.title}</h5>
+                      <h5 className="font-bold text-white text-sm group-hover:text-ncc-gold transition-colors uppercase tracking-wider">{ev.title}</h5>
                     </div>
-                    <div className="flex items-center gap-4 text-xs font-semibold text-gray-400 mt-1">
-                      <span className="flex items-center gap-1">
-                        <i className="far fa-clock text-gray-400"></i> {ev.startTime} - {ev.endTime}
+                    <div className="flex items-center gap-4 text-xs font-semibold text-ncc-olive/60 mt-1 font-sans">
+                      <span className="flex items-center gap-1.5">
+                        <i className="far fa-clock text-ncc-olive/40"></i> {ev.startTime} - {ev.endTime}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <i className="fas fa-map-marker-alt text-gray-400"></i> {ev.location}
+                      <span className="flex items-center gap-1.5">
+                        <i className="fas fa-map-marker-alt text-ncc-olive/40"></i> {ev.location}
                       </span>
                     </div>
                   </div>
 
                   {/* Action/Edit (Update & Delete) */}
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 self-center" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => handleEditClick(ev)} className="text-gray-400 hover:text-blue-600 p-2 rounded-lg hover:bg-slate-50 transition-colors" title="Edit Event">
+                    <button onClick={() => handleEditClick(ev)} className="text-ncc-olive/50 hover:bg-ncc-olive/10 hover:text-white p-2 rounded transition-colors" title="Edit Event">
                       <i className="fas fa-edit"></i>
                     </button>
                     <form action={async (fd) => {
@@ -373,7 +373,7 @@ export default function ANODashboard() {
                       await deleteEvent(fd);
                       refreshData();
                     }}>
-                      <button className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-slate-50 transition-colors" title="Delete Event">
+                      <button className="text-ncc-olive/50 hover:bg-ncc-red/10 hover:text-ncc-red p-2 rounded transition-colors" title="Delete Event">
                         <i className="fas fa-trash-alt"></i>
                       </button>
                     </form>
@@ -467,7 +467,7 @@ export default function ANODashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="md:ml-64 w-full p-6 md:p-10 overflow-x-hidden min-h-screen flex flex-col relative z-10">
+      <main className="md:ml-64 flex-1 min-w-0 p-6 md:p-10 overflow-x-hidden min-h-screen flex flex-col relative z-10">
         {data.fetchError && (
           <div className="bg-ncc-red/10 border border-ncc-red/30 text-red-400 p-4 rounded-md mb-6 text-xs flex items-center gap-3 font-mono">
             <i className="fas fa-exclamation-circle text-ncc-red"></i>
@@ -716,17 +716,17 @@ export default function ANODashboard() {
                           </div>
                         )}
                         {p.anoComment && (
-                          <div className="mt-3 bg-slate-50 border border-slate-100 text-gray-600 text-xs p-3.5 rounded-xl">
-                            <strong className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Previous ANO Note</strong>
+                          <div className="mt-3 bg-black/45 border border-ncc-olive/15 text-ncc-olive/70 text-xs p-3.5 rounded-md">
+                            <strong className="block text-[10px] font-bold text-ncc-olive/50 uppercase tracking-wider mb-1">Previous ANO Note</strong>
                             {p.anoComment}
                           </div>
                         )}
                         {p.aiStatus && (
                           <div className={`mt-4 p-4 rounded-xl border flex flex-col gap-2.5 transition-all duration-300 ${
-                            p.aiStatus === 'VERIFIED' ? 'bg-emerald-50/50 border-emerald-100/80 text-emerald-900' :
-                            p.aiStatus === 'FLAGGED' ? 'bg-amber-50/50 border-amber-100/80 text-amber-900' :
-                            p.aiStatus === 'ERROR' ? 'bg-red-50/50 border-red-100/80 text-red-900' :
-                            'bg-slate-50 border-slate-150 text-gray-700'
+                            p.aiStatus === 'VERIFIED' ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400' :
+                            p.aiStatus === 'FLAGGED' ? 'bg-amber-950/20 border-amber-500/30 text-amber-400' :
+                            p.aiStatus === 'ERROR' ? 'bg-red-950/20 border-red-500/30 text-red-400' :
+                            'bg-black/45 border-ncc-olive/15 text-ncc-olive/60'
                           }`}>
                             <div className="flex items-center justify-between border-b pb-1.5 border-current/10">
                               <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
@@ -751,7 +751,7 @@ export default function ANODashboard() {
                               {p.aiRemarks}
                             </div>
                             {p.aiStatus === 'FLAGGED' && (
-                              <div className="bg-white/90 border border-amber-200/50 text-[10px] text-amber-800 p-2.5 rounded-lg flex items-start gap-1.5 mt-0.5 font-bold shadow-sm">
+                              <div className="bg-amber-950/20 border border-amber-500/30 text-[10px] text-amber-400 p-2.5 rounded-lg flex items-start gap-1.5 mt-0.5 font-bold shadow-sm">
                                 <i className="fas fa-exclamation-circle text-amber-500 mt-0.5 flex-shrink-0"></i>
                                 <span>ANO Attention: Visual audit flagged discrepancy. Please check dates and name carefully.</span>
                               </div>
@@ -909,16 +909,16 @@ export default function ANODashboard() {
                           <span className="font-heading font-bold text-sm text-white uppercase tracking-wider">{a.title}</span>
                           <span className="hud-badge hud-badge-draft">{a.category}</span>
                           {a.certificateUrl && (
-                            <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="bg-blue-50 text-blue-600 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1.5">
+                            <a href={a.certificateUrl} target="_blank" rel="noopener noreferrer" className="bg-ncc-sky/15 text-ncc-sky px-3 py-1.5 rounded-sm text-xs font-bold hover:bg-ncc-sky/25 border border-ncc-sky/30 transition-colors flex items-center gap-1.5 uppercase tracking-widest font-sans">
                               <i className="fas fa-certificate text-[10px]"></i> View Certificate
                             </a>
                           )}
                         </div>
-                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl text-gray-700 text-sm mb-4 leading-relaxed">
+                        <div className="bg-black/35 border border-ncc-olive/15 p-4 rounded-md text-gray-300 text-sm mb-4 leading-relaxed font-sans">
                           {a.description}
-                          {a.location && <div className="mt-2 text-xs text-gray-400 font-semibold"><i className="fas fa-map-marker-alt text-ncc-red mr-1"></i> {a.location}</div>}
+                          {a.location && <div className="mt-2 text-xs text-ncc-olive/60 font-sans uppercase tracking-widest flex items-center gap-1"><i className="fas fa-map-marker-alt text-ncc-red mr-1"></i> {a.location}</div>}
                         </div>
-                        <div className="text-xs font-semibold text-gray-400 flex items-center gap-2">
+                        <div className="text-xs font-bold text-ncc-olive/60 flex items-center gap-2 font-mono uppercase tracking-wider">
                           <i className="far fa-calendar text-ncc-red"></i> {a.date} {a.endDate && `to ${a.endDate}`}
                         </div>
                       </div>
@@ -1396,14 +1396,15 @@ export default function ANODashboard() {
         {activeTab === 'command' && (
           <div className="space-y-8 animate-fade-in flex-grow">
             {/* Console Prompt Card */}
-            <div className="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm relative overflow-hidden">
+            <div className="tac-card p-8 relative overflow-hidden">
+              <CornerBrackets colorClass="border-ncc-gold/40" />
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-navy via-ncc-red to-ncc-gold"></div>
               
-              <div className="max-w-3xl">
-                <h3 className="font-heading font-bold text-ncc-navy text-xl flex items-center gap-2">
+              <div className="max-w-3xl mt-1">
+                <h3 className="font-heading font-bold text-white text-xl flex items-center gap-2 uppercase tracking-wider">
                   <i className="fas fa-terminal text-ncc-red"></i> Secure SQL Query Console
                 </h3>
-                <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                <p className="text-xs text-ncc-olive/70 mt-2 leading-relaxed font-sans">
                   Query the central NCC unit registers using natural language. The AI Adjutant compiles safety-audited, read-only SELECT queries to execute against live SQLite registers.
                 </p>
 
@@ -1517,17 +1518,17 @@ export default function ANODashboard() {
 
                 {/* Code Disclosure Widget */}
                 {queryResult.sql && (
-                  <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                  <div className="tac-card border-ncc-sky/35 overflow-hidden">
                     <details className="group">
-                      <summary className="flex items-center justify-between p-4 cursor-pointer select-none bg-slate-50 border-b border-gray-150">
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                          <i className="fas fa-code text-gray-400"></i> Compile Diagnostics (Generated Read-Only SQL)
+                      <summary className="flex items-center justify-between p-4 cursor-pointer select-none bg-black/45 border-b border-ncc-olive/15">
+                        <span className="text-xs font-bold text-ncc-sky uppercase tracking-widest font-sans flex items-center gap-1.5">
+                          <i className="fas fa-code text-ncc-sky/60"></i> Compile Diagnostics (Generated Read-Only SQL)
                         </span>
-                        <span className="text-xs text-gray-400 group-open:rotate-180 transition-transform">
+                        <span className="text-xs text-ncc-sky group-open:rotate-180 transition-transform">
                           <i className="fas fa-chevron-down"></i>
                         </span>
                       </summary>
-                      <div className="p-5 bg-slate-900 border-t border-slate-800 font-mono text-xs text-ncc-sky overflow-x-auto whitespace-pre">
+                      <div className="p-5 bg-black/75 border-t border-ncc-olive/15 font-mono text-xs text-ncc-sky overflow-x-auto whitespace-pre">
                         {queryResult.sql}
                       </div>
                     </details>
@@ -1608,103 +1609,103 @@ export default function ANODashboard() {
           const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${startCal}/${endCal}&details=Location:+${encodeURIComponent(ev.location)}&sf=true&output=xml`;
 
           return (
-            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedEvent(null)}>
-              <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 relative" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedEvent(null)}>
+              <div className="w-full max-w-md rounded-xl shadow-2xl overflow-hidden tac-card-gold relative" onClick={(e) => e.stopPropagation()}>
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
                 
-                <div className="p-6">
+                <div className="p-6 mt-1">
                   {/* Header */}
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <span className={`text-xs font-sans font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                        ev.type === 'Parade' ? 'bg-red-50 border border-red-200 text-red-700' :
-                        ev.type === 'Theory' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
-                        ev.type === 'Camp' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
-                        'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                      <span className={`hud-badge ${
+                        ev.type === 'Parade' ? 'hud-badge-rejected' :
+                        ev.type === 'Theory' ? 'hud-badge-forwarded' :
+                        ev.type === 'Camp' ? 'hud-badge-verified' :
+                        'hud-badge-approved'
                       }`}>
                         {ev.type}
                       </span>
-                      <h3 className="font-heading text-lg font-bold text-gray-800 mt-2 leading-snug">{ev.title}</h3>
+                      <h3 className="font-heading text-lg font-bold text-white mt-2 leading-snug uppercase tracking-wider">{ev.title}</h3>
                     </div>
-                    <button onClick={() => setSelectedEvent(null)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-slate-100">
+                    <button onClick={() => setSelectedEvent(null)} className="text-ncc-olive/50 hover:text-ncc-gold transition-colors p-1">
                       <i className="fas fa-times text-lg"></i>
                     </button>
                   </div>
 
                   {/* Details list */}
-                  <div className="space-y-4 my-6 text-sm text-gray-600">
+                  <div className="space-y-4 my-6 text-sm text-gray-300 font-sans">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-red">
+                      <div className="w-8 h-8 rounded-lg bg-ncc-red/10 border border-ncc-red/25 flex items-center justify-center text-ncc-red">
                         <i className="far fa-calendar-alt"></i>
                       </div>
                       <div>
-                        <div className="font-bold text-gray-700">Date</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-[10px] text-ncc-olive/60 uppercase tracking-widest font-mono">Date</div>
+                        <div className="text-xs text-gray-200">
                           {new Date(ev.date).toLocaleDateString('default', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-gold">
+                      <div className="w-8 h-8 rounded-lg bg-ncc-gold/10 border border-ncc-gold/25 flex items-center justify-center text-ncc-gold">
                         <i className="far fa-clock"></i>
                       </div>
                       <div>
-                        <div className="font-bold text-gray-700">Time</div>
-                        <div className="text-xs text-gray-500">{ev.startTime} - {ev.endTime}</div>
+                        <div className="text-[10px] text-ncc-olive/60 uppercase tracking-widest font-mono">Time</div>
+                        <div className="text-xs text-gray-200">{ev.startTime} - {ev.endTime}</div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-ncc-sky">
+                      <div className="w-8 h-8 rounded-lg bg-ncc-sky/10 border border-ncc-sky/25 flex items-center justify-center text-ncc-sky">
                         <i className="fas fa-map-marker-alt"></i>
                       </div>
                       <div>
-                        <div className="font-bold text-gray-700">Location</div>
-                        <div className="text-xs text-gray-500">{ev.location}</div>
+                        <div className="text-[10px] text-ncc-olive/60 uppercase tracking-widest font-mono">Location</div>
+                        <div className="text-xs text-gray-200">{ev.location}</div>
                       </div>
                     </div>
 
                     {/* Attendance Card */}
-                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
-                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Unit Attendance Report</div>
+                    <div className="border border-ncc-olive/15 rounded-xl p-4 bg-black/45">
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-ncc-olive/60 mb-3 font-mono">// Unit Attendance Report</div>
                       
                       {eventAtt.length > 0 ? (
                         <div className="space-y-3">
                           {/* Progress bar */}
                           <div>
-                            <div className="flex justify-between text-xs font-bold text-gray-700 mb-1">
+                            <div className="flex justify-between text-xs font-bold text-gray-200 mb-1">
                               <span>Attendance Rate</span>
                               <span className="text-ncc-red">{attendanceRate}%</span>
                             </div>
-                            <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                              <div className="bg-ncc-navy h-full rounded-full transition-all" style={{ width: `${attendanceRate}%` }}></div>
+                            <div className="w-full bg-ncc-olive/15 h-2 rounded-full overflow-hidden">
+                              <div className="bg-ncc-gold h-full rounded-full transition-all" style={{ width: `${attendanceRate}%` }}></div>
                             </div>
                           </div>
 
                           {/* Stats Grid */}
                           <div className="grid grid-cols-4 gap-2 pt-2 text-center">
-                            <div className="bg-white p-2 rounded-lg border border-gray-100">
-                              <span className="block text-sm font-bold text-green-600">{presentCount}</span>
-                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Present</span>
+                            <div className="bg-black/35 p-2 rounded-lg border border-ncc-olive/15">
+                              <span className="block text-sm font-bold text-green-400">{presentCount}</span>
+                              <span className="text-[9px] text-ncc-olive/50 uppercase font-bold font-sans tracking-wider">Present</span>
                             </div>
-                            <div className="bg-white p-2 rounded-lg border border-gray-100">
-                              <span className="block text-sm font-bold text-red-500">{absentCount}</span>
-                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Absent</span>
+                            <div className="bg-black/35 p-2 rounded-lg border border-ncc-olive/15">
+                              <span className="block text-sm font-bold text-ncc-red">{absentCount}</span>
+                              <span className="text-[9px] text-ncc-olive/50 uppercase font-bold font-sans tracking-wider">Absent</span>
                             </div>
-                            <div className="bg-white p-2 rounded-lg border border-gray-100">
-                              <span className="block text-sm font-bold text-blue-500">{leaveCount}</span>
-                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Leave/Late</span>
+                            <div className="bg-black/35 p-2 rounded-lg border border-ncc-olive/15">
+                              <span className="block text-sm font-bold text-ncc-sky">{leaveCount}</span>
+                              <span className="text-[9px] text-ncc-olive/50 uppercase font-bold font-sans tracking-wider">Leave/Late</span>
                             </div>
-                            <div className="bg-white p-2 rounded-lg border border-gray-100">
-                              <span className="block text-sm font-bold text-gray-400">{unmarkedCount}</span>
-                              <span className="text-xs text-gray-400 uppercase font-bold font-sans">Pending</span>
+                            <div className="bg-black/35 p-2 rounded-lg border border-ncc-olive/15">
+                              <span className="block text-sm font-bold text-ncc-olive/60">{unmarkedCount}</span>
+                              <span className="text-[9px] text-ncc-olive/50 uppercase font-bold font-sans tracking-wider">Pending</span>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="text-xs text-gray-500 italic text-center py-2 flex flex-col items-center gap-1">
-                          <i className="fas fa-clipboard-list text-lg text-gray-300"></i>
+                        <div className="text-xs text-ncc-olive/40 italic text-center py-2 flex flex-col items-center gap-1 font-sans">
+                          <i className="fas fa-clipboard-list text-lg text-ncc-olive/20"></i>
                           No attendance data has been marked for this event yet.
                         </div>
                       )}

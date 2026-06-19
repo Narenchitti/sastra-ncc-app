@@ -327,68 +327,68 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Tactical Card Variants ── */
 .tac-card {
-    background: rgba(12, 17, 10, 0.72);
+    background: rgba(10, 14, 8, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(74, 93, 35, 0.28);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(74, 93, 35, 0.52);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     border-radius: 0.75rem;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, background-color 0.2s;
 }
 .tac-card:hover {
-    border-color: rgba(212, 175, 55, 0.35);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.06);
+    border-color: rgba(212, 175, 55, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 175, 55, 0.18);
     transform: scale(1.02);
 }
 .tac-card:active {
     transform: scale(0.985);
 }
 .tac-card-red {
-    background: rgba(12, 17, 10, 0.72);
+    background: rgba(10, 14, 8, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(210, 16, 52, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(210, 16, 52, 0.05);
+    border: 1px solid rgba(210, 16, 52, 0.55);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(210, 16, 52, 0.08);
     border-radius: 0.75rem;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, background-color 0.2s;
 }
 .tac-card-red:hover {
-    border-color: rgba(210, 16, 52, 0.5);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(210, 16, 52, 0.12);
+    border-color: rgba(210, 16, 52, 0.75);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(210, 16, 52, 0.22);
     transform: scale(1.02);
 }
 .tac-card-red:active {
     transform: scale(0.985);
 }
 .tac-card-gold {
-    background: rgba(12, 17, 10, 0.72);
+    background: rgba(10, 14, 8, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.55);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(212, 175, 55, 0.08);
     border-radius: 0.75rem;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, background-color 0.2s;
 }
 .tac-card-gold:hover {
-    border-color: rgba(212, 175, 55, 0.55);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.13);
+    border-color: rgba(212, 175, 55, 0.8);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 175, 55, 0.25);
     transform: scale(1.02);
 }
 .tac-card-gold:active {
     transform: scale(0.985);
 }
 .tac-card-sky {
-    background: rgba(12, 17, 10, 0.72);
+    background: rgba(10, 14, 8, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(75, 156, 211, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(75, 156, 211, 0.05);
+    border: 1px solid rgba(75, 156, 211, 0.55);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(75, 156, 211, 0.08);
     border-radius: 0.75rem;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, background-color 0.2s;
 }
 .tac-card-sky:hover {
-    border-color: rgba(75, 156, 211, 0.5);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(75, 156, 211, 0.12);
+    border-color: rgba(75, 156, 211, 0.75);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(75, 156, 211, 0.22);
     transform: scale(1.02);
 }
 .tac-card-sky:active {

@@ -127,7 +127,7 @@ export default function LoginPage() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-6 md:p-12 lg:p-16">
-        <div className="max-w-5xl w-full flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-20">
+        <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center gap-10 lg:gap-12">
 
           {/* LEFT: Branding / Mission Brief */}
           <div className="flex flex-col justify-between w-full md:w-[50%] py-4">

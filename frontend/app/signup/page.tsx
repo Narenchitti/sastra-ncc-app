@@ -123,7 +123,7 @@ export default function SignupPage() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-6 md:p-12 lg:p-16">
-        <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-20">
+        <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center gap-10 lg:gap-12">
           
           {/* LEFT: Branding & Console logs */}
           <div className="flex flex-col justify-between w-full md:w-[45%] py-4">

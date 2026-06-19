@@ -340,7 +340,7 @@ export default function CadetDashboard() {
                         {/* Rank Holder Action */}
                         {isRankHolder && (
                           <div onClick={(e) => { e.stopPropagation(); launchRegister(ev); }}
-                            className={`mt-2 text-center py-1 rounded-md cursor-pointer font-bold transition-all text-xs font-sans ${status.status === 'open' ? 'bg-green-600 text-white animate-pulse' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+                            className={`mt-2 text-center py-1 rounded-sm cursor-pointer font-bold transition-all text-[10px] font-sans uppercase tracking-widest ${status.status === 'open' ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 animate-pulse' : 'bg-black/35 text-ncc-olive/50 border border-ncc-olive/20 hover:border-ncc-gold/40 hover:text-ncc-gold'}`}>
                             {status.status === 'open' ? 'Mark Attendance' : 'Closed'}
                           </div>
                         )}
@@ -579,7 +579,7 @@ export default function CadetDashboard() {
       </aside>
 
       {/* ── MAIN CONTENT AREA ── */}
-      <main className="md:ml-64 w-full p-6 md:p-10 overflow-x-hidden min-h-screen flex flex-col relative z-10">
+      <main className="md:ml-64 flex-1 min-w-0 p-6 md:p-10 overflow-x-hidden min-h-screen flex flex-col relative z-10">
         {message && (
           <div className="fixed top-5 right-5 bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-4 py-3 rounded-md z-50 animate-fade-in shadow-xl flex items-center gap-3 backdrop-blur-sm font-sans text-xs">
             <i className="fas fa-check-circle text-emerald-400"></i>
