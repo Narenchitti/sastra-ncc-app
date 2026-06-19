@@ -337,6 +337,9 @@ export async function createEvent(formData: FormData) {
 export async function runNaturalLanguageQuery(query: string) {
     try {
         const result = await apiClient.post('/query', { query });
+        if (result.success === false) {
+            return { success: false, ...result, message: result.explanation || 'Query execution failed' };
+        }
         return { success: true, ...result };
     } catch (error: any) {
         return { success: false, message: error.message || 'Query execution failed' };
@@ -348,6 +351,9 @@ export async function runNaturalLanguageQuery(query: string) {
 export async function generateSchedulePlan(query: string) {
     try {
         const result = await apiClient.post('/schedule/plan', { query });
+        if (result.success === false) {
+            return { success: false, ...result, message: result.explanation || 'Schedule generation failed' };
+        }
         return { success: true, ...result };
     } catch (error: any) {
         return { success: false, message: error.message || 'Schedule generation failed' };

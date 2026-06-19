@@ -8,6 +8,28 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger("app.ai_auditor")
 
+def parse_gemini_json(raw_text: str) -> Any:
+    raw_text = raw_text.strip()
+    if raw_text.startswith("```"):
+        lines = raw_text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        raw_text = "\n".join(lines).strip()
+    
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        start_idx = raw_text.find("{")
+        end_idx = raw_text.rfind("}")
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            try:
+                return json.loads(raw_text[start_idx:end_idx+1])
+            except json.JSONDecodeError:
+                pass
+        raise
+
 async def audit_permission_document(
     reason: str,
     start_date: str,
@@ -130,7 +152,7 @@ Provide a structured JSON output with:
             data = res.json()
             # Extract structured response from candidate content text
             content_text = data["candidates"][0]["content"]["parts"][0]["text"]
-            parsed = json.loads(content_text)
+            parsed = parse_gemini_json(content_text)
             return {
                 "status": parsed.get("status", "VERIFIED"),
                 "remarks": parsed.get("remarks", "Document analyzed.")

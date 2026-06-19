@@ -8,6 +8,28 @@ from .sqlite_db import DB_PATH
 
 logger = logging.getLogger("app.query_agent")
 
+def parse_gemini_json(raw_text: str) -> Any:
+    raw_text = raw_text.strip()
+    if raw_text.startswith("```"):
+        lines = raw_text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        raw_text = "\n".join(lines).strip()
+    
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        start_idx = raw_text.find("{")
+        end_idx = raw_text.rfind("}")
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            try:
+                return json.loads(raw_text[start_idx:end_idx+1])
+            except json.JSONDecodeError:
+                pass
+        raise
+
 SCHEMA_PROMPT = """
 You are a SQL translation assistant for the SASTRA NCC Unit management database.
 Given a natural language question, translate it into a valid SQLite SELECT query.
@@ -193,7 +215,7 @@ async def execute_natural_query(query_text: str) -> Dict[str, Any]:
                 raise ValueError(f"Gemini API returned status {res.status_code}: {res.text}")
             
             sql_res = res.json()
-            sql_query = json.loads(sql_res["candidates"][0]["content"]["parts"][0]["text"])["sql"]
+            sql_query = parse_gemini_json(sql_res["candidates"][0]["content"]["parts"][0]["text"])["sql"]
             
             # Step 2: Execute SQL
             data = execute_sql(sql_query)
@@ -235,9 +257,10 @@ If no rows were returned, explain that no matching records were found.
                 explanation = f"Query run successfully. Found {len(data)} records."
             else:
                 explain_data = explain_res.json()
-                explanation = json.loads(explain_data["candidates"][0]["content"]["parts"][0]["text"])["explanation"]
+                explanation = parse_gemini_json(explain_data["candidates"][0]["content"]["parts"][0]["text"])["explanation"]
                 
             return {
+                "success": True,
                 "sql": sql_query,
                 "data": data,
                 "explanation": explanation
@@ -246,6 +269,7 @@ If no rows were returned, explain that no matching records were found.
     except Exception as e:
         logger.error(f"Command Center execution failed: {e}")
         return {
+            "success": False,
             "sql": "-- Failed to parse",
             "data": [],
             "explanation": f"⚠️ Command Center Error: {str(e)}"

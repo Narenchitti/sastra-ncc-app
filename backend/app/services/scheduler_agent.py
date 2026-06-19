@@ -8,6 +8,28 @@ from . import database
 
 logger = logging.getLogger("app.scheduler_agent")
 
+def parse_gemini_json(raw_text: str) -> Any:
+    raw_text = raw_text.strip()
+    if raw_text.startswith("```"):
+        lines = raw_text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        raw_text = "\n".join(lines).strip()
+    
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        start_idx = raw_text.find("{")
+        end_idx = raw_text.rfind("}")
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            try:
+                return json.loads(raw_text[start_idx:end_idx+1])
+            except json.JSONDecodeError:
+                pass
+        raise
+
 SYLLABUS_PATH = os.path.join(os.path.dirname(__file__), "..", "core", "syllabus.json")
 
 def load_syllabus() -> List[Dict[str, Any]]:
@@ -216,7 +238,7 @@ Respond with a JSON object containing 'explanation' (why this plan fits syllabus
                 raise ValueError(f"Gemini API returned status {res.status_code}: {res.text}")
                 
             plan_res = res.json()
-            plan_data = json.loads(plan_res["candidates"][0]["content"]["parts"][0]["text"])
+            plan_data = parse_gemini_json(plan_res["candidates"][0]["content"]["parts"][0]["text"])
             
             return {
                 "success": True,
