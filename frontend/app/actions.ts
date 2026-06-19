@@ -373,5 +373,58 @@ export async function getTelemetryTraces() {
 }
 
 
+// --- CADET SIGNUP & APPROVAL ACTIONS ---
+
+export async function signupAction(formData: FormData) {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const rank = formData.get('rank') as string;
+    const regimentalNumber = formData.get('regimentalNumber') as string;
+    const registrationNumber = formData.get('registrationNumber') as string;
+    const dob = formData.get('dob') as string;
+    const yearBranch = formData.get('yearBranch') as string;
+    const hostelInfo = formData.get('hostelInfo') as string;
+    const batchYear = parseInt(formData.get('batchYear') as string || '2026', 10);
+
+    try {
+        const result = await apiClient.post('/auth/signup', {
+            name,
+            email,
+            password,
+            rank,
+            regimentalNumber,
+            registrationNumber,
+            dob,
+            yearBranch,
+            hostelInfo,
+            batchYear
+        });
+        return result;
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Registration failed' };
+    }
+}
+
+export async function getPendingUsers() {
+    try {
+        return await apiClient.get('/users/pending');
+    } catch (error: any) {
+        console.error("Failed to fetch pending signups:", error);
+        return [];
+    }
+}
+
+export async function approveUserAction(userId: string, status: 'APPROVED' | 'REJECTED') {
+    try {
+        const result = await apiClient.put(`/users/${userId}/approve`, { status });
+        revalidatePath('/dashboard');
+        return result;
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to update user status' };
+    }
+}
+
+
 
 

@@ -24,6 +24,7 @@ class UserBase(APIModel):
     year_branch: Optional[str] = None
     hostel_info: Optional[str] = None
     camp_count: Optional[int] = 0
+    status: Optional[str] = "APPROVED"
 
 
 class UserPublic(APIModel):
@@ -40,6 +41,7 @@ class UserPublic(APIModel):
     year_branch: Optional[str] = None
     hostel_info: Optional[str] = None
     camp_count: Optional[int] = 0
+    status: Optional[str] = "APPROVED"
 
 class EventBase(APIModel):
     id: str

@@ -8,3 +8,4 @@ httpx
 feedparser
 python-jose[cryptography]
 bcrypt
+python-multipart

@@ -284,8 +284,20 @@ export default function LoginPage() {
                 </button>
               </form>
 
+              {/* Sign up Link */}
+              <div className="text-center mt-4">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-1.5 text-[8.5px] font-mono uppercase tracking-widest text-ncc-sky/70 hover:text-white transition-colors duration-300 group"
+                  onMouseEnter={() => playTacClick()}
+                >
+                  <i className="fas fa-file-signature text-[8px]" />
+                  <span>Request Enlistment (Sign Up)</span>
+                </Link>
+              </div>
+
               {/* Back link */}
-              <div className="text-center mt-6 pt-4 border-t border-ncc-olive/15">
+              <div className="text-center mt-5 pt-4 border-t border-ncc-olive/15">
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2 text-[8px] font-mono uppercase tracking-widest text-ncc-olive/55 hover:text-ncc-gold transition-colors duration-300 group"

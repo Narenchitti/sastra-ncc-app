@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
@@ -522,6 +522,72 @@ export default function ANODashboard() {
         {/* --- APPROVALS TAB --- */}
         {activeTab === 'approvals' && (
           <div className="space-y-8 animate-fade-in flex-grow">
+
+            {/* Cadet Enlistment Approvals (Signup verification) */}
+            {data.users.filter(u => u.status === 'PENDING_APPROVAL').length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-mono text-[9px] font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 flex items-center gap-2 uppercase tracking-widest">
+                  <i className="fas fa-user-plus"></i> Cadet Enlistment Approvals (Awaiting Verification)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {data.users.filter(u => u.status === 'PENDING_APPROVAL').map(pendingUser => (
+                    <div key={pendingUser.id} className="tac-card-sky p-5 flex flex-col justify-between gap-4 relative overflow-hidden">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-heading font-bold text-sm text-white uppercase tracking-wider">{pendingUser.name}</span>
+                          <span className="hud-badge hud-badge-pending text-ncc-sky border-ncc-sky/30">Enlistment Pending</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-[9px] uppercase tracking-wider text-gray-400 font-mono">
+                          <div><span className="text-ncc-sky/70">Rank:</span> {pendingUser.rank}</div>
+                          <div><span className="text-ncc-sky/70">Reg No:</span> {pendingUser.regimentalNumber || 'N/A'}</div>
+                          <div><span className="text-ncc-sky/70">Branch:</span> {pendingUser.dob || 'N/A'}</div>
+                          <div><span className="text-ncc-sky/70">Email:</span> {pendingUser.email}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mt-2 z-10">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (confirm(`Approve cadet ${pendingUser.name}?`)) {
+                              playTacClick('confirm');
+                              const res = await approveUserAction(pendingUser.id, 'APPROVED');
+                              if (res.success) {
+                                alert('Cadet approved successfully!');
+                                refreshData();
+                              } else {
+                                alert(res.message);
+                              }
+                            }
+                          }}
+                          className="px-4 py-2 rounded-sm bg-emerald-600/15 border border-emerald-500/40 text-emerald-400 font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-600/25 transition-all w-1/2"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (confirm(`Reject cadet ${pendingUser.name}?`)) {
+                              playTacClick('error');
+                              const res = await approveUserAction(pendingUser.id, 'REJECTED');
+                              if (res.success) {
+                                alert('Cadet registration rejected.');
+                                refreshData();
+                              } else {
+                                alert(res.message);
+                              }
+                            }
+                          }}
+                          className="px-4 py-2 rounded-sm bg-ncc-red/15 border border-ncc-red/40 text-ncc-red font-mono font-bold text-[9px] uppercase tracking-widest hover:bg-ncc-red/25 transition-all w-1/2"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* Manager Designation Panel */}
             {isANO && (

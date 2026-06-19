@@ -35,6 +35,7 @@ def init_db():
         year_branch TEXT,
         hostel_info TEXT,
         camp_count INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'APPROVED',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
     """)
@@ -120,6 +121,10 @@ def init_db():
         cursor.execute("ALTER TABLE permissions ADD COLUMN ai_remarks TEXT")
     except Exception:
         pass
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'APPROVED'")
+    except Exception:
+        pass
     conn.commit()
 
     # Seed if empty
@@ -166,8 +171,8 @@ def init_db():
         ano_id = "6ced2391-0526-446a-bf3f-32565eb09a0d"
         hashed_ano_pwd = bcrypt.hashpw(ANO_USER["plain_password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         cursor.execute("""
-        INSERT INTO users (id, name, email, password, rank, role, batch_year, regimental_number, registration_number, dob, year_branch, hostel_info, camp_count)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (id, name, email, password, rank, role, batch_year, regimental_number, registration_number, dob, year_branch, hostel_info, camp_count, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'APPROVED')
         """, (ano_id, ANO_USER["name"], ANO_USER["email"], hashed_ano_pwd, ANO_USER["rank"], ANO_USER["role"],
               ANO_USER["batch_year"], ANO_USER["regimental_number"], ANO_USER["registration_number"],
               ANO_USER["dob"], ANO_USER["year_branch"], ANO_USER["hostel_info"], ANO_USER["camp_count"]))
@@ -191,8 +196,8 @@ def init_db():
 
             hashed_pwd = bcrypt.hashpw(cadet["plain_password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
             cursor.execute("""
-            INSERT INTO users (id, name, email, password, rank, role, batch_year, regimental_number, registration_number, dob, year_branch, hostel_info, camp_count)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users (id, name, email, password, rank, role, batch_year, regimental_number, registration_number, dob, year_branch, hostel_info, camp_count, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'APPROVED')
             """, (uid, cadet["name"], cadet["email"], hashed_pwd, cadet["rank"], cadet["role"],
                   cadet["batch_year"], cadet["regimental_number"], cadet["registration_number"],
                   cadet["dob"], cadet["year_branch"], cadet["hostel_info"], cadet["camp_count"]))

@@ -67,6 +67,12 @@ async def login(data: Dict[str, str]):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    # Check approval status
+    if getattr(user, "status", "APPROVED") == "PENDING_APPROVAL":
+        raise HTTPException(status_code=401, detail="Your account is pending approval by the ANO or cadet heads.")
+    elif getattr(user, "status", "APPROVED") == "REJECTED":
+        raise HTTPException(status_code=401, detail="Your registration request was declined.")
+
     # Try bcrypt verification first; fall back to plain-text for
     # legacy accounts that haven't been re-hashed yet.
     try:
@@ -413,8 +419,41 @@ async def update_unit_config(data: Dict[str, Any], current_user: dict = Depends(
 async def upload_file(file: UploadFile = File(...)):
     import os
     import shutil
+    import uuid
+    import logging
+
+    # Try uploading to Supabase Storage first if not running on SQLite fallback
+    from ..services.database import USE_SQLITE
+    from ..core.supabase import supabase
+    
+    if not USE_SQLITE:
+        try:
+            # Read file bytes
+            file_bytes = await file.read()
+            file_ext = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4()}{file_ext}"
+            
+            # Upload to 'evidence' bucket (user should make sure it's created and public)
+            supabase.storage.from_("evidence").upload(
+                path=unique_filename,
+                file=file_bytes,
+                file_options={"content-type": file.content_type}
+            )
+            
+            # Retrieve the public url
+            public_url = supabase.storage.from_("evidence").get_public_url(unique_filename)
+            return {"url": public_url}
+        except Exception as e:
+            logger = logging.getLogger("app.upload")
+            logger.warning(f"Supabase storage upload failed: {e}. Falling back to local filesystem.")
+            
+    # Local filesystem fallback
     os.makedirs("static/uploads", exist_ok=True)
     file_path = f"static/uploads/{file.filename}"
+    
+    # Reset read pointer in case it was read for Supabase upload
+    await file.seek(0)
+    
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return {"url": f"http://127.0.0.1:8000/static/uploads/{file.filename}"}
@@ -482,5 +521,103 @@ async def get_telemetry_traces(current_user: dict = Depends(get_current_user)):
         
     from ..services import telemetry
     return telemetry.get_traces()
+
+
+# ── Cadet Signup & Approval Flow ───────────────────────────────────────────
+
+@router.post("/auth/signup")
+async def signup(data: Dict[str, Any]):
+    email = data.get("email")
+    password = data.get("password")
+    name = data.get("name")
+    rank = data.get("rank")
+    regimental_number = data.get("regimentalNumber")
+    registration_number = data.get("registrationNumber")
+    dob = data.get("dob")
+    year_branch = data.get("yearBranch")
+    hostel_info = data.get("hostelInfo")
+    batch_year = data.get("batchYear", 2026)
+
+    if not email or not password or not name or not rank:
+        raise HTTPException(status_code=400, detail="Missing required registration fields")
+
+    users = await database.get_users()
+    if any(u.email == email for u in users):
+        raise HTTPException(status_code=400, detail="Email address already registered")
+
+    import uuid
+    from ..core.auth import hash_password
+    
+    hashed_pwd = hash_password(password)
+    
+    new_user = UserBase(
+        id=str(uuid.uuid4()),
+        name=name,
+        email=email,
+        password=hashed_pwd,
+        rank=rank,
+        role="cadet",
+        batch_year=batch_year,
+        regimental_number=regimental_number,
+        registration_number=registration_number,
+        dob=dob,
+        year_branch=year_branch,
+        hostel_info=hostel_info,
+        camp_count=0,
+        status="PENDING_APPROVAL"
+    )
+    
+    await database.save_user(new_user)
+    return {"success": True, "message": "Signup successful. Awaiting verification by ANO or cadet heads."}
+
+
+@router.get("/users/pending", response_model=List[UserPublic])
+async def get_pending_users(current_user: dict = Depends(get_current_user)):
+    user_id = current_user.get("sub")
+    user_role = current_user.get("role")
+    user_rank = current_user.get("rank")
+    
+    unit_config = await database.get_unit_config()
+    manager_id = unit_config.get("permission_manager_id")
+    
+    is_manager = (manager_id == user_id)
+    is_admin = (user_role == "ANO" or user_rank in ["SUO", "CUO"] or is_manager)
+    
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized to review pending accounts")
+        
+    users = await database.get_users()
+    pending = [UserPublic(**u.model_dump()) for u in users if getattr(u, "status", "APPROVED") == "PENDING_APPROVAL"]
+    return pending
+
+
+@router.put("/users/{user_id}/approve")
+async def approve_user(user_id: str, data: Dict[str, str], current_user: dict = Depends(get_current_user)):
+    caller_id = current_user.get("sub")
+    caller_role = current_user.get("role")
+    caller_rank = current_user.get("rank")
+    
+    unit_config = await database.get_unit_config()
+    manager_id = unit_config.get("permission_manager_id")
+    
+    is_manager = (manager_id == caller_id)
+    is_admin = (caller_role == "ANO" or caller_rank in ["SUO", "CUO"] or is_manager)
+    
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized to approve signup requests")
+        
+    status = data.get("status")
+    if status not in ["APPROVED", "REJECTED"]:
+        raise HTTPException(status_code=400, detail="Invalid status. Must be APPROVED or REJECTED")
+        
+    users = await database.get_users()
+    target_user = next((u for u in users if u.id == user_id), None)
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    target_user.status = status
+    await database.save_user(target_user)
+    
+    return {"success": True, "message": f"User status updated to {status}"}
 
 

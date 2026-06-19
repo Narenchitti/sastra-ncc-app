@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: SASTRA NCC App API
+  version: 1.0.0
+  description: API for managing SASTRA NCC unit cadet database, event calendars, leave permissions, achievements, attendance, and AI-powered scheduling/auditing systems.
+paths:
+  /api/auth/signup:
+    post:
+      summary: Register a new cadet
+      description: Creates a user account with status 'PENDING_APPROVAL' which requires verification by the ANO or cadet heads.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - rank
+                - regimentalNumber
+                - registrationNumber
+                - dob
+                - yearBranch
+                - hostelInfo
+                - batchYear
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                rank:
+                  type: string
+                regimentalNumber:
+                  type: string
+                registrationNumber:
+                  type: string
+                dob:
+                  type: string
+                yearBranch:
+                  type: string
+                hostelInfo:
+                  type: string
+                batchYear:
+                  type: integer
+      responses:
+        '200':
+          description: Signup successful. Awaiting verification.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Registration error or email already in use.
+
+  /api/auth/login:
+    post:
+      summary: Cadet/ANO Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  accessToken:
+                    type: string
+                  tokenType:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/UserPublic'
+        '401':
+          description: Invalid credentials or account pending approval.
+
+  /api/dashboard:
+    get:
+      summary: Retrieve role-based dashboard data
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard collections (events, permissions, achievements, attendance, users)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  permissions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Permission'
+                  achievements:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Achievement'
+                  attendance:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attendance'
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserPublic'
+                  permissionManagerId:
+                    type: string
+                    nullable: true
+
+  /api/users/pending:
+    get:
+      summary: Get pending signup registrations
+      description: Returns a list of cadets awaiting account verification. Restricted to ANO, SUO, CUO, or Permission Manager.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of pending users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPublic'
+        '403':
+          description: Access forbidden.
+
+  /api/users/{user_id}/approve:
+    put:
+      summary: Approve or Reject a cadet signup request
+      description: Updates the status of a user. Restricted to ANO, SUO, CUO, or Permission Manager.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [APPROVED, REJECTED]
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '403':
+          description: Access forbidden.
+
+  /api/events:
+    get:
+      summary: Get all events
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of events
+    post:
+      summary: Save or update an event
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success status
+
+  /api/permissions:
+    get:
+      summary: Get leave permissions list
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of permissions
+    post:
+      summary: Create or review a leave permission request
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success status
+
+  /api/attendance/bulk:
+    post:
+      summary: Submit event attendance in bulk
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success status
+
+  /api/query:
+    post:
+      summary: Execute Text-to-SQL query (ANO Only)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Query results with data, sql and explanation
+
+  /api/schedule/plan:
+    post:
+      summary: Generate weekly training planner via AI (ANO Only)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: AI proposed events and reasoning explanation
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserPublic:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        rank:
+          type: string
+        role:
+          type: string
+        batchYear:
+          type: integer
+        regimentalNumber:
+          type: string
+          nullable: true
+        registrationNumber:
+          type: string
+          nullable: true
+        dob:
+          type: string
+          nullable: true
+        yearBranch:
+          type: string
+          nullable: true
+        hostelInfo:
+          type: string
+          nullable: true
+        campCount:
+          type: integer
+        status:
+          type: string
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        date:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        location:
+          type: string
+        type:
+          type: string
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+        cadetId:
+          type: string
+        cadetName:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        reason:
+          type: string
+        evidenceUrl:
+          type: string
+          nullable: true
+        status:
+          type: string
+        suoComment:
+          type: string
+          nullable: true
+        anoComment:
+          type: string
+          nullable: true
+        aiStatus:
+          type: string
+          nullable: true
+        aiRemarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: string
+        cadetId:
+          type: string
+        title:
+          type: string
+        date:
+          type: string
+        endDate:
+          type: string
+          nullable: true
+        category:
+          type: string
+        location:
+          type: string
+          nullable: true
+        description:
+          type: string
+        certificateUrl:
+          type: string
+          nullable: true
+        status:
+          type: string
+        isVerified:
+          type: boolean
+        anoComment:
+          type: string
+          nullable: true
+    Attendance:
+      type: object
+      properties:
+        eventId:
+          type: string
+        userId:
+          type: string
+        status:
+          type: string
+        markedBy:
+          type: string
+        timestamp:
+          type: string
+          nullable: true

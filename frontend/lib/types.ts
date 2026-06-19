@@ -14,6 +14,7 @@ export interface User {
     regimentalNumber?: string;
     dob?: string;
     campCount?: number;
+    status?: string;
 }
 
 export interface Event {
