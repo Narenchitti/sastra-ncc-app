@@ -546,8 +546,8 @@ export default function CadetDashboard() {
   }
 
   const isManager = data.permissionManagerId === user?.id;
-  const pendingRequests = data.permissions.filter(p => p.status === 'PENDING_REVIEW' || p.status === 'PENDING_SUO');
-  const pastApprovals = data.permissions.filter(p => !['PENDING_REVIEW', 'PENDING_SUO'].includes(p.status) && (p.suoComment || p.status.includes('BY_SUO') || p.status.includes('FORWARDED')));
+  const pendingRequests = data.permissions.filter(p => (p.status === 'PENDING_REVIEW' || p.status === 'PENDING_SUO') && p.cadetId !== user?.id);
+  const pastApprovals = data.permissions.filter(p => !['PENDING_REVIEW', 'PENDING_SUO'].includes(p.status) && (p.suoComment || p.status.includes('BY_SUO') || p.status.includes('FORWARDED')) && p.cadetId !== user?.id);
   
   const attMyRecords = (data.attendance || [])
     .filter((a: Attendance) => a.userId === user?.id)
