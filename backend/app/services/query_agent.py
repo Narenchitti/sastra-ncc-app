@@ -143,6 +143,8 @@ def execute_sql(sql_query: str) -> List[Dict[str, Any]]:
         
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute("PRAGMA journal_mode = WAL;")
     cursor = conn.cursor()
     
     cursor.execute(sql_query)

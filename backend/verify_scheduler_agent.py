@@ -15,6 +15,13 @@ from app.services.scheduler_agent import plan_training_schedule, load_syllabus, 
 async def run_tests():
     print("--- Running Training Scheduler Agent (Planning) Tests ---")
     
+    # Clean up old syllabus events to prevent database pollution
+    from app.services.database import get_events, delete_event
+    events = await get_events()
+    for e in events:
+        if e.title.startswith("Syllabus:"):
+            await delete_event(e.id)
+            
     # 1. Test syllabus loading
     print("\n1. Testing syllabus.json curriculum registry loading...")
     syllabus = load_syllabus()
@@ -84,6 +91,15 @@ async def run_tests():
     print(f"New calendar event count: {new_count}")
     assert new_count == original_count + len(proposed_evts), "Bulk save failed to insert all events!"
     print("✅ Database bulk save test passed.")
+    
+    # Clean up test events
+    for pe in proposed_evts:
+        # Delete if inserted
+        pass
+    events = await get_events()
+    for e in events:
+        if e.title.startswith("Syllabus:"):
+            await delete_event(e.id)
         
     print("\n✅ All Scheduler Agent verification tests passed successfully!")
 

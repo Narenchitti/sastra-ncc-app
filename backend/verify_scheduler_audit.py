@@ -17,6 +17,13 @@ from app.services.sqlite_db import save_unit_config, get_unit_config, get_connec
 async def run_tests():
     print("--- Running AI Curriculum Planner & Audit Tests ---")
     
+    # Clean up previously generated syllabus events to prevent database pollution
+    from app.services.database import get_events, delete_event
+    events = await get_events()
+    for e in events:
+        if e.title.startswith("Syllabus:"):
+            await delete_event(e.id)
+    
     # 1. Test Syllabus Progress Audit Service
     print("\n1. Testing Syllabus Progress Audit...")
     audit = await get_syllabus_audit()
@@ -118,6 +125,12 @@ async def run_tests():
     conn.commit()
     conn.close()
     
+    # Clean up syllabus events
+    events = await get_events()
+    for e in events:
+        if e.title.startswith("Syllabus:"):
+            await delete_event(e.id)
+            
     print("\n🎉 All AI Curriculum Planner & Audit tests passed successfully!")
 
 if __name__ == "__main__":
