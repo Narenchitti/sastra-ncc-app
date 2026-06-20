@@ -13,26 +13,7 @@ interface Hill {
     opacityMult?: number; // Opacity scaler for minor background hills
 }
 
-interface FiringArc {
-    id: string;
-    startX: number;
-    startY: number;
-    endX: number;
-    endY: number;
-    progress: number;
-    color: string;
-    height: number;
-}
 
-interface ImpactRipple {
-    id: string;
-    x: number;
-    y: number;
-    radius: number;
-    maxRadius: number;
-    alpha: number;
-    label: string;
-}
 
 interface PatrolRoute {
     points: { x: number; y: number }[]; // Coordinates in percentage
@@ -110,9 +91,6 @@ export default function TacticalBattleMap() {
         let lastTime = performance.now();
         const fpsInterval = 1000 / 30; // 30 FPS ceiling
 
-        let activeArcs: FiringArc[] = [];
-        let activeRipples: ImpactRipple[] = [];
-
         // Handle scaling for high-DPI displays
         const handleResize = () => {
             const dpr = window.devicePixelRatio || 1;
@@ -172,63 +150,6 @@ export default function TacticalBattleMap() {
             }
         };
 
-        // Click handler to shoot target and create explosion
-        const handleWindowClick = (e: MouseEvent) => {
-            // Prevent custom click effect on inputs, buttons, and links
-            const target = e.target as HTMLElement;
-            if (
-                !target ||
-                target.closest('button') ||
-                target.closest('a') ||
-                target.closest('input') ||
-                target.closest('textarea') ||
-                target.closest('select') ||
-                target.closest('label') ||
-                target.getAttribute('role') === 'button' ||
-                target.classList.contains('cursor-pointer')
-            ) {
-                playSynthSound('beep');
-                return;
-            }
-
-            const w = canvas.width / (window.devicePixelRatio || 1);
-            const h = canvas.height / (window.devicePixelRatio || 1);
-
-            const clickX = e.clientX;
-            const clickY = e.clientY;
-
-            // Find closest hill peak
-            let closestHill = hills[0];
-            let minDist = Infinity;
-            hills.forEach((hill) => {
-                const hillX = (hill.x / 100) * w;
-                const hillY = (hill.y / 100) * h;
-                const dist = Math.hypot(clickX - hillX, clickY - hillY);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closestHill = hill;
-                }
-            });
-
-            const startX = (closestHill.x / 100) * w;
-            const startY = (closestHill.y / 100) * h;
-
-            playSynthSound('laser');
-
-            activeArcs.push({
-                id: Math.random().toString(),
-                startX: startX,
-                startY: startY,
-                endX: clickX,
-                endY: clickY,
-                progress: 0,
-                color: '#50C878', // Tactical Green
-                height: Math.min(130, Math.hypot(clickX - startX, clickY - startY) * 0.35),
-            });
-        };
-
-        window.addEventListener('click', handleWindowClick);
-
         // Main animation draw loop
         const draw = () => {
             animationFrameId = requestAnimationFrame(draw);
@@ -244,8 +165,8 @@ export default function TacticalBattleMap() {
             const w = canvas.width / (window.devicePixelRatio || 1);
             const h = canvas.height / (window.devicePixelRatio || 1);
 
-            time += 0.003;
-            routeDashOffset += 0.3;
+            time += 0.0006;
+            routeDashOffset += 0.07;
 
             ctx.clearRect(0, 0, w, h);
 
@@ -462,81 +383,26 @@ export default function TacticalBattleMap() {
             ctx.fillText(`ELV: ${depthMetric}m`, rulerX + 10, currentPointerY);
             ctx.restore();
 
-            // 7. DRAW ACTIVE FIRING PROJECTILE ARCS
-            activeArcs.forEach((arc, idx) => {
-                arc.progress += 0.007;
+            // 7. DRAW AMBIENT SCAN PULSES FROM HILL PEAKS
+            hills.forEach((hill) => {
+                if (hill.opacityMult && hill.opacityMult < 0.3) return; // skip minor ridges
+                const cx = (hill.x / 100) * w;
+                const cy = (hill.y / 100) * h;
 
-                if (arc.progress >= 1) {
-                    playSynthSound('explosion');
-                    activeRipples.push({
-                        id: Math.random().toString(),
-                        x: arc.endX,
-                        y: arc.endY,
-                        radius: 1,
-                        maxRadius: 45 + Math.random() * 25,
-                        alpha: 0.6,
-                        label: `IMPACT_LAT_${(10.77 + Math.random() * 0.01).toFixed(4)}`,
-                    });
-                    activeArcs.splice(idx, 1);
-                    return;
-                }
-
-                ctx.save();
-                ctx.strokeStyle = 'rgba(80, 200, 120, 0.4)';
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([3, 5]);
-
-                const midX = (arc.startX + arc.endX) / 2;
-                const midY = (arc.startY + arc.endY) / 2 - arc.height;
-
-                ctx.beginPath();
-                ctx.moveTo(arc.startX, arc.startY);
-                ctx.quadraticCurveTo(midX, midY, arc.endX, arc.endY);
-                ctx.stroke();
-
-                const t = arc.progress;
-                const bulletX = (1 - t) * (1 - t) * arc.startX + 2 * (1 - t) * t * midX + t * t * arc.endX;
-                const bulletY = (1 - t) * (1 - t) * arc.startY + 2 * (1 - t) * t * midY + t * t * arc.endY;
-
-                ctx.fillStyle = '#50C878';
-                ctx.shadowColor = '#50C878';
-                ctx.shadowBlur = 8;
-                ctx.beginPath();
-                ctx.arc(bulletX, bulletY, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            });
-
-            // 8. DRAW ACTIVE IMPACT EXPLOSION RIPPLES
-            activeRipples.forEach((ripple, idx) => {
-                ripple.radius += 1.3;
-                ripple.alpha = 1 - ripple.radius / ripple.maxRadius;
-
-                if (ripple.alpha <= 0) {
-                    activeRipples.splice(idx, 1);
-                    return;
-                }
-
-                ctx.save();
-                ctx.strokeStyle = `rgba(220, 38, 38, ${ripple.alpha * 0.65})`;
-                ctx.lineWidth = 1.2;
-
-                ctx.beginPath();
-                ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
-                ctx.stroke();
-
-                if (ripple.radius > 15) {
-                    ctx.strokeStyle = `rgba(212, 175, 55, ${ripple.alpha * 0.45})`;
+                // Radar scan pulses cycle from radius 0 to 140px based on time
+                const tPulse = (time * 65 * hill.speedMult) % 180;
+                const maxRadius = 140;
+                
+                if (tPulse < maxRadius) {
+                    const alpha = (1 - tPulse / maxRadius) * 0.12; // very soft and subtle
+                    ctx.save();
+                    ctx.strokeStyle = `rgba(80, 200, 120, ${alpha})`;
+                    ctx.lineWidth = 1.0;
                     ctx.beginPath();
-                    ctx.arc(ripple.x, ripple.y, ripple.radius - 12, 0, Math.PI * 2);
+                    ctx.arc(cx, cy, tPulse, 0, Math.PI * 2);
                     ctx.stroke();
+                    ctx.restore();
                 }
-
-                ctx.fillStyle = `rgba(220, 38, 38, ${ripple.alpha})`;
-                ctx.font = '7.5px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(`* TRG LOCK: ${ripple.label} *`, ripple.x, ripple.y - ripple.radius - 4);
-                ctx.restore();
             });
 
         };
@@ -546,13 +412,12 @@ export default function TacticalBattleMap() {
         return () => {
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener('resize', handleResize);
-            window.removeEventListener('click', handleWindowClick);
         };
     }, []);
 
     return (
         <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none select-none z-0">
-            <canvas ref={canvasRef} className="block w-full h-full opacity-70 mix-blend-screen" />
+            <canvas ref={canvasRef} className="block w-full h-full opacity-55 mix-blend-screen" />
         </div>
     );
 }

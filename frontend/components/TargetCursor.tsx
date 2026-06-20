@@ -127,33 +127,33 @@ export default function TargetCursor() {
                 opacity: 1,
             }}
         >
-            <div className="relative flex items-center justify-center transition-all duration-150 group-[.is-clicking]:scale-75 group-[.is-pointer]:scale-125 scale-100">
+            <div className="relative flex items-center justify-center transition-all duration-150 group-[.is-clicking]:scale-75 group-[.is-pointer]:scale-110 scale-100">
 
                 {/* ── Center Aiming Dot ── */}
-                <div className="w-2 h-2 rounded-full transition-all duration-150 bg-ncc-olive shadow-[0_0_5px_rgba(74,93,35,0.8)] group-[.is-clicking]:bg-ncc-red group-[.is-clicking]:scale-150 group-[.is-clicking]:shadow-[0_0_8px_rgba(210,16,52,0.9)] group-[.is-pointer]:bg-ncc-gold group-[.is-pointer]:scale-125 group-[.is-pointer]:shadow-[0_0_8px_rgba(212,175,55,0.9)]" />
+                <div className="w-1.5 h-1.5 rounded-full transition-all duration-150 bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.85)] group-[.is-clicking]:bg-ncc-red group-[.is-clicking]:scale-150 group-[.is-clicking]:shadow-[0_0_8px_rgba(210,16,52,0.95)] group-[.is-pointer]:bg-red-500 group-[.is-pointer]:scale-125 group-[.is-pointer]:shadow-[0_0_8px_rgba(239,68,68,0.95)]" />
 
                 {/* ── Outer Rotating Ring ── */}
-                <div className="absolute rounded-full border-2 border-dashed transition-all duration-200 w-10 h-10 border-ncc-olive/90 shadow-[0_0_8px_rgba(74,93,35,0.35)] animate-[spin_20s_linear_infinite] group-[.is-clicking]:w-9 group-[.is-clicking]:h-9 group-[.is-clicking]:border-ncc-red group-[.is-clicking]:shadow-[0_0_12px_rgba(210,16,52,0.5)] group-[.is-clicking]:animate-spin group-[.is-pointer]:w-14 group-[.is-pointer]:h-14 group-[.is-pointer]:border-ncc-gold group-[.is-pointer]:shadow-[0_0_16px_rgba(212,175,55,0.45)] group-[.is-pointer]:animate-[spin_6s_linear_infinite]" />
+                <div className="absolute rounded-full border-2 border-dashed transition-all duration-200 w-7 h-7 border-red-500/80 shadow-[0_0_6px_rgba(239,68,68,0.35)] animate-[spin_25s_linear_infinite] group-[.is-clicking]:w-6 group-[.is-clicking]:h-6 group-[.is-clicking]:border-ncc-red group-[.is-clicking]:shadow-[0_0_10px_rgba(210,16,52,0.5)] group-[.is-clicking]:animate-spin group-[.is-pointer]:w-10 group-[.is-pointer]:h-10 group-[.is-pointer]:border-red-500 group-[.is-pointer]:shadow-[0_0_12px_rgba(239,68,68,0.65)] group-[.is-pointer]:animate-[spin_8s_linear_infinite]" />
 
                 {/* ── Inner Static Ring ── */}
-                <div className="absolute rounded-full border transition-all duration-200 w-6 h-6 border-ncc-olive/40 group-[.is-pointer]:w-7 group-[.is-pointer]:h-7 group-[.is-pointer]:border-ncc-gold/50" />
+                <div className="absolute rounded-full border transition-all duration-200 w-[18px] h-[18px] border-red-500/35 group-[.is-pointer]:w-[22px] group-[.is-pointer]:h-[22px] group-[.is-pointer]:border-red-500/65" />
 
                 {/* ── Crosshair Lines ── */}
-                <div className="absolute h-[1.5px] transition-all duration-150 w-12 bg-ncc-olive/70 group-[.is-pointer]:w-16 group-[.is-pointer]:bg-ncc-gold/75 group-[.is-pointer]:shadow-[0_0_4px_rgba(212,175,55,0.5)]" />
-                <div className="absolute w-[1.5px] transition-all duration-150 h-12 bg-ncc-olive/70 group-[.is-pointer]:h-16 group-[.is-pointer]:bg-ncc-gold/75 group-[.is-pointer]:shadow-[0_0_4px_rgba(212,175,55,0.5)]" />
+                <div className="absolute h-[1px] transition-all duration-150 w-9 bg-red-500/50 group-[.is-pointer]:w-12 group-[.is-pointer]:bg-red-500/80 group-[.is-pointer]:shadow-[0_0_3px_rgba(239,68,68,0.4)]" />
+                <div className="absolute w-[1px] transition-all duration-150 h-9 bg-red-500/50 group-[.is-pointer]:h-12 group-[.is-pointer]:bg-red-500/80 group-[.is-pointer]:shadow-[0_0_3px_rgba(239,68,68,0.4)]" />
 
                 {/* ── Corner Brackets ── */}
                 {/* Top-left */}
-                <span className="absolute top-[-14px] left-[-14px] w-4 h-4 border-l-2 border-t-2 border-ncc-gold/80 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
+                <span className="absolute top-[-10px] left-[-10px] w-3 h-3 border-l-2 border-t-2 border-red-500/90 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
                 {/* Top-right */}
-                <span className="absolute top-[-14px] right-[-14px] w-4 h-4 border-r-2 border-t-2 border-ncc-gold/80 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
+                <span className="absolute top-[-10px] right-[-10px] w-3 h-3 border-r-2 border-t-2 border-red-500/90 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
                 {/* Bottom-left */}
-                <span className="absolute bottom-[-14px] left-[-14px] w-4 h-4 border-l-2 border-b-2 border-ncc-gold/80 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
+                <span className="absolute bottom-[-10px] left-[-10px] w-3 h-3 border-l-2 border-b-2 border-red-500/90 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
                 {/* Bottom-right */}
-                <span className="absolute bottom-[-14px] right-[-14px] w-4 h-4 border-r-2 border-b-2 border-ncc-gold/80 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
+                <span className="absolute bottom-[-10px] right-[-10px] w-3 h-3 border-r-2 border-b-2 border-red-500/90 transition-all duration-150 opacity-0 group-[.is-pointer]:opacity-100" />
 
                 {/* ── HUD Coordinates ── */}
-                <div className="absolute top-8 left-8 font-mono text-[7px] font-bold tracking-widest text-ncc-olive bg-black/60 px-1.5 py-1 rounded border border-ncc-olive/30 pointer-events-none select-none flex flex-col gap-0.5 whitespace-nowrap shadow-lg">
+                <div className="absolute top-6 left-6 font-mono text-[7px] font-bold tracking-widest text-red-400 bg-black/75 px-1.5 py-0.5 rounded border border-red-500/35 pointer-events-none select-none flex flex-col gap-0.5 whitespace-nowrap shadow-lg">
                     <span ref={xSpanRef}>X: 0</span>
                     <span ref={ySpanRef}>Y: 0</span>
                 </div>
