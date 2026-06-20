@@ -8,6 +8,7 @@ import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
+import HudDatePicker from '@/components/HudDatePicker';
 
 /** Format Date as YYYY-MM-DD in local timezone (not UTC) */
 function toLocalDateStr(d: Date): string {
@@ -79,6 +80,20 @@ export default function CadetDashboard() {
   // Achievement State
   const [achCategory, setAchCategory] = useState<string>('Camp');
   const [editingAch, setEditingAch] = useState<Achievement | null>(null);
+  const [achDate, setAchDate] = useState<string>('');
+  const [achEndDate, setAchEndDate] = useState<string>('');
+
+  useEffect(() => {
+    if (editingAch) {
+      setAchCategory(editingAch.category);
+      setAchDate(editingAch.date);
+      setAchEndDate(editingAch.endDate || '');
+    } else {
+      setAchCategory('Camp');
+      setAchDate('');
+      setAchEndDate('');
+    }
+  }, [editingAch]);
 
   // Attendance Register State
   const [showRegister, setShowRegister] = useState(false);
@@ -1025,7 +1040,7 @@ export default function CadetDashboard() {
                   <div key={ach.id} className="tac-card p-5 relative group">
                     {(ach.status === 'DRAFT' || ach.status === 'REJECTED') && (
                       <button
-                        onClick={() => { setEditingAch(ach); setAchCategory(ach.category); playTacClick(); }}
+                        onClick={() => { setEditingAch(ach); playTacClick(); }}
                         className="absolute top-3 right-3 text-ncc-olive/40 hover:text-ncc-gold bg-black/30 border border-ncc-olive/20 p-2 rounded-sm hidden group-hover:block transition-all"
                       >
                         <i className="fas fa-edit text-xs"></i>
@@ -1111,21 +1126,21 @@ export default function CadetDashboard() {
                   <input name="location" defaultValue={editingAch?.location} className="hud-input" placeholder="e.g. Perambalur, Trichy, New Delhi" />
                 </div>
 
-                {achCategory === 'Camp' ? (
+                 {achCategory === 'Camp' ? (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Start Date</label>
-                      <input name="date" type="date" defaultValue={editingAch?.date} className="hud-input" required />
+                      <HudDatePicker name="date" value={achDate} onChange={setAchDate} required openUpward={true} />
                     </div>
                     <div>
                       <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">End Date</label>
-                      <input name="endDate" type="date" defaultValue={editingAch?.endDate} className="hud-input" required />
+                      <HudDatePicker name="endDate" value={achEndDate} onChange={setAchEndDate} required openUpward={true} />
                     </div>
                   </div>
                 ) : (
                   <div>
                     <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Date</label>
-                    <input name="date" type="date" defaultValue={editingAch?.date} className="hud-input" required />
+                    <HudDatePicker name="date" value={achDate} onChange={setAchDate} required openUpward={true} />
                   </div>
                 )}
 
