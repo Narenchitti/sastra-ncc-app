@@ -8,6 +8,7 @@ interface HudDatePickerProps {
   name?: string;
   required?: boolean;
   openUpward?: boolean;
+  align?: 'left' | 'right';
 }
 
 function toLocalDateStr(d: Date): string {
@@ -20,7 +21,7 @@ function toLocalDateStr(d: Date): string {
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-export default function HudDatePicker({ value, onChange, name, required, openUpward = false }: HudDatePickerProps) {
+export default function HudDatePicker({ value, onChange, name, required, openUpward = false, align = 'left' }: HudDatePickerProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -122,7 +123,9 @@ export default function HudDatePicker({ value, onChange, name, required, openUpw
 
       {/* Calendar Popup */}
       {open && (
-        <div className={`absolute z-50 left-0 w-[300px] bg-[#0d120a] border-2 border-ncc-olive/60 rounded-md shadow-[0_0_20px_rgba(74,93,35,0.35)] animate-fade-in overflow-hidden ${
+        <div className={`absolute z-50 w-[300px] bg-[#0d120a] border-2 border-ncc-olive/60 rounded-md shadow-[0_0_20px_rgba(74,93,35,0.35)] animate-fade-in overflow-hidden ${
+          align === 'right' ? 'right-0' : 'left-0'
+        } ${
           openUpward ? 'bottom-full mb-2' : 'top-full mt-2'
         }`}>
           {/* Header — Month/Year + Nav */}

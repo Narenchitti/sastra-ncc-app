@@ -976,7 +976,6 @@ export default function CadetDashboard() {
                       value={leaveStartDate} 
                       onChange={setLeaveStartDate} 
                       required 
-                      openUpward={true} 
                     />
                   </div>
                   <div>
@@ -986,7 +985,6 @@ export default function CadetDashboard() {
                       value={leaveEndDate} 
                       onChange={setLeaveEndDate} 
                       required 
-                      openUpward={true} 
                     />
                   </div>
                 </div>
@@ -1098,10 +1096,10 @@ export default function CadetDashboard() {
 
         {/* 5. ACHIEVEMENTS TAB */}
         {activeTab === 'achievements' && (
-          <div className="grid md:grid-cols-3 gap-6 animate-fade-in flex-grow">
+          <div className="grid md:grid-cols-5 gap-6 animate-fade-in flex-grow">
             
             {/* List */}
-            <div className="md:col-span-2 space-y-5">
+            <div className="md:col-span-3 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {data.achievements.filter(a => a.cadetId === user.id).length === 0 && (
                   <div className="sm:col-span-2 p-10 flex flex-col items-center justify-center text-center text-ncc-olive/80 tac-card border-dashed font-sans text-xs gap-3">
@@ -1162,11 +1160,11 @@ export default function CadetDashboard() {
             </div>
 
             {/* Form */}
-            <div className="tac-card-gold p-5 h-fit">
-              <div className="flex justify-between items-center mb-5 border-b border-ncc-gold/15 pb-4">
-                <h3 className="font-heading text-sm font-bold text-ncc-gold uppercase tracking-widest">{editingAch ? 'Edit Achievement' : 'Add Achievement'}</h3>
+            <div className="md:col-span-2 tac-card-gold p-4 h-fit">
+              <div className="flex justify-between items-center mb-4 border-b border-ncc-gold/15 pb-3">
+                <h3 className="font-heading text-xs font-bold text-ncc-gold uppercase tracking-widest">{editingAch ? 'Edit Achievement' : 'Add Achievement'}</h3>
                 {editingAch && (
-                  <button onClick={() => setEditingAch(null)} className="text-xs text-ncc-olive/50 hover:text-ncc-red font-sans transition-colors">
+                  <button onClick={() => setEditingAch(null)} className="text-[10px] text-ncc-olive/50 hover:text-ncc-red font-sans transition-colors">
                     Cancel
                   </button>
                 )}
@@ -1178,57 +1176,58 @@ export default function CadetDashboard() {
                 setMessage(editingAch ? 'Achievement Updated!' : 'Achievement Added!');
                 setEditingAch(null);
                 refreshData(); playTacClick('confirm');
-              }} className="space-y-4">
+              }} className="space-y-3">
 
                 <div>
-                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Title / Honor</label>
-                  <input name="title" defaultValue={editingAch?.title} className="hud-input" placeholder="e.g. Best Shooter Award" required />
+                  <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">Title / Honor</label>
+                  <input name="title" defaultValue={editingAch?.title} className="hud-input py-1.5" placeholder="e.g. Best Shooter Award" required />
                 </div>
 
-                <div>
-                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Category</label>
-                  <HudSelect
-                    name="category"
-                    value={achCategory}
-                    onChange={(val) => setAchCategory(val)}
-                    options={[
-                      { label: 'Camp / Drill', value: 'Camp' },
-                      { label: 'Sports / Firing', value: 'Sports' },
-                      { label: 'Cultural / NI', value: 'Cultural' }
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Location / Venue</label>
-                  <input name="location" defaultValue={editingAch?.location} className="hud-input" placeholder="e.g. Perambalur, Trichy, New Delhi" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">Category</label>
+                    <HudSelect
+                      name="category"
+                      value={achCategory}
+                      onChange={(val) => setAchCategory(val)}
+                      options={[
+                        { label: 'Camp / Drill', value: 'Camp' },
+                        { label: 'Sports / Firing', value: 'Sports' },
+                        { label: 'Cultural / NI', value: 'Cultural' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">Location / Venue</label>
+                    <input name="location" defaultValue={editingAch?.location} className="hud-input py-1.5" placeholder="e.g. Perambalur, Trichy" />
+                  </div>
                 </div>
 
                  {achCategory === 'Camp' ? (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Start Date</label>
-                      <HudDatePicker name="date" value={achDate} onChange={setAchDate} required openUpward={true} />
+                      <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">Start Date</label>
+                      <HudDatePicker name="date" value={achDate} onChange={setAchDate} required openUpward={true} align="right" />
                     </div>
                     <div>
-                      <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">End Date</label>
-                      <HudDatePicker name="endDate" value={achEndDate} onChange={setAchEndDate} required openUpward={true} />
+                      <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">End Date</label>
+                      <HudDatePicker name="endDate" value={achEndDate} onChange={setAchEndDate} required openUpward={true} align="right" />
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Date</label>
-                    <HudDatePicker name="date" value={achDate} onChange={setAchDate} required openUpward={true} />
+                    <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">Date</label>
+                    <HudDatePicker name="date" value={achDate} onChange={setAchDate} required openUpward={true} align="right" />
                   </div>
                 )}
 
                 <div>
-                  <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Detailed Description</label>
-                  <textarea name="description" defaultValue={editingAch?.description} className="hud-input h-24 py-2" placeholder="Provide extra description about this achievement..." required></textarea>
+                  <label className="text-[10px] font-sans font-bold uppercase text-ncc-olive/60 mb-1 block tracking-widest">Detailed Description</label>
+                  <textarea name="description" defaultValue={editingAch?.description} className="hud-input h-16 py-1.5 text-xs" placeholder="Provide extra description about this achievement..." required></textarea>
                 </div>
 
                 <div className="flex gap-2 pt-1">
-                  <button className="w-full bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-widest transition-all">
+                  <button className="w-full bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold py-2 rounded-sm font-sans font-bold text-xs uppercase tracking-widest transition-all">
                     {editingAch ? 'Update Record' : 'Save As Draft'}
                   </button>
                   {editingAch && (
@@ -1241,7 +1240,7 @@ export default function CadetDashboard() {
                         setEditingAch(null);
                         refreshData();
                       }
-                    }} className="px-4 py-2.5 bg-ncc-red/15 text-ncc-red rounded-sm font-sans text-sm hover:bg-ncc-red/25 border border-ncc-red/30 transition-colors">
+                    }} className="px-4 py-2 bg-ncc-red/15 text-ncc-red rounded-sm font-sans text-sm hover:bg-ncc-red/25 border border-ncc-red/30 transition-colors">
                       <i className="fas fa-trash"></i>
                     </button>
                   )}
