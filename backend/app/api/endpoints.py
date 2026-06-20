@@ -70,9 +70,15 @@ async def login(data: Dict[str, str]):
 
     # Check approval status
     if getattr(user, "status", "APPROVED") == "PENDING_APPROVAL":
-        raise HTTPException(status_code=401, detail="Your account is pending approval by the ANO or cadet heads.")
+        raise HTTPException(
+            status_code=401,
+            detail="Your registration is pending approval. You can login only after the ANO approves it. Please try again later."
+        )
     elif getattr(user, "status", "APPROVED") == "REJECTED":
-        raise HTTPException(status_code=401, detail="Your registration request was declined.")
+        raise HTTPException(
+            status_code=401,
+            detail="Your registration request was declined/rejected by the ANO. Please sign up again with correct details."
+        )
 
     # Try bcrypt verification first; fall back to plain-text for
     # legacy accounts that haven't been re-hashed yet.
@@ -624,16 +630,21 @@ async def signup(data: Dict[str, Any]):
         raise HTTPException(status_code=400, detail="Missing required registration fields")
 
     existing_user = await database.get_user_by_email(email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email address already registered")
-
     import uuid
+    user_id = str(uuid.uuid4())
+    
+    if existing_user:
+        if getattr(existing_user, "status", "APPROVED") == "REJECTED":
+            user_id = existing_user.id
+        else:
+            raise HTTPException(status_code=400, detail="Email address already registered")
+
     from ..core.auth import hash_password
     
     hashed_pwd = hash_password(password)
     
     new_user = UserBase(
-        id=str(uuid.uuid4()),
+        id=user_id,
         name=name,
         email=email,
         password=hashed_pwd,

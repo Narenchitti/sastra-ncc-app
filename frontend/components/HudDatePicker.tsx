@@ -7,6 +7,7 @@ interface HudDatePickerProps {
   onChange: (date: string) => void;
   name?: string;
   required?: boolean;
+  openUpward?: boolean;
 }
 
 function toLocalDateStr(d: Date): string {
@@ -19,7 +20,7 @@ function toLocalDateStr(d: Date): string {
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-export default function HudDatePicker({ value, onChange, name, required }: HudDatePickerProps) {
+export default function HudDatePicker({ value, onChange, name, required, openUpward = false }: HudDatePickerProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -121,7 +122,9 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
 
       {/* Calendar Popup */}
       {open && (
-        <div className="absolute z-50 bottom-full mb-2 left-0 w-[300px] bg-[#0d120a] border-2 border-ncc-olive/60 rounded-md shadow-[0_0_20px_rgba(74,93,35,0.35)] animate-fade-in overflow-hidden">
+        <div className={`absolute z-50 left-0 w-[300px] bg-[#0d120a] border-2 border-ncc-olive/60 rounded-md shadow-[0_0_20px_rgba(74,93,35,0.35)] animate-fade-in overflow-hidden ${
+          openUpward ? 'bottom-full mb-2' : 'top-full mt-2'
+        }`}>
           {/* Header — Month/Year + Nav */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-ncc-olive/20 bg-black/40">
             <button

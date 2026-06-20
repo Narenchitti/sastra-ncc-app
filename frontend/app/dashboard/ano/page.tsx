@@ -1131,7 +1131,7 @@ export default function ANODashboard() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Date</label>
-                          <HudDatePicker name="date" value={eventDate} onChange={setEventDate} required />
+                          <HudDatePicker name="date" value={eventDate} onChange={setEventDate} required openUpward={true} />
                         </div>
                         <div>
                           <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Location</label>
@@ -1318,6 +1318,7 @@ export default function ANODashboard() {
                                       setAiProposedEvents(updated);
                                     }}
                                     required
+                                    openUpward={true}
                                   />
                                 </div>
                                 {/* Location */}
