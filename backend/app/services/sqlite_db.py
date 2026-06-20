@@ -105,6 +105,9 @@ def init_db():
     CREATE TABLE IF NOT EXISTS unit_config (
         id TEXT PRIMARY KEY,
         permission_manager_id TEXT,
+        college_start_time TEXT DEFAULT '08:45',
+        college_end_time TEXT DEFAULT '17:15',
+        academic_calendar TEXT,
         updated_by TEXT,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
@@ -137,6 +140,18 @@ def init_db():
         pass
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'APPROVED'")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE unit_config ADD COLUMN college_start_time TEXT DEFAULT '08:45'")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE unit_config ADD COLUMN college_end_time TEXT DEFAULT '17:15'")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE unit_config ADD COLUMN academic_calendar TEXT")
     except Exception:
         pass
     conn.commit()
@@ -432,17 +447,53 @@ async def get_unit_config() -> dict:
     conn.close()
     if row:
         return dict(row)
-    return {"id": "singleton", "permission_manager_id": None}
+    return {
+        "id": "singleton",
+        "permission_manager_id": None,
+        "college_start_time": "08:45",
+        "college_end_time": "17:15",
+        "academic_calendar": None
+    }
 
-async def set_permission_manager(manager_id: str, updated_by: str):
+async def save_unit_config(config: dict, updated_by: str):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-    INSERT OR REPLACE INTO unit_config (id, permission_manager_id, updated_by, updated_at)
-    VALUES ('singleton', ?, ?, CURRENT_TIMESTAMP)
-    """, (manager_id, updated_by))
+    # Check if singleton exists
+    cursor.execute("SELECT COUNT(*) FROM unit_config WHERE id = 'singleton'")
+    exists = cursor.fetchone()[0] > 0
+    
+    if exists:
+        # Update dynamically
+        fields = []
+        vals = []
+        for key in ["permission_manager_id", "college_start_time", "college_end_time", "academic_calendar"]:
+            if key in config:
+                fields.append(f"{key} = ?")
+                vals.append(config[key])
+        fields.append("updated_by = ?")
+        vals.append(updated_by)
+        fields.append("updated_at = CURRENT_TIMESTAMP")
+        
+        vals.append("singleton")
+        q = f"UPDATE unit_config SET {', '.join(fields)} WHERE id = ?"
+        cursor.execute(q, vals)
+    else:
+        # Insert new
+        cursor.execute("""
+        INSERT INTO unit_config (id, permission_manager_id, college_start_time, college_end_time, academic_calendar, updated_by, updated_at)
+        VALUES ('singleton', ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """, (
+            config.get("permission_manager_id"),
+            config.get("college_start_time", "08:45"),
+            config.get("college_end_time", "17:15"),
+            config.get("academic_calendar"),
+            updated_by
+        ))
     conn.commit()
     conn.close()
+
+async def set_permission_manager(manager_id: str, updated_by: str):
+    await save_unit_config({"permission_manager_id": manager_id}, updated_by)
 
 async def get_inquiries() -> List[dict]:
     conn = get_connection()

@@ -60,6 +60,27 @@ def get_next_month_weekends() -> List[str]:
         d += datetime.timedelta(days=7)
     return dates
 
+def get_candidate_weekend_dates() -> List[Dict[str, Any]]:
+    """Calculates all Saturdays and Sundays of next calendar month."""
+    today = datetime.date.today()
+    if today.month == 12:
+        next_month = 1
+        year = today.year + 1
+    else:
+        next_month = today.month + 1
+        year = today.year
+        
+    dates = []
+    d = datetime.date(year, next_month, 1)
+    while d.month == next_month:
+        if d.weekday() in [5, 6]:  # Saturday (5) or Sunday (6)
+            dates.append({
+                "date": d.strftime("%Y-%m-%d"),
+                "day_name": "Saturday" if d.weekday() == 5 else "Sunday"
+            })
+        d += datetime.timedelta(days=1)
+    return dates
+
 async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
     syllabus = load_syllabus()
     
@@ -71,17 +92,72 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
         history = [e.title for e in db_events[:30]]
     except Exception as e:
         logger.error(f"Error fetching event history: {e}")
+        db_events = []
         history = []
         
     weekends = get_next_month_weekends()
-    
     api_key = os.getenv("GEMINI_API_KEY")
+    
+    # Parse target cadet year from query
+    query_lower = query_text.lower()
+    target_year = None
+    if "1st year" in query_lower or "first year" in query_lower or "year 1" in query_lower:
+        target_year = 1
+    elif "2nd year" in query_lower or "second year" in query_lower or "year 2" in query_lower:
+        target_year = 2
+    elif "3rd year" in query_lower or "third year" in query_lower or "year 3" in query_lower:
+        target_year = 3
+        
+    filtered_syllabus = syllabus
+    if target_year:
+        filtered_syllabus = [l for l in syllabus if target_year in l.get("target_year", [])]
+    if not filtered_syllabus:
+        filtered_syllabus = syllabus
+        
+    # Analyze candidate weekend dates for clashes
+    candidate_dates = get_candidate_weekend_dates()
+    date_clashes = {}
+    for evt in db_events:
+        date_clashes[evt.date] = evt.title
+        
+    dates_with_status = []
+    for cd in candidate_dates:
+        date_str = cd["date"]
+        clash_event = date_clashes.get(date_str)
+        cd_copy = cd.copy()
+        if clash_event:
+            cd_copy["status"] = f"CLASH: {clash_event}"
+        else:
+            cd_copy["status"] = "FREE"
+        dates_with_status.append(cd_copy)
     
     # ── Simulated Fallback Logic ──────────────────────────────────────────
     if not api_key:
         logger.info("GEMINI_API_KEY not found. Performing simulated planning logic.")
-        query_lower = query_text.lower()
         
+        # Determine day preference: default to Saturday, override to Sunday if requested
+        prefer_sunday = "sunday" in query_lower
+        
+        # Group candidate dates by calendar week to ensure one event per week
+        weeks = {}
+        for d in dates_with_status:
+            if "CLASH" not in d["status"]:
+                is_preferred = (d["day_name"] == "Sunday" if prefer_sunday else d["day_name"] == "Saturday")
+                dt = datetime.datetime.strptime(d["date"], "%Y-%m-%d").date()
+                week_number = dt.isocalendar()[1]
+                if week_number not in weeks or is_preferred:
+                    weeks[week_number] = d["date"]
+                    
+        selected_dates = sorted(list(weeks.values()))[:4]
+        
+        # If still less than 4, fill from any free weekend date
+        if len(selected_dates) < 4:
+            all_free = [d["date"] for d in dates_with_status if "CLASH" not in d["status"]]
+            for fd in all_free:
+                if fd not in selected_dates:
+                    selected_dates.append(fd)
+            selected_dates = sorted(selected_dates)[:4]
+            
         # Pick topics based on focus keyword or default to balanced rotation
         focus_categories = []
         if "weapon" in query_lower or "rifle" in query_lower:
@@ -95,11 +171,9 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
         if "leader" in query_lower:
             focus_categories.append("Leadership")
             
-        # Select matching lessons
         selected_lessons = []
         for cat in focus_categories:
-            lessons = [l for l in syllabus if l["category"] == cat]
-            # Avoid repeating recently taught lessons if possible
+            lessons = [l for l in filtered_syllabus if l["category"] == cat]
             for l in lessons:
                 if l["title"] not in history:
                     selected_lessons.append(l)
@@ -111,23 +185,22 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
         # Fill remaining slots with balanced lessons
         all_categories = ["Drill", "Weapon Training", "Map Reading", "Field Craft", "Leadership"]
         cat_idx = 0
-        while len(selected_lessons) < len(weekends) and cat_idx < len(all_categories):
+        while len(selected_lessons) < len(selected_dates) and cat_idx < len(all_categories):
             cat = all_categories[cat_idx]
             if cat not in focus_categories:
-                lessons = [l for l in syllabus if l["category"] == cat]
+                lessons = [l for l in filtered_syllabus if l["category"] == cat]
                 for l in lessons:
                     if l["title"] not in history and l not in selected_lessons:
                         selected_lessons.append(l)
                         break
             cat_idx += 1
             
-        # Hard fallback to first 4 lessons if still underfilled
-        while len(selected_lessons) < len(weekends):
-            selected_lessons.append(syllabus[len(selected_lessons) % len(syllabus)])
+        while len(selected_lessons) < len(selected_dates):
+            selected_lessons.append(filtered_syllabus[len(selected_lessons) % len(filtered_syllabus)])
             
         # Generate proposed events list
         events = []
-        for i, date_str in enumerate(weekends):
+        for i, date_str in enumerate(selected_dates):
             lesson = selected_lessons[i]
             
             # Formulate location and type
@@ -156,8 +229,9 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
                 "equipment": lesson["equipment"]
             })
             
+        year_str = f" for {target_year} Year cadets" if target_year else ""
         focus_desc = ", ".join(focus_categories) if focus_categories else "balanced curriculum"
-        explanation = f"📋 Automated planning agent compiled a 4-week schedule for next month. The plan focuses on a {focus_desc}, avoiding repeating the {len(history)} recently scheduled unit events."
+        explanation = f"📋 Automated planning agent compiled a 4-week schedule{year_str} for next month. The plan focuses on a {focus_desc}, avoiding repeating recently scheduled unit events."
         
         return {
             "success": True,
@@ -167,25 +241,39 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
         
     # ── Gemini 1.5 Flash Live Planner ────────────────────────────────────
     try:
+        config = await database.get_unit_config()
+        college_start = config.get("college_start_time", "08:45")
+        college_end = config.get("college_end_time", "17:15")
+        academic_cal = config.get("academic_calendar") or "None"
+        
         system_prompt = f"""
 You are the Training Planner Agent for the SASTRA NCC Unit.
-Your task is to plan a 4-week weekend parade schedule for next month (using specific Saturday dates: {json.dumps(weekends)}).
+Your task is to plan a 4-week training calendar schedule for next month using the provided candidate weekend dates: {json.dumps(dates_with_status)}.
+
+Sastra University Constraints:
+- College Working Hours: {college_start} to {college_end}.
+- Academic Calendar / Holiday Info: {academic_cal}.
+- DO NOT schedule any training events during regular college hours on weekdays or working days listed in the academic calendar.
+- Weekday events (if any) must be scheduled outside college hours (e.g., early morning 06:00-08:00 or evening 17:30-19:30).
+- Weekend (Saturday/Sunday) events can be scheduled during the day (e.g., 08:00 to 11:00).
+- By default, schedule events on Saturdays. If the user query explicitly requests Sundays, use Sundays.
+- Avoid dates marked as "CLASH: [Event Title]".
 
 Guidelines:
-1. Match the user's natural language scheduling request.
-2. Cross-reference the official NCC syllabus lessons:
-{json.dumps(syllabus, indent=2)}
+1. Match the user's natural language scheduling request (including any target year or topic focus).
+2. Cross-reference the official NCC syllabus lessons (filtered for the target cadet batch):
+{json.dumps(filtered_syllabus, indent=2)}
 3. Do NOT repeat topics that have already been covered recently (avoid titles in this history):
 {json.dumps(history)}
 4. Each scheduled event MUST specify:
    - `title`: Starts with "Syllabus: " followed by the lesson title.
-   - `date`: One of the pre-defined Saturday dates: {json.dumps(weekends)}.
+   - `date`: One of the free candidate weekend dates (format: YYYY-MM-DD).
    - `start_time` (e.g. "08:00") and `end_time` (e.g. "11:00").
    - `location`: Pick matching location (e.g., 'Parade Ground', 'NCC Classrooms', 'Rifle Range', 'SASTRA Grasslands').
    - `type`: One of 'Parade', 'Theory', 'Camp', 'Event'.
    - `equipment`: A list of strings matching the required syllabus gear.
 
-Respond with a JSON object containing 'explanation' (why this plan fits syllabus goals) and 'events' (list of 4 scheduled events).
+Respond with a JSON object containing 'explanation' (why this plan fits syllabus goals and respects Sastra constraints) and 'events' (list of 4 scheduled events).
 """
         payload = {
             "contents": [

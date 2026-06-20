@@ -488,11 +488,19 @@ async def get_unit_config(current_user: dict = Depends(get_current_user)):
 @router.put("/unit-config")
 async def update_unit_config(data: Dict[str, Any], current_user: dict = Depends(get_current_user)):
     if current_user.get("role") != "ANO":
-        raise HTTPException(status_code=403, detail="Only ANO can designate the Permission Manager")
-    manager_id = data.get("permissionManagerId")
-    if not manager_id:
-        raise HTTPException(status_code=400, detail="permissionManagerId is required")
-    await database.set_permission_manager(manager_id, current_user.get("sub"))
+        raise HTTPException(status_code=403, detail="Only ANO can modify unit configurations")
+        
+    config_payload = {}
+    if "permissionManagerId" in data:
+        config_payload["permission_manager_id"] = data["permissionManagerId"]
+    if "collegeStartTime" in data:
+        config_payload["college_start_time"] = data["collegeStartTime"]
+    if "collegeEndTime" in data:
+        config_payload["college_end_time"] = data["collegeEndTime"]
+    if "academicCalendar" in data:
+        config_payload["academic_calendar"] = data["academicCalendar"]
+        
+    await database.save_unit_config(config_payload, current_user.get("sub"))
     return {"success": True}
 
 
@@ -560,6 +568,17 @@ async def natural_query(data: Dict[str, str], current_user: dict = Depends(get_c
 
 
 # ── Training Planner Scheduler (protected) ───────────────────────────────────
+
+@router.get("/schedule/audit")
+async def get_schedule_audit(current_user: dict = Depends(get_current_user)):
+    role = current_user.get("role")
+    if role != "ANO":
+        raise HTTPException(status_code=403, detail="Only the ANO can audit the curriculum")
+        
+    from ..services import audit_service
+    res = await audit_service.get_syllabus_audit()
+    return res
+
 
 @router.post("/schedule/plan")
 async def schedule_plan(data: Dict[str, str], current_user: dict = Depends(get_current_user)):

@@ -140,19 +140,38 @@ async def get_unit_config() -> dict:
         )
         if response.data:
             return response.data[0]
-        return {"id": "singleton", "permission_manager_id": None}
+        return {
+            "id": "singleton",
+            "permission_manager_id": None,
+            "college_start_time": "08:45",
+            "college_end_time": "17:15",
+            "academic_calendar": None
+        }
     return await _execute(_supa, sqlite_db.get_unit_config)
 
 
-async def set_permission_manager(manager_id: str, updated_by: str):
+async def save_unit_config(config: dict, updated_by: str):
     async def _supa():
-        await _run(
-            lambda: supabase.table("unit_config").upsert(
-                {"id": "singleton", "permission_manager_id": manager_id, "updated_by": updated_by},
-                on_conflict="id"
-            ).execute()
-        )
-    return await _execute(_supa, lambda: sqlite_db.set_permission_manager(manager_id, updated_by))
+        payload = {
+            "id": "singleton",
+            "updated_by": updated_by,
+        }
+        if "permission_manager_id" in config:
+            payload["permission_manager_id"] = config["permission_manager_id"]
+        if "college_start_time" in config:
+            payload["college_start_time"] = config["college_start_time"]
+        if "college_end_time" in config:
+            payload["college_end_time"] = config["college_end_time"]
+        if "academic_calendar" in config:
+            payload["academic_calendar"] = config["academic_calendar"]
+            
+        await _run(lambda: supabase.table("unit_config").upsert(payload, on_conflict="id").execute())
+        
+    return await _execute(_supa, lambda: sqlite_db.save_unit_config(config, updated_by))
+
+
+async def set_permission_manager(manager_id: str, updated_by: str):
+    await save_unit_config({"permission_manager_id": manager_id}, updated_by)
 
 
 # ── Public Inquiries ───────────────────────────────────────────────────────

@@ -481,6 +481,33 @@ export async function broadcastAlertAction(subject: string, message: string) {
     }
 }
 
+export async function getSyllabusAudit() {
+    try {
+        return await apiClient.get('/schedule/audit');
+    } catch (error: any) {
+        console.error("Syllabus Audit Error:", error);
+        return { success: false, message: error.message || 'Failed to fetch syllabus audit' };
+    }
+}
+
+export async function updateUnitConfigSettings(collegeStartTime: string, collegeEndTime: string, academicCalendar: string) {
+    try {
+        await apiClient.put('/unit-config', { collegeStartTime, collegeEndTime, academicCalendar });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to update unit config settings' };
+    }
+}
+
+export async function getUnitConfigSettings() {
+    try {
+        return await apiClient.get('/unit-config');
+    } catch (error: any) {
+        console.error("Fetch Unit Config Error:", error);
+        return { id: "singleton", permission_manager_id: null, college_start_time: "08:45", college_end_time: "17:15", academic_calendar: null };
+    }
+}
+
 
 
 

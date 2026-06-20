@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction, getAttendanceSheet, submitBulkAttendance } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction, getAttendanceSheet, submitBulkAttendance, getSyllabusAudit, updateUnitConfigSettings, getUnitConfigSettings } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
@@ -183,6 +183,12 @@ export default function ANODashboard() {
   const [aiScheduleLoading, setAiScheduleLoading] = useState(false);
   const [aiProposedEvents, setAiProposedEvents] = useState<any[]>([]);
   const [aiPlanningExplanation, setAiPlanningExplanation] = useState('');
+  const [syllabusAudit, setSyllabusAudit] = useState<any | null>(null);
+  const [collegeStartTime, setCollegeStartTime] = useState('08:45');
+  const [collegeEndTime, setCollegeEndTime] = useState('17:15');
+  const [academicCalendar, setAcademicCalendar] = useState('');
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [fetchingAudit, setFetchingAudit] = useState(false);
 
   // Diagnostics Console State
   const [showDiagnostics, setShowDiagnostics] = useState(false);
@@ -232,7 +238,43 @@ export default function ANODashboard() {
     } catch (e) {
       console.error("Failed to refresh inquiries:", e);
     }
+
+    // Fetch Syllabus Progress Audit and Unit Config settings
+    try {
+      setFetchingAudit(true);
+      const audit = await getSyllabusAudit();
+      if (audit && audit.success) {
+        setSyllabusAudit(audit);
+      }
+    } catch (e) {
+      console.error("Failed to fetch syllabus audit:", e);
+    } finally {
+      setFetchingAudit(false);
+    }
+
+    try {
+      const config = await getUnitConfigSettings();
+      if (config) {
+        setCollegeStartTime(config.college_start_time || '08:45');
+        setCollegeEndTime(config.college_end_time || '17:15');
+        setAcademicCalendar(config.academic_calendar || '');
+      }
+    } catch (e) {
+      console.error("Failed to fetch unit config settings:", e);
+    }
   }
+
+  const checkEventClash = (dateStr: string, proposedIndex: number) => {
+    // Check against existing database events
+    const dbClash = (data.events || []).find((e: any) => e.date === dateStr);
+    if (dbClash) return `Existing Event: "${dbClash.title}"`;
+
+    // Check against other proposed draft events to avoid self-clashes
+    const proposedClash = aiProposedEvents.find((e: any, idx: number) => e.date === dateStr && idx !== proposedIndex);
+    if (proposedClash) return `Draft Conflict: Same day as "${proposedClash.title}"`;
+    
+    return null;
+  };
 
   const getYearLabel = (batch: number) => {
     if (batch === 5) return '3rd Year';
@@ -1326,6 +1368,114 @@ export default function ANODashboard() {
                 </>
               ) : (
                 <div className="space-y-5">
+                  {/* Syllabus progress audit */}
+                  {syllabusAudit && (
+                    <div className="tac-card p-5 relative overflow-hidden">
+                      <CornerBrackets colorClass="border-ncc-sky/40" />
+                      <h3 className="font-heading font-bold text-ncc-sky text-sm flex items-center gap-2 mb-3 uppercase tracking-widest">
+                        <i className="fas fa-chart-bar"></i> Syllabus Coverage Audit
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-4">
+                        {Object.entries(syllabusAudit.categories || {}).map(([catName, catData]: [string, any]) => (
+                          <div key={catName} className="bg-black/35 border border-ncc-olive/10 p-3 rounded-sm flex flex-col justify-between">
+                            <div className="text-[10px] font-sans font-bold text-ncc-olive/60 uppercase tracking-wider mb-1">{catName}</div>
+                            <div className="flex justify-between items-baseline mb-1">
+                              <span className="text-sm font-heading font-bold text-gray-200">{catData.completed} / {catData.total}</span>
+                              <span className="text-[11px] font-heading font-bold text-ncc-sky">{catData.percentage}%</span>
+                            </div>
+                            <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-ncc-olive/5">
+                              <div className="bg-ncc-sky h-full rounded-full transition-all duration-500" style={{ width: `${catData.percentage}%` }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Total progress */}
+                      <div className="flex items-center justify-between bg-black/40 border border-ncc-olive/15 p-3 rounded-sm text-xs font-sans">
+                        <div className="flex items-center gap-2 text-ncc-olive/75">
+                          <i className="fas fa-info-circle text-ncc-sky"></i>
+                          <span>Overall Unit Syllabus Progress:</span>
+                          <span className="font-bold text-gray-200">{syllabusAudit.overall?.completed} completed of {syllabusAudit.overall?.total} lessons</span>
+                        </div>
+                        <span className="font-bold text-ncc-sky font-heading">{syllabusAudit.overall?.percentage}%</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sastra configurations settings */}
+                  <div className="tac-card p-5 relative overflow-hidden">
+                    <CornerBrackets colorClass="border-ncc-olive/30" />
+                    <h3 className="font-heading font-bold text-ncc-olive text-sm flex items-center gap-2 mb-3 uppercase tracking-widest">
+                      <i className="fas fa-sliders-h"></i> Sastra Curriculum Constraints
+                    </h3>
+                    
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      setSavingConfig(true);
+                      try {
+                        const res = await updateUnitConfigSettings(collegeStartTime, collegeEndTime, academicCalendar);
+                        if (res.success) {
+                          await hudAlert('Sastra constraints saved successfully. The AI Planner will now apply these rules.', 'Settings Saved');
+                          playTacClick('confirm');
+                        } else {
+                          await hudAlert(res.message || 'Failed to save config', 'Save Failed');
+                        }
+                      } catch (err: any) {
+                        await hudAlert(err.message || 'Save error', 'Save Error');
+                      } finally {
+                        setSavingConfig(false);
+                      }
+                    }} className="space-y-3.5">
+                      <div className="grid grid-cols-2 gap-3.5">
+                        <div>
+                          <label className="block text-[10px] font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1.5">College Start Time</label>
+                          <input 
+                            type="text" 
+                            placeholder="08:45" 
+                            className="hud-input font-sans text-xs" 
+                            value={collegeStartTime} 
+                            onChange={(e) => setCollegeStartTime(e.target.value)} 
+                            required 
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1.5">College End Time</label>
+                          <input 
+                            type="text" 
+                            placeholder="17:15" 
+                            className="hud-input font-sans text-xs" 
+                            value={collegeEndTime} 
+                            onChange={(e) => setCollegeEndTime(e.target.value)} 
+                            required 
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1.5">Academic Calendar / Holiday Summary</label>
+                        <textarea 
+                          placeholder="Example: July 11 to July 17 is Exam Week. August 15 is Independence Day Holiday." 
+                          className="hud-input font-sans text-xs h-16 py-2" 
+                          value={academicCalendar} 
+                          onChange={(e) => setAcademicCalendar(e.target.value)} 
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <button 
+                          type="submit" 
+                          disabled={savingConfig}
+                          className="px-4 py-2 bg-ncc-olive/20 border border-ncc-olive/40 hover:bg-ncc-olive/30 hover:border-ncc-gold/50 text-ncc-olive hover:text-ncc-gold text-xs font-sans font-bold uppercase tracking-widest rounded-sm transition-all flex items-center gap-1.5"
+                        >
+                          {savingConfig ? (
+                            <><i className="fas fa-spinner animate-spin"></i> Saving...</>
+                          ) : (
+                            <><i className="fas fa-save"></i> Save Settings</>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
                   {/* AI Console Card */}
                   <div className="tac-card-gold p-5 relative overflow-hidden">
                     <h3 className="font-heading font-bold text-ncc-gold text-sm flex items-center gap-2 mb-1.5 uppercase tracking-widest">
@@ -1356,7 +1506,7 @@ export default function ANODashboard() {
                           setAiScheduleLoading(false);
                         }
                       }}
-                      className="space-y-3"
+                      className="space-y-3.5"
                     >
                       <div className="relative">
                         <input
@@ -1381,20 +1531,22 @@ export default function ANODashboard() {
                         </button>
                       </div>
 
-                      {/* Presets */}
-                      <div className="flex flex-wrap gap-1.5">
+                      {/* Presets and Year filters */}
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        <span className="text-[10px] font-sans font-bold text-ncc-olive/50 uppercase tracking-widest mr-1">Quick Focus:</span>
                         {[
-                          "Focus on weapon training and rifle theory",
-                          "Plan a strict drill & sizing routine",
-                          "Focus on map reading bearing plotting"
-                        ].map((pr, idx) => (
+                          { label: "1st Year", q: "Focus on 1st year cadets basic drill and rifle cleaning" },
+                          { label: "2nd Year", q: "Focus on 2nd year cadets map reading bearing plotting" },
+                          { label: "3rd Year", q: "Focus on 3rd year cadets leadership and firing positions" },
+                          { label: "Sundays", q: "Plan next month's training schedule including Sundays" }
+                        ].map((item, idx) => (
                           <button
                             key={idx}
                             type="button"
-                            onClick={() => { setAiScheduleQuery(pr); playTacClick(); }}
-                            className="px-2.5 py-1.5 bg-black/20 border border-ncc-olive/15 hover:border-ncc-gold/30 text-ncc-olive/60 hover:text-ncc-gold text-xs font-sans font-bold rounded-sm transition-colors"
+                            onClick={() => { setAiScheduleQuery(item.q); playTacClick(); }}
+                            className="px-2.5 py-1.5 bg-black/25 border border-ncc-olive/20 hover:border-ncc-sky/50 text-ncc-olive/60 hover:text-ncc-sky text-xs font-sans font-bold rounded-sm transition-colors"
                           >
-                            {pr}
+                            {item.label}
                           </button>
                         ))}
                       </div>
@@ -1419,7 +1571,22 @@ export default function ANODashboard() {
                         <button
                           type="button"
                           onClick={async () => {
-                            if (!await hudConfirm('Publish all 4 proposed events to the active calendar?', 'AI Schedule Publish', 'Publish')) return;
+                            // Check if any proposed events have clashes
+                            let hasClash = false;
+                            for (let i = 0; i < aiProposedEvents.length; i++) {
+                              if (checkEventClash(aiProposedEvents[i].date, i)) {
+                                hasClash = true;
+                                break;
+                              }
+                            }
+                            if (hasClash) {
+                              if (!await hudConfirm('Warning: Some draft events have scheduling clashes. Do you still want to publish?', 'AI Schedule Publish Clashes', 'Publish Anyway')) {
+                                return;
+                              }
+                            } else {
+                              if (!await hudConfirm('Publish all 4 proposed events to the active calendar?', 'AI Schedule Publish', 'Publish')) return;
+                            }
+                            
                             try {
                               const res = await publishBulkEvents(aiProposedEvents);
                               if (res.success) {
@@ -1443,105 +1610,115 @@ export default function ANODashboard() {
                       </div>
 
                       <div className="space-y-3">
-                        {aiProposedEvents.map((evt, idx) => (
-                          <div key={idx} className="tac-card p-4 relative overflow-visible">
-                            
-                            <div className="space-y-3">
-                              {/* Title */}
-                              <div>
-                                <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Title</label>
-                                <input
-                                  type="text"
-                                  className="w-full text-xs font-bold text-gray-800 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
-                                  value={evt.title}
-                                  onChange={(e) => {
-                                    const updated = [...aiProposedEvents];
-                                    updated[idx].title = e.target.value;
-                                    setAiProposedEvents(updated);
-                                  }}
-                                  required
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-3">
-                                {/* Date */}
+                        {aiProposedEvents.map((evt, idx) => {
+                          const clashWarning = checkEventClash(evt.date, idx);
+                          return (
+                            <div key={idx} className={`tac-card p-4 relative overflow-visible ${clashWarning ? 'border-red-500/30 bg-red-950/5' : ''}`}>
+                              <div className="space-y-3">
+                                {/* Title */}
                                 <div>
-                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
-                                  <HudDatePicker
-                                    value={evt.date}
-                                    onChange={(val) => {
-                                      const updated = [...aiProposedEvents];
-                                      updated[idx].date = val;
-                                      setAiProposedEvents(updated);
-                                    }}
-                                    required
-                                    openUpward={true}
-                                  />
-                                </div>
-                                {/* Location */}
-                                <div>
-                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Location</label>
+                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Title</label>
                                   <input
                                     type="text"
-                                    className="w-full text-xs text-gray-600 border-b border-gray-150 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
-                                    value={evt.location}
+                                    className="w-full text-xs font-bold text-gray-200 border-b border-ncc-olive/15 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                    value={evt.title}
                                     onChange={(e) => {
                                       const updated = [...aiProposedEvents];
-                                      updated[idx].location = e.target.value;
+                                      updated[idx].title = e.target.value;
                                       setAiProposedEvents(updated);
                                     }}
                                     required
                                   />
                                 </div>
-                              </div>
 
-                              <div className="grid grid-cols-2 gap-3">
-                                {/* Start Time */}
-                                <div>
-                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Start Time</label>
-                                  <HudTimePicker
-                                    value={evt.startTime || evt.start_time}
-                                    onChange={(val) => {
-                                      const updated = [...aiProposedEvents];
-                                      updated[idx].startTime = val;
-                                      updated[idx].start_time = val;
-                                      setAiProposedEvents(updated);
-                                    }}
-                                    required
-                                    label="Start"
-                                  />
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Date */}
+                                  <div>
+                                    <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
+                                    <HudDatePicker
+                                      value={evt.date}
+                                      onChange={(val) => {
+                                        const updated = [...aiProposedEvents];
+                                        updated[idx].date = val;
+                                        setAiProposedEvents(updated);
+                                      }}
+                                      required
+                                      openUpward={true}
+                                    />
+                                  </div>
+                                  {/* Location */}
+                                  <div>
+                                    <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Location</label>
+                                    <input
+                                      type="text"
+                                      className="w-full text-xs text-gray-300 border-b border-ncc-olive/15 py-1 focus:outline-none focus:border-ncc-navy bg-transparent"
+                                      value={evt.location}
+                                      onChange={(e) => {
+                                        const updated = [...aiProposedEvents];
+                                        updated[idx].location = e.target.value;
+                                        setAiProposedEvents(updated);
+                                      }}
+                                      required
+                                    />
+                                  </div>
                                 </div>
-                                {/* End Time */}
-                                <div>
-                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
-                                  <HudTimePicker
-                                    value={evt.endTime || evt.end_time}
-                                    onChange={(val) => {
-                                      const updated = [...aiProposedEvents];
-                                      updated[idx].endTime = val;
-                                      updated[idx].end_time = val;
-                                      setAiProposedEvents(updated);
-                                    }}
-                                    required
-                                    label="End"
-                                  />
-                                </div>
-                              </div>
 
-                              {/* Gear list */}
-                              <div>
-                                <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Required Equipment</label>
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {evt.equipment.map((eq: string, eqIdx: number) => (
-                                    <span key={eqIdx} className="text-xs font-sans font-bold bg-slate-100 text-gray-500 border border-slate-200/50 px-2 py-0.5 rounded">
-                                      {eq}
-                                    </span>
-                                  ))}
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Start Time */}
+                                  <div>
+                                    <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Start Time</label>
+                                    <HudTimePicker
+                                      value={evt.startTime || evt.start_time}
+                                      onChange={(val) => {
+                                        const updated = [...aiProposedEvents];
+                                        updated[idx].startTime = val;
+                                        updated[idx].start_time = val;
+                                        setAiProposedEvents(updated);
+                                      }}
+                                      required
+                                      label="Start"
+                                    />
+                                  </div>
+                                  {/* End Time */}
+                                  <div>
+                                    <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
+                                    <HudTimePicker
+                                      value={evt.endTime || evt.end_time}
+                                      onChange={(val) => {
+                                        const updated = [...aiProposedEvents];
+                                        updated[idx].endTime = val;
+                                        updated[idx].end_time = val;
+                                        setAiProposedEvents(updated);
+                                      }}
+                                      required
+                                      label="End"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Clash warning block */}
+                                {clashWarning && (
+                                  <div className="bg-red-950/40 border border-red-500/30 text-red-400 p-2.5 rounded-sm text-[10px] font-sans flex items-start gap-2">
+                                    <i className="fas fa-exclamation-triangle text-xs mt-0.5"></i>
+                                    <span><strong>Scheduling Clash:</strong> {clashWarning}</span>
+                                  </div>
+                                )}
+
+                                {/* Gear list */}
+                                <div>
+                                  <label className="block text-xs font-sans font-bold text-gray-400 uppercase tracking-widest mb-1">Required Equipment</label>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {evt.equipment.map((eq: string, eqIdx: number) => (
+                                      <span key={eqIdx} className="text-xs font-sans font-bold bg-black/25 text-ncc-sky border border-ncc-sky/15 px-2 py-0.5 rounded">
+                                        {eq}
+                                      </span>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
