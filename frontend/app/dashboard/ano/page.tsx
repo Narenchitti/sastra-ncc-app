@@ -735,7 +735,7 @@ export default function ANODashboard() {
             
             {/* Manager Designation Panel */}
             {isANO && (
-              <div className="tac-card-sky p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
+              <div className="tac-card-sky p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-visible">
                 <div>
                   <h3 className="font-sans font-bold text-ncc-sky text-sm flex items-center gap-2 uppercase tracking-widest">
                     <i className="fas fa-user-shield text-ncc-red animate-pulse"></i> Permission Manager
@@ -1393,7 +1393,7 @@ export default function ANODashboard() {
 
                       <div className="space-y-3">
                         {aiProposedEvents.map((evt, idx) => (
-                          <div key={idx} className="tac-card p-4 relative overflow-hidden">
+                          <div key={idx} className="tac-card p-4 relative overflow-visible">
                             
                             <div className="space-y-3">
                               {/* Title */}

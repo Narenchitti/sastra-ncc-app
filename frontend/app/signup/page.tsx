@@ -292,7 +292,7 @@ export default function SignupPage() {
             <div className="glow-backdrop-blur-sky absolute -top-12 -left-12 opacity-65 z-0"></div>
             <div className="glow-backdrop-blur-gold absolute -bottom-12 -right-12 opacity-45 z-0"></div>
 
-            <div className="w-full max-w-[840px] relative overflow-hidden md:overflow-visible rounded-xl bg-black/75 border border-ncc-sky/35 shadow-[0_30px_70px_rgba(0,0,0,0.85)] md:max-h-none overflow-y-auto md:overflow-visible custom-scrollbar z-10 group">
+            <div className="w-full max-w-[840px] relative overflow-visible rounded-xl bg-black/75 border border-ncc-sky/35 shadow-[0_30px_70px_rgba(0,0,0,0.85)] z-10 group">
               
               {/* CornerBrackets on hover */}
               <CornerBrackets colorClass="border-ncc-sky/60" />
