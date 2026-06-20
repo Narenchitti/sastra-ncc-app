@@ -820,8 +820,8 @@ export default function ANODashboard() {
                           <i className="far fa-calendar text-ncc-red"></i> {p.startDate} → {p.endDate}
                         </div>
                         {p.suoComment && (
-                          <div className="mt-4 bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs p-3.5 rounded-xl">
-                            <strong className="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Manager Note</strong>
+                          <div className="mt-4 bg-emerald-950/20 border border-emerald-500/25 text-emerald-400 text-xs p-3.5 rounded-sm">
+                            <strong className="block text-[10px] font-bold text-emerald-500/80 uppercase tracking-wider mb-1">// Manager Endorsement Note</strong>
                             {p.suoComment}
                           </div>
                         )}
