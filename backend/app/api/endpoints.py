@@ -701,7 +701,25 @@ async def get_telemetry_traces(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Only the ANO can access performance metrics telemetry")
         
     from ..services import telemetry
-    return telemetry.get_traces()
+    raw_traces = telemetry.get_traces()
+    formatted_traces = []
+    for t in raw_traces:
+        spans = []
+        for s in t.get("spans", []):
+            spans.append({
+                "name": s.get("name"),
+                "category": s.get("category"),
+                "durationMs": s.get("duration_ms")
+            })
+        formatted_traces.append({
+            "path": t.get("path"),
+            "method": t.get("method"),
+            "durationMs": t.get("duration_ms"),
+            "statusCode": t.get("status_code"),
+            "timestamp": t.get("timestamp"),
+            "spans": spans
+        })
+    return formatted_traces
 
 
 # ── Cadet Signup & Approval Flow ───────────────────────────────────────────
