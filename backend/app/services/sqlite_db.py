@@ -219,13 +219,28 @@ def init_db():
         conn.commit()
 
     # Seed achievements if empty
+    cursor.execute("DELETE FROM achievements WHERE id IN ('ach-001', 'ach-002', 'ach-003')")
     cursor.execute("SELECT COUNT(*) FROM achievements")
     if cursor.fetchone()[0] == 0:
         print("Seeding dummy achievements into local database...")
+
+        # Resolve cadet IDs dynamically by name matching
+        cursor.execute("SELECT id FROM users WHERE name LIKE '%VENKATARAMANAN%' LIMIT 1")
+        r = cursor.fetchone()
+        venkat_id = r[0] if r else "44f0bcd4-1a2f-4c38-abdc-2e78783eb4bf"
+
+        cursor.execute("SELECT id FROM users WHERE name LIKE '%CHITTIBABU%' OR name LIKE '%NAREN%' LIMIT 1")
+        r = cursor.fetchone()
+        naren_id = r[0] if r else "5cb99503-3194-4386-8d32-9ca992dae696"
+
+        cursor.execute("SELECT id FROM users WHERE name LIKE '%DURGA PRASAD%' LIMIT 1")
+        r = cursor.fetchone()
+        durga_id = r[0] if r else "1ad74fe9-e0ae-4298-b601-3344fef0c8b1"
+
         dummy_achs = [
             {
-                "id": "ach-001",
-                "cadet_id": "44f0bcd4-1a2f-4c38-abdc-2e78783eb4bf",
+                "id": "f1a0e101-2b3c-4d5e-6f7a-8b9c0d1e2f3a",
+                "cadet_id": venkat_id,
                 "title": "Best Shooter - TSC Selection",
                 "date": "2026-05-15",
                 "end_date": None,
@@ -238,8 +253,8 @@ def init_db():
                 "ano_comment": None
             },
             {
-                "id": "ach-002",
-                "cadet_id": "5cb99503-3194-4386-8d32-9ca992dae696",
+                "id": "f1a0e102-2b3c-4d5e-6f7a-8b9c0d1e2f3a",
+                "cadet_id": naren_id,
                 "title": "Republic Day Camp Selection",
                 "date": "2026-01-10",
                 "end_date": "2026-01-28",
@@ -252,8 +267,8 @@ def init_db():
                 "ano_comment": "Excellent performance representing the institution at the national level."
             },
             {
-                "id": "ach-003",
-                "cadet_id": "1ad74fe9-e0ae-4298-b601-3344fef0c8b1",
+                "id": "f1a0e103-2b3c-4d5e-6f7a-8b9c0d1e2f3a",
+                "cadet_id": durga_id,
                 "title": "B-Certificate Exam Topper",
                 "date": "2026-03-20",
                 "end_date": None,
