@@ -205,7 +205,7 @@ export default function ANODashboard() {
     if (!stored) router.push('/login');
     else {
       const u = JSON.parse(stored);
-      if (u.role !== 'ANO' && u.rank !== 'SUO' && u.rank !== 'CUO') router.push('/dashboard/cadet');
+      if (u.role !== 'ANO') router.push('/dashboard/cadet');
       setUser(u);
       refreshData();
     }

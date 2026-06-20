@@ -87,11 +87,11 @@ export default function LoginPage() {
 
     if (res.success && res.user) {
       addLog('SYS: IDENTITY VERIFIED — ACCESS GRANTED.');
-      addLog(`SYS: ROUTING TO ${res.user.role === 'ANO' || res.user.rank === 'SUO' || res.user.rank === 'CUO' ? 'COMMAND CENTER' : 'CADET PORTAL'}...`);
+      addLog(`SYS: ROUTING TO ${res.user.role === 'ANO' ? 'COMMAND CENTER' : 'CADET PORTAL'}...`);
       localStorage.setItem('user', JSON.stringify(res.user));
       localStorage.setItem('access_token', res.accessToken);
       setTimeout(() => {
-        if (res.user!.role === 'ANO' || res.user!.rank === 'SUO' || res.user!.rank === 'CUO') {
+        if (res.user!.role === 'ANO') {
           router.push('/dashboard/ano');
         } else {
           router.push('/dashboard/cadet');
