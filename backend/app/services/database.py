@@ -3,7 +3,7 @@ import os
 import logging
 from ..core.supabase import supabase
 from ..schemas.models import UserBase, EventBase, PermissionBase, AchievementBase, AttendanceBase
-from typing import List
+from typing import List, Optional
 from . import sqlite_db
 
 logger = logging.getLogger("app.database")
@@ -38,6 +38,14 @@ async def get_users() -> List[UserBase]:
         response = await _run(lambda: supabase.table("users").select("*").execute())
         return [UserBase(**u) for u in response.data]
     return await _execute(_supa, sqlite_db.get_users)
+
+async def get_user_by_email(email: str) -> Optional[UserBase]:
+    async def _supa():
+        response = await _run(lambda: supabase.table("users").select("*").eq("email", email).execute())
+        if response.data:
+            return UserBase(**response.data[0])
+        return None
+    return await _execute(_supa, lambda: sqlite_db.get_user_by_email(email))
 
 async def save_user(user: UserBase):
     async def _supa():

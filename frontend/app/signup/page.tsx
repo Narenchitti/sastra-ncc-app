@@ -7,6 +7,8 @@ import Link from 'next/link';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
+import HudDatePicker from '@/components/HudDatePicker';
+import HudSelect from '@/components/HudSelect';
 
 /** Plays a short synthesizer beep for tactical audio feedback */
 function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
@@ -56,6 +58,12 @@ export default function SignupPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [dob, setDob] = useState('');
+  const [rank, setRank] = useState('Cadet');
+  const [year, setYear] = useState('I Year');
+  const [branch, setBranch] = useState('');
+  const [batchYear, setBatchYear] = useState('2026');
   const [authLogs, setAuthLogs] = useState<string[]>([]);
   const logsEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -83,6 +91,11 @@ export default function SignupPage() {
     setIsLoading(true);
     addLog('SYS: TRANSMITTING ENLISTMENT PACKET...');
     playTacClick('confirm');
+
+    // Combine custom year and branch picker values into yearBranch
+    const yearVal = formData.get('year') as string;
+    const branchVal = formData.get('branch') as string;
+    formData.set('yearBranch', `${yearVal}, ${branchVal}`);
 
     const res = await signupAction(formData);
 
@@ -273,15 +286,23 @@ export default function SignupPage() {
                         }`}>[</span>
                         <input
                           name="password"
-                          type="password"
+                          type={showPassword ? 'text' : 'password'}
                           required
                           placeholder="Password"
                           disabled={isLoading}
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('password'); addLog('SYS: SECURING PASSWORD...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full pl-7 pr-12 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          onMouseEnter={() => playTacClick('hover')}
+                          className="absolute right-7 top-1/2 -translate-y-1/2 text-ncc-olive/50 hover:text-ncc-gold transition-colors text-xs z-10"
+                        >
+                          <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'} />
+                        </button>
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'password' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
                         }`}>]</span>
@@ -296,28 +317,32 @@ export default function SignupPage() {
                       <div className="relative">
                         <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'rank' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>[</span>
-                        <select
+                        } z-10 pointer-events-none`}>[</span>
+                        <HudSelect
                           name="rank"
+                          value={rank}
+                          onChange={(val) => {
+                            setRank(val);
+                            addLog(`SYS: SELECTED RANK → ${val}`);
+                          }}
+                          options={[
+                            { label: 'Cadet (CDT)', value: 'Cadet' },
+                            { label: 'Lance Corporal (L/CPL)', value: 'Lance Corporal' },
+                            { label: 'Corporal (CPL)', value: 'Corporal' },
+                            { label: 'Sergeant (SGT)', value: 'Sergeant' },
+                            { label: 'CQMS', value: 'CQMS' },
+                            { label: 'CSM', value: 'CSM' },
+                            { label: 'CUO', value: 'CUO' },
+                            { label: 'SUO', value: 'SUO' }
+                          ]}
                           required
                           disabled={isLoading}
-                          onMouseEnter={() => playTacClick('hover')}
-                          onFocus={() => { setActiveField('rank'); addLog('SYS: SELECTING RANK...'); playTacClick('soft'); }}
+                          onFocus={() => { setActiveField('rank'); addLog('SYS: RANK SELECT ACTIVE...'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)] appearance-none cursor-pointer"
-                        >
-                          <option value="Cadet">Cadet (CDT)</option>
-                          <option value="Lance Corporal">Lance Corporal (L/CPL)</option>
-                          <option value="Corporal">Corporal (CPL)</option>
-                          <option value="Sergeant">Sergeant (SGT)</option>
-                          <option value="CQMS">CQMS</option>
-                          <option value="CSM">CSM</option>
-                          <option value="CUO">CUO</option>
-                          <option value="SUO">SUO</option>
-                        </select>
+                        />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'rank' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>]</span>
+                        } z-10 pointer-events-none`}>]</span>
                       </div>
                     </div>
                   </div>
@@ -377,7 +402,7 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  {/* DOB & Year/Branch */}
+                  {/* DOB & Hostel Info */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Date of Birth */}
                     <div className="flex flex-col gap-1">
@@ -387,52 +412,22 @@ export default function SignupPage() {
                       <div className="relative">
                         <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>[</span>
-                        <input
+                        } z-10 pointer-events-none`}>[</span>
+                        <HudDatePicker
                           name="dob"
-                          type="date"
+                          value={dob}
+                          onChange={(val) => {
+                            setDob(val);
+                            addLog(`SYS: DOB CONFIG → ${val}`);
+                          }}
                           required
-                          disabled={isLoading}
-                          onMouseEnter={() => playTacClick('hover')}
-                          onFocus={() => { setActiveField('dob'); addLog('SYS: ENTERING DATE OF BIRTH...'); playTacClick('soft'); }}
-                          onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)] cursor-pointer"
                         />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>]</span>
+                        } z-10 pointer-events-none`}>]</span>
                       </div>
                     </div>
 
-                    {/* Year / Branch */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
-                        Year &amp; Branch
-                      </label>
-                      <div className="relative">
-                        <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
-                          activeField === 'yearBranch' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>[</span>
-                        <input
-                          name="yearBranch"
-                          type="text"
-                          required
-                          placeholder="III Year, B.Tech. Mech"
-                          disabled={isLoading}
-                          onMouseEnter={() => playTacClick('hover')}
-                          onFocus={() => { setActiveField('yearBranch'); addLog('SYS: ENTERING ACADEMIC STREAM...'); playTacClick('soft'); }}
-                          onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
-                        />
-                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
-                          activeField === 'yearBranch' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>]</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Hostel Info & Batch Year */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Hostel Info */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
@@ -458,6 +453,115 @@ export default function SignupPage() {
                         }`}>]</span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Branch (Full Width Selector) */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
+                      Academic Branch / Course
+                    </label>
+                    <div className="relative">
+                      <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'branch' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      } z-10 pointer-events-none`}>[</span>
+                      <HudSelect
+                        name="branch"
+                        value={branch}
+                        onChange={(val) => {
+                          setBranch(val);
+                          addLog(`SYS: SELECTED COURSE → ${val}`);
+                        }}
+                        options={[
+                          "B.Tech. Aerospace Engineering",
+                          "B.Tech. Bioengineering",
+                          "B.Tech. Bioinformatics",
+                          "B.Tech. Biotechnology",
+                          "B.Tech. Chemical Engineering",
+                          "B.Tech. Civil Engineering [2018-19]",
+                          "B.Tech. Civil Engineering [2023-24]",
+                          "B.Tech. Computer Science & Engineering",
+                          "B.Tech. Computer Science & Engineering (Artificial Intelligence & Data Science)",
+                          "B.Tech. Computer Science & Engineering (Cyber Security & Block Chain Technology)",
+                          "B.Tech. Computer Science & Engineering (IoT & Automation)",
+                          "B.Tech. Computer Science & Engineering (Networks)",
+                          "B.Tech. Electrical and Electronics Engineering",
+                          "B.Tech. Electronics & Communication Engineering",
+                          "B.Tech. Electronics and Computer Engineering",
+                          "B.Tech. Electronics & Instrumentation Engineering",
+                          "B.Tech. Robotics & Artificial Intelligence",
+                          "B.Tech. Electronics Engineering (VLSI Design & Technology)",
+                          "B.Tech. Information Technology",
+                          "B.Tech. Mechanical Engineering",
+                          "B.Tech. Mechatronics",
+                          "BA LLB [2022-27] (5 Years Integrated)",
+                          "BA LLB [2023-28] (5 Years Integrated)",
+                          "BA LLB [2024-29] (5 Years Integrated)",
+                          "BBA LLB [2022-27] (5 Years Integrated)",
+                          "BBA LLB [2023-28] (5 Years Integrated)",
+                          "BBA LLB [2024-29] (5 Years Integrated)",
+                          "B.Com LLB [2022-27] (5 Years Integrated)",
+                          "B.Com LLB [2023-28] (5 Years Integrated)",
+                          "B.Com LLB [2024-29] (5 Years Integrated)",
+                          "M.Sc. Integrated Biotechnology (5 Years Integrated)",
+                          "M.Sc. Integrated Physics (5 Years Integrated)",
+                          "M.Sc. Integrated Chemistry (5 Years Integrated)",
+                          "M.Sc. Integrated Mathematics (5 Years Integrated)",
+                          "M.Sc. Integrated Mathematics and Computing (5 Years Integrated)",
+                          "M.Sc. Integrated Data Science (5 Years Integrated)",
+                          "M.Tech. Integrated Biotechnology (5 Years Integrated)",
+                          "M.Tech. Integrated Medical Nanotechnology (5 Years Integrated)",
+                          "B.Sc. B.Ed Physics (Integrated)",
+                          "B.Sc. B.Ed Maths (Integrated)",
+                          "BA B.Ed English (Integrated)",
+                          "B.Com CA [2023-24]",
+                          "B.Com CA [2024-25]",
+                          "B.Com BFSI [2023-24]",
+                          "B.Com BFSI [2024-25]"
+                        ]}
+                        required
+                        disabled={isLoading}
+                        searchable={true}
+                        openUpward={true}
+                        placeholder="Type or click to choose course..."
+                        onFocus={() => { setActiveField('branch'); addLog('SYS: COURSE SELECT ACTIVE...'); }}
+                        onBlur={() => setActiveField(null)}
+                      />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                        activeField === 'branch' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                      } z-10 pointer-events-none`}>]</span>
+                    </div>
+                  </div>
+
+                  {/* Year & Batch Year */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Academic Year */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
+                        Academic Year
+                      </label>
+                      <div className="relative">
+                        <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                          activeField === 'year' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                        } z-10 pointer-events-none`}>[</span>
+                        <HudSelect
+                          name="year"
+                          value={year}
+                          onChange={(val) => {
+                            setYear(val);
+                            addLog(`SYS: SELECTED YEAR → ${val}`);
+                          }}
+                          options={['I Year', 'II Year', 'III Year', 'IV Year', 'V Year']}
+                          required
+                          disabled={isLoading}
+                          openUpward={true}
+                          onFocus={() => { setActiveField('year'); addLog('SYS: YEAR SELECT ACTIVE...'); }}
+                          onBlur={() => setActiveField(null)}
+                        />
+                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                          activeField === 'year' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                        } z-10 pointer-events-none`}>]</span>
+                      </div>
+                    </div>
 
                     {/* Batch Passout Year */}
                     <div className="flex flex-col gap-1">
@@ -467,24 +571,29 @@ export default function SignupPage() {
                       <div className="relative">
                         <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'batchYear' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>[</span>
-                        <select
+                        } z-10 pointer-events-none`}>[</span>
+                        <HudSelect
                           name="batchYear"
+                          value={batchYear}
+                          onChange={(val) => {
+                            setBatchYear(val);
+                            addLog(`SYS: SELECTED BATCH → ${val}`);
+                          }}
+                          options={[
+                            { label: '2026 (Batch 5)', value: '2026' },
+                            { label: '2027 (Batch 6)', value: '2027' },
+                            { label: '2028 (Batch 7)', value: '2028' },
+                            { label: '2029 (Batch 8)', value: '2029' }
+                          ]}
                           required
                           disabled={isLoading}
-                          onMouseEnter={() => playTacClick('hover')}
-                          onFocus={() => { setActiveField('batchYear'); addLog('SYS: SELECTING BATCH YEAR...'); playTacClick('soft'); }}
+                          openUpward={true}
+                          onFocus={() => { setActiveField('batchYear'); addLog('SYS: BATCH SELECT ACTIVE...'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)] appearance-none cursor-pointer"
-                        >
-                          <option value="2026">2026 (Batch 5)</option>
-                          <option value="2027">2027 (Batch 6)</option>
-                          <option value="2028">2028 (Batch 7)</option>
-                          <option value="2029">2029 (Batch 8)</option>
-                        </select>
+                        />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'batchYear' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        }`}>]</span>
+                        } z-10 pointer-events-none`}>]</span>
                       </div>
                     </div>
                   </div>

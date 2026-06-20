@@ -55,6 +55,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeField, setActiveField] = useState<'email' | 'password' | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [authLogs, setAuthLogs] = useState<string[]>([]);
   const logsEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -258,15 +259,23 @@ export default function LoginPage() {
                       }`}>[</span>
                       <input
                         name="password"
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         required
                         placeholder="Registration Number"
                         disabled={isLoading}
                         onMouseEnter={() => playTacClick('hover')}
                         onFocus={() => { setActiveField('password'); addLog('SYS: COMMAND KEY FIELD ACTIVE...'); playTacClick('soft'); }}
                         onBlur={() => setActiveField(null)}
-                        className="w-full px-7 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-red/55 focus:ring-1 focus:ring-ncc-red/25 focus:shadow-[0_0_12px_rgba(210,16,52,0.15)]"
+                        className="w-full pl-7 pr-12 py-2.5 rounded-md bg-black/45 border border-ncc-olive/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-red/55 focus:ring-1 focus:ring-ncc-red/25 focus:shadow-[0_0_12px_rgba(210,16,52,0.15)]"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        onMouseEnter={() => playTacClick('hover')}
+                        className="absolute right-7 top-1/2 -translate-y-1/2 text-ncc-olive/50 hover:text-ncc-gold transition-colors text-xs z-10"
+                      >
+                        <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'} />
+                      </button>
                       <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                         activeField === 'password' ? 'text-ncc-red drop-shadow-[0_0_6px_rgba(210,16,52,0.85)] font-bold' : 'text-ncc-olive/40'
                       }`}>]</span>

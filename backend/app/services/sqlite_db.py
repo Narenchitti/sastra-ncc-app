@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import uuid
-from typing import List
+from typing import List, Optional
 import bcrypt
 from ..schemas.models import UserBase, EventBase, PermissionBase, AchievementBase, AttendanceBase
 
@@ -217,6 +217,16 @@ async def get_users() -> List[UserBase]:
     rows = cursor.fetchall()
     conn.close()
     return [UserBase(**dict(row)) for row in rows]
+
+async def get_user_by_email(email: str) -> Optional[UserBase]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return UserBase(**dict(row))
+    return None
 
 async def save_user(user: UserBase):
     conn = get_connection()

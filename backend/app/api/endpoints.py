@@ -63,8 +63,7 @@ async def login(data: Dict[str, str]):
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password are required")
 
-    users = await database.get_users()
-    user = next((u for u in users if u.email == email), None)
+    user = await database.get_user_by_email(email)
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -624,8 +623,8 @@ async def signup(data: Dict[str, Any]):
     if not email or not password or not name or not rank:
         raise HTTPException(status_code=400, detail="Missing required registration fields")
 
-    users = await database.get_users()
-    if any(u.email == email for u in users):
+    existing_user = await database.get_user_by_email(email)
+    if existing_user:
         raise HTTPException(status_code=400, detail="Email address already registered")
 
     import uuid
