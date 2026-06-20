@@ -508,6 +508,41 @@ export async function getUnitConfigSettings() {
     }
 }
 
+export async function uploadAcademicCalendarAction(formData: FormData) {
+    let token: string | null = null;
+    try {
+        const { cookies } = await import('next/headers');
+        const cookieStore = cookies();
+        token = cookieStore.get('access_token')?.value || null;
+    } catch (e) {
+        console.error("Token retrieval failed in uploadAcademicCalendarAction", e);
+    }
+    
+    const headers: Record<string, string> = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    
+    try {
+        const res = await fetch(`${API_URL}/unit-config/upload-calendar`, {
+            method: 'POST',
+            body: formData,
+            headers,
+        });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.detail || `Upload failed with status: ${res.status}`);
+        }
+        const data = await res.json();
+        return { success: true, text: data.text };
+    } catch (error: any) {
+        console.error("Academic Calendar Upload Error:", error);
+        return { success: false, message: error.message || 'Failed to upload academic calendar' };
+    }
+}
+
 
 
 

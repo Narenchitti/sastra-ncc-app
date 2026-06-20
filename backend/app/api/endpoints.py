@@ -504,6 +504,70 @@ async def update_unit_config(data: Dict[str, Any], current_user: dict = Depends(
     return {"success": True}
 
 
+@router.post("/unit-config/upload-calendar")
+async def upload_academic_calendar(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "ANO":
+        raise HTTPException(status_code=403, detail="Only ANO can modify unit configurations")
+        
+    import io
+    filename = file.filename or ""
+    ext = filename.split(".")[-1].lower() if "." in filename else ""
+    
+    try:
+        file_bytes = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+        
+    text = ""
+    try:
+        if ext == "pdf":
+            import pypdf
+            pdf_file = io.BytesIO(file_bytes)
+            reader = pypdf.PdfReader(pdf_file)
+            pages_text = []
+            for page in reader.pages:
+                t = page.extract_text()
+                if t:
+                    pages_text.append(t)
+            text = "\n".join(pages_text)
+        elif ext == "docx":
+            import docx
+            doc_file = io.BytesIO(file_bytes)
+            doc = docx.Document(doc_file)
+            text = "\n".join([para.text for para in doc.paragraphs])
+        elif ext in ["xlsx", "xls"]:
+            import openpyxl
+            excel_file = io.BytesIO(file_bytes)
+            wb = openpyxl.load_workbook(excel_file, data_only=True)
+            text_lines = []
+            for sheet in wb.worksheets:
+                text_lines.append(f"--- Sheet: {sheet.title} ---")
+                for row in sheet.iter_rows(values_only=True):
+                    row_str = " | ".join([str(val) for val in row if val is not None])
+                    if row_str.strip():
+                        text_lines.append(row_str)
+            text = "\n".join(text_lines)
+        elif ext in ["txt", "csv"]:
+            text = file_bytes.decode("utf-8", errors="ignore")
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file format. Please upload PDF, DOCX, XLSX, TXT, or CSV.")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to parse document: {str(e)}")
+
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="No readable text could be extracted from the uploaded file.")
+        
+    if len(text) > 8000:
+        text = text[:8000] + "\n... [TRUNCATED DUE TO LENGTH]"
+        
+    # Save directly to config database
+    config_payload = {"academic_calendar": text}
+    await database.save_unit_config(config_payload, current_user.get("sub"))
+    
+    return {"success": True, "text": text}
+
+
+
 # ── File Upload ────────────────────────────────────────────────────────────
 
 @router.post("/upload")

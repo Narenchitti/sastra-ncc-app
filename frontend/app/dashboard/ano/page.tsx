@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction, getAttendanceSheet, submitBulkAttendance, getSyllabusAudit, updateUnitConfigSettings, getUnitConfigSettings } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction, getAttendanceSheet, submitBulkAttendance, getSyllabusAudit, updateUnitConfigSettings, getUnitConfigSettings, uploadAcademicCalendarAction } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
@@ -189,6 +189,7 @@ export default function ANODashboard() {
   const [academicCalendar, setAcademicCalendar] = useState('');
   const [savingConfig, setSavingConfig] = useState(false);
   const [fetchingAudit, setFetchingAudit] = useState(false);
+  const [uploadingCalendar, setUploadingCalendar] = useState(false);
 
   // Diagnostics Console State
   const [showDiagnostics, setShowDiagnostics] = useState(false);
@@ -263,6 +264,36 @@ export default function ANODashboard() {
       console.error("Failed to fetch unit config settings:", e);
     }
   }
+
+  const handleCalendarFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      await hudAlert('File size exceeds the 5MB limit.', 'Upload Failed');
+      return;
+    }
+    
+    setUploadingCalendar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await uploadAcademicCalendarAction(formData);
+      if (res.success && res.text) {
+        setAcademicCalendar(res.text);
+        await hudAlert('Academic calendar uploaded and text extracted successfully!', 'Upload Success');
+        playTacClick('confirm');
+      } else {
+        await hudAlert(res.message || 'Failed to parse calendar document', 'Upload Failed');
+      }
+    } catch (err: any) {
+      await hudAlert(err.message || 'File upload error', 'Upload Error');
+    } finally {
+      setUploadingCalendar(false);
+      e.target.value = '';
+    }
+  };
 
   const checkEventClash = (dateStr: string, proposedIndex: number) => {
     // Check against existing database events
@@ -1452,7 +1483,23 @@ export default function ANODashboard() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1.5">Academic Calendar / Holiday Summary</label>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <label className="block text-[10px] font-sans font-bold text-ncc-olive/60 uppercase tracking-widest">Academic Calendar / Holiday Summary</label>
+                          <label className="cursor-pointer text-[10px] font-sans font-bold text-ncc-sky hover:text-white uppercase tracking-widest flex items-center gap-1 transition-colors">
+                            {uploadingCalendar ? (
+                              <><i className="fas fa-spinner animate-spin"></i> Parsing File...</>
+                            ) : (
+                              <><i className="fas fa-file-upload"></i> Upload (PDF/Word/Excel)</>
+                            )}
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept=".pdf,.docx,.xlsx,.xls,.txt,.csv" 
+                              onChange={handleCalendarFileUpload} 
+                              disabled={uploadingCalendar}
+                            />
+                          </label>
+                        </div>
                         <textarea 
                           placeholder="Example: July 11 to July 17 is Exam Week. August 15 is Independence Day Holiday." 
                           className="hud-input font-sans text-xs h-16 py-2" 
