@@ -280,11 +280,17 @@ export default function CadetDashboard() {
   }
 
   if (!user) return null;
-  const isRankHolder = ['Sergeant', 'CSM', 'CUO', 'SUO'].includes(user.rank);
+  const isRankHolder = (user.rank as string) !== 'Cadet' && (user.rank as string) !== 'CDT';
   const isSUO = user.rank === 'SUO' || user.rank === 'CUO';
+  const isPermissionManager = data.permissionManagerId === user.id;
+  const canMarkAttendance = isRankHolder || isPermissionManager;
 
-  const currentYear = new Date().getFullYear();
   const getYearLabel = (batch: number) => {
+    if (batch === 5) return '3rd Year';
+    if (batch === 6) return '2nd Year';
+    if (batch === 7) return '1st Year';
+    
+    const currentYear = new Date().getFullYear();
     const diff = batch - currentYear;
     if (diff === 0) return '3rd Year';
     if (diff === 1) return '2nd Year';
@@ -432,7 +438,7 @@ export default function CadetDashboard() {
                         ) : null}
 
                         {/* Rank Holder Action */}
-                        {isRankHolder && (
+                        {canMarkAttendance && (
                           <div onClick={(e) => { e.stopPropagation(); launchRegister(ev); }}
                             className={`mt-2 text-center py-1 rounded-sm cursor-pointer font-bold transition-all text-[10px] font-sans uppercase tracking-widest ${status.status === 'open' ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 animate-pulse' : 'bg-black/35 text-ncc-olive/50 border border-ncc-olive/20 hover:border-ncc-gold/40 hover:text-ncc-gold'}`}>
                             {status.status === 'open' ? 'Mark Attendance' : 'Closed'}
@@ -944,7 +950,7 @@ export default function CadetDashboard() {
         {activeTab === 'schedule' && (
           <div className="space-y-6 animate-fade-in flex-grow">
             <CalendarView />
-            {isRankHolder && (
+            {canMarkAttendance && (
               <div className="tac-card-gold p-5 flex items-center justify-between">
                 <div>
                   <h3 className="font-sans text-xs font-bold text-ncc-gold flex items-center gap-2 uppercase tracking-widest">

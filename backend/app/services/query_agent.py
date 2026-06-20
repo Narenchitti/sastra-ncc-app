@@ -98,6 +98,16 @@ Database Schema:
    - `id` (TEXT, primary key)
    - `permission_manager_id` (TEXT)
 
+7. `inquiries` table (contact requests and notifications):
+   - `id` (TEXT, primary key)
+   - `name` (TEXT)
+   - `email` (TEXT)
+   - `message` (TEXT)
+   - `status` (TEXT: 'PENDING', 'REPLIED')
+   - `reply_message` (TEXT)
+   - `subscribed` (BOOLEAN)
+   - `created_at` (TEXT)
+
 SQLite specific instructions:
 - Use standard JOINs to combine tables when needed.
 - DO NOT SELECT the `password` column under any circumstances.
@@ -111,8 +121,21 @@ def execute_sql(sql_query: str) -> List[Dict[str, Any]]:
     """Executes a SELECT query securely on the SQLite database."""
     clean_sql = sql_query.strip().lower()
     
-    # Audit for mutations
-    forbidden = ["insert", "update", "delete", "drop", "alter", "create", "replace", "truncate", "grant", "revoke", "vacuum"]
+    # Audit for password leaks (case-insensitive substring check)
+    if "password" in clean_sql:
+        raise ValueError("Security Violation: Access to password hashes is strictly prohibited.")
+        
+    # Audit for multiple statements (query chaining)
+    trimmed = clean_sql.rstrip(";")
+    if ";" in trimmed:
+        raise ValueError("Security Violation: Multiple SQL statements are not allowed.")
+        
+    # Audit for mutations and dangerous commands
+    forbidden = [
+        "insert", "update", "delete", "drop", "alter", "create", "replace", 
+        "truncate", "grant", "revoke", "vacuum", "attach", "detach", 
+        "pragma", "reindex", "upsert"
+    ]
     tokens = [t.strip(";,()") for t in clean_sql.split()]
     if not clean_sql.startswith("select") or any(f in tokens for f in forbidden):
         raise ValueError("Security Violation: Only read-only SELECT queries are allowed.")
@@ -127,7 +150,7 @@ def execute_sql(sql_query: str) -> List[Dict[str, Any]]:
     results = []
     for row in rows:
         d = dict(row)
-        # Force filter passwords
+        # Force filter passwords (redundant safety check)
         if "password" in d:
             del d["password"]
         results.append(d)

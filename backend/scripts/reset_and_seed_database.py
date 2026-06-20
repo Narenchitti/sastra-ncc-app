@@ -209,9 +209,21 @@ async def seed_data():
         type="Theory"
     )
     
+    event3_id = "e3000000-0000-0000-0000-000000000000"
+    event3 = EventBase(
+        id=event3_id,
+        title="Annual Training Camp (CATC)",
+        date="2026-07-18",
+        start_time="06:00",
+        end_time="18:00",
+        location="NCC Camp Ground, Trichy",
+        type="Camp"
+    )
+    
     await database.save_event(past_event)
     await database.save_event(event1)
     await database.save_event(event2)
+    await database.save_event(event3)
     
     # ── 3. Seed Attendance for Past Event ──
     logger.info("Marking attendance register for past event...")
@@ -265,8 +277,25 @@ async def seed_data():
         created_at="2026-06-20T11:00:00Z"
     )
     
+    req3 = PermissionBase(
+        id="f3000000-0000-0000-0000-000000000000",
+        cadet_id=cadet_id,
+        cadet_name="Cdt. Suresh Raina",
+        start_date="2026-07-18",
+        end_date="2026-07-18",
+        reason="Family function - sister's wedding.",
+        evidence_url=None,
+        status="APPROVED",
+        suo_comment="Recommended for approval.",
+        ano_comment="Approved. Enjoy the wedding.",
+        ai_status="NO_EVIDENCE",
+        ai_remarks="⚪ AI Review (Simulated): No evidence document uploaded.",
+        created_at="2026-06-20T12:00:00Z"
+    )
+    
     await database.save_permission(req1)
     await database.save_permission(req2)
+    await database.save_permission(req3)
     
     # ── 5. Seed Achievements ──
     logger.info("Seeding achievements...")

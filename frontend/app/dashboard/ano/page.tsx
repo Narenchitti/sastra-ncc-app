@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction, getAttendanceSheet, submitBulkAttendance } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
@@ -162,6 +162,13 @@ export default function ANODashboard() {
   const [scheduleFilter, setScheduleFilter] = useState<'All' | 'Parade' | 'Theory' | 'Camp' | 'Event'>('All');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
 
+  // Attendance Register State
+  const [showRegister, setShowRegister] = useState(false);
+  const [registerEvent, setRegisterEvent] = useState<any | null>(null);
+  const [sheetData, setSheetData] = useState<any[]>([]);
+  const [attendanceMarks, setAttendanceMarks] = useState<{ [key: string]: string }>({});
+  const [confirmStep, setConfirmStep] = useState(0);
+
   // Verified Registry State
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -225,6 +232,50 @@ export default function ANODashboard() {
     } catch (e) {
       console.error("Failed to refresh inquiries:", e);
     }
+  }
+
+  const getYearLabel = (batch: number) => {
+    if (batch === 5) return '3rd Year';
+    if (batch === 6) return '2nd Year';
+    if (batch === 7) return '1st Year';
+    
+    const currentYear = new Date().getFullYear();
+    const diff = batch - currentYear;
+    if (diff === 0) return '3rd Year';
+    if (diff === 1) return '2nd Year';
+    if (diff === 2) return '1st Year';
+    return 'Others';
+  };
+
+  async function launchRegister(ev: any) {
+    setRegisterEvent(ev);
+    const res = await getAttendanceSheet(ev.id, ev.date);
+    setSheetData(res.sheet);
+    const initialMarks: any = {};
+    res.sheet.forEach((u: any) => {
+      if (u.autoPermission) initialMarks[u.id] = 'Permission';
+      else if (u.existingStatus) initialMarks[u.id] = u.existingStatus;
+      else initialMarks[u.id] = 'Present';
+    });
+    setAttendanceMarks(initialMarks);
+    setShowRegister(true);
+    setConfirmStep(0);
+  }
+
+  async function finalSubmitAttendance() {
+    if (!registerEvent || !user) return;
+    const records = Object.entries(attendanceMarks).map(([uid, status]) => ({
+      userId: uid,
+      status
+    }));
+    const res = await submitBulkAttendance(registerEvent.id, records, user.name || user.email);
+    if (res && res.success) {
+      await hudAlert('Attendance Register Saved Successfully!', 'Database Sync');
+      refreshData();
+    } else {
+      await hudAlert('Failed to save attendance.', 'Database Error');
+    }
+    setShowRegister(false);
   }
 
   // Smart Title Logic
@@ -1797,7 +1848,7 @@ export default function ANODashboard() {
                         key={idx}
                         type="button"
                         onClick={() => setConsoleQuery(sug)}
-                        className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-600 text-xs font-sans font-bold rounded-lg transition-colors"
+                        className="px-3 py-1.5 bg-black/45 hover:bg-ncc-gold/10 border border-ncc-olive/15 hover:border-ncc-gold/30 text-ncc-olive/60 hover:text-ncc-gold text-xs font-sans font-bold rounded-lg transition-colors"
                       >
                         {sug}
                       </button>
@@ -2039,26 +2090,38 @@ export default function ANODashboard() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-3 mt-6">
-                    {/* Google Calendar Sync */}
-                    <a 
-                      href={gCalUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex-1 border border-gray-200 hover:bg-slate-50 text-gray-600 font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5"
-                    >
-                      <i className="fab fa-google"></i> Calendar
-                    </a>
-
+                  <div className="flex flex-col gap-3 mt-6">
                     <button
                       onClick={() => {
-                        handleEditClick(ev);
+                        launchRegister(ev);
                         setSelectedEvent(null);
                       }}
-                      className="flex-1 bg-ncc-navy hover:bg-ncc-navy/90 text-white font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+                      className="w-full bg-ncc-gold/15 hover:bg-ncc-gold/25 text-ncc-gold border border-ncc-gold/40 font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(212,175,55,0.1)]"
                     >
-                      <i className="fas fa-edit"></i> Edit Event
+                      <i className="fas fa-clipboard-check"></i> Mark / Edit Attendance
                     </button>
+                    
+                    <div className="flex gap-3">
+                      {/* Google Calendar Sync */}
+                      <a 
+                        href={gCalUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex-1 border border-ncc-olive/20 hover:border-ncc-gold/40 hover:bg-ncc-olive/10 text-ncc-olive/80 hover:text-ncc-gold font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5"
+                      >
+                        <i className="fab fa-google"></i> Calendar
+                      </a>
+
+                      <button
+                        onClick={() => {
+                          handleEditClick(ev);
+                          setSelectedEvent(null);
+                        }}
+                        className="flex-1 bg-black/40 border border-ncc-olive/20 hover:border-ncc-gold/45 text-gray-300 hover:text-white font-heading font-bold rounded-xl transition-all py-3 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+                      >
+                        <i className="fas fa-edit"></i> Edit Event
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2249,6 +2312,135 @@ export default function ANODashboard() {
         confirmText={dialog.confirmText}
         cancelText={dialog.cancelText}
       />
+
+      {showRegister && registerEvent && (() => {
+        const groupedData: { [key: string]: any[] } = { '3rd Year': [], '2nd Year': [], '1st Year': [], 'Others': [] };
+        sheetData.forEach(stud => {
+          const label = getYearLabel(stud.batchYear);
+          groupedData[label] = groupedData[label] || [];
+          groupedData[label].push(stud);
+        });
+
+        // Add helper button functions
+        const markAllStatus = (status: string) => {
+          const updated = { ...attendanceMarks };
+          sheetData.forEach(stud => {
+            if (!stud.autoPermission) {
+              updated[stud.id] = status;
+            }
+          });
+          setAttendanceMarks(updated);
+          playTacClick();
+        };
+
+        return (
+          <div className="fixed inset-0 bg-black/75 z-50 flex flex-col items-center justify-center p-4 backdrop-blur-md animate-fade-in">
+            <div className="w-full max-w-4xl max-h-[90vh] rounded-xl shadow-2xl flex flex-col overflow-hidden tac-card-gold relative" onClick={(e) => e.stopPropagation()}>
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-sky"></div>
+              
+              <div className="bg-black/60 text-white p-6 flex justify-between items-center relative border-b border-ncc-gold/20 mt-1">
+                <div>
+                  <h2 className="font-heading text-xl font-bold uppercase tracking-widest text-ncc-gold">Attendance Register (ANO Command)</h2>
+                  <div className="text-xs font-sans text-ncc-olive/80 flex gap-4 mt-1">
+                    <span><i className="far fa-calendar-check mr-2 text-ncc-gold"></i> {registerEvent.title}</span>
+                    <span><i className="far fa-clock mr-2 text-ncc-gold"></i> {registerEvent.startTime} - {registerEvent.endTime}</span>
+                  </div>
+                </div>
+                <button onClick={() => setShowRegister(false)} className="text-ncc-olive/60 hover:text-ncc-gold transition-colors">
+                  <i className="fas fa-times text-xl"></i>
+                </button>
+              </div>
+
+              {/* Bulk Actions Bar */}
+              {confirmStep === 0 && (
+                <div className="bg-black/35 p-3 border-b border-ncc-olive/15 flex gap-2 justify-end">
+                  <button 
+                    onClick={() => markAllStatus('Present')}
+                    className="px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 rounded text-xs font-sans font-bold uppercase tracking-wider transition-colors"
+                  >
+                    Mark All Present
+                  </button>
+                  <button 
+                    onClick={() => markAllStatus('Absent')}
+                    className="px-3 py-1 bg-ncc-red/20 hover:bg-ncc-red/30 border border-ncc-red/45 text-red-300 rounded text-xs font-sans font-bold uppercase tracking-wider transition-colors"
+                  >
+                    Mark All Absent
+                  </button>
+                </div>
+              )}
+
+              <div className="flex-1 overflow-y-auto p-6 bg-black/40">
+                {confirmStep === 1 ? (
+                  <div className="text-center py-12 max-w-md mx-auto font-sans">
+                    <div className="w-16 h-16 bg-ncc-gold/10 rounded-full flex items-center justify-center text-3xl text-ncc-gold mb-6 mx-auto border border-ncc-gold/30 shadow-[0_0_20px_rgba(212,175,55,0.15)]">
+                      <i className="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 className="font-heading text-xl font-bold text-white mb-2 uppercase tracking-wider">Confirm Submission?</h3>
+                    <p className="text-gray-300 text-sm mb-8">You are about to save the attendance register for {sheetData.length} cadets. This will update their official service logs.</p>
+                    <div className="flex justify-center gap-4">
+                      <button onClick={() => setConfirmStep(0)} className="px-6 py-2.5 rounded-md border border-ncc-olive/30 bg-black/30 hover:bg-ncc-olive/10 font-semibold text-gray-300 transition-colors text-sm">Go Back</button>
+                      <button onClick={() => { finalSubmitAttendance(); playTacClick('confirm'); }} className="px-6 py-2.5 rounded-md bg-emerald-600/80 hover:bg-emerald-600 font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all text-sm border border-emerald-500/40">Confirm &amp; Save</button>
+                    </div>
+                  </div>
+                ) : (
+                  Object.entries(groupedData).map(([year, students]) => students.length > 0 && (
+                    <div key={year} className="mb-8 last:mb-0">
+                      <h3 className="text-xs font-bold uppercase text-ncc-olive/60 border-b border-ncc-olive/15 pb-2 mb-4 sticky top-0 bg-[#080b06] z-10 tracking-widest font-sans">{year}</h3>
+                      <div className="space-y-2">
+                        {students.map(stud => (
+                          <div key={stud.id} className="tac-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 w-64">
+                              <div className="w-10 h-10 rounded-sm flex items-center justify-center text-sm font-bold font-heading bg-ncc-gold/10 text-ncc-gold border border-ncc-gold/25">{stud.name.charAt(0)}</div>
+                              <div>
+                                <div className="font-bold text-sm text-gray-200 leading-tight font-sans">{stud.name}</div>
+                                <div className="text-xs text-ncc-sky font-bold uppercase tracking-wider mt-0.5 font-sans">{stud.rank}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex-1 grid grid-cols-4 gap-1.5 font-sans">
+                              {['Present', 'Absent', 'Late', 'Permission'].map(status => {
+                                const isActive = attendanceMarks[stud.id] === status;
+                                const hasApprovedLeave = stud.autoPermission && status === 'Permission';
+                                
+                                const btnColor = status === 'Present' ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.15)]' :
+                                                 status === 'Absent' ? 'bg-ncc-red/20 text-red-300 border border-ncc-red/50 shadow-[0_0_8px_rgba(210,16,52,0.15)]' :
+                                                 status === 'Late' ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50 shadow-[0_0_8px_rgba(245,158,11,0.15)]' :
+                                                 'bg-ncc-sky/20 text-sky-300 border border-sky-500/40';
+                                                 
+                                return (
+                                  <button
+                                    key={status}
+                                    type="button"
+                                    onClick={() => { setAttendanceMarks(prev => ({ ...prev, [stud.id]: status })); playTacClick(); }}
+                                    className={`py-2 rounded-sm text-xs font-bold border transition-all flex flex-col items-center justify-center relative ${
+                                      isActive ? btnColor : 'bg-black/30 text-ncc-olive/60 border-ncc-olive/20 hover:border-ncc-olive/40 hover:text-gray-300'
+                                    }`}
+                                  >
+                                    <span>{status}</span>
+                                    {hasApprovedLeave && (
+                                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full border border-black animate-pulse" title={`Approved leave: ${stud.permissionType}`}></span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              {confirmStep === 0 && (
+                <div className="bg-black/50 p-5 border-t border-ncc-olive/15 flex justify-end gap-3 z-10">
+                  <button onClick={() => setShowRegister(false)} className="px-6 py-2.5 rounded-md border border-ncc-olive/25 bg-black/30 hover:bg-ncc-olive/10 font-sans font-semibold text-gray-400 transition-colors text-xs">Cancel</button>
+                  <button onClick={() => { setConfirmStep(1); playTacClick(); }} className="px-8 py-2.5 rounded-md bg-ncc-gold/15 border border-ncc-gold/40 hover:bg-ncc-gold/25 text-ncc-gold font-sans font-bold shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all text-xs uppercase tracking-widest">Review Submission</button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       </main>
     </div>

@@ -36,13 +36,16 @@ async def run_tests():
         if res.get('data'):
             print(f"Sample data keys: {list(res['data'][0].keys())}")
             
-    # 2. Test safety checks (SQL Mutation Block)
+    # 2. Test safety checks (SQL Mutation Block & Chaining)
     print("\n2. Testing SQL mutation safety block...")
     bad_queries = [
         "DROP TABLE users",
         "DELETE FROM users WHERE role = 'ANO'",
         "UPDATE users SET role = 'ANO' WHERE id = '1'",
-        "INSERT INTO users (id, name) VALUES ('999', 'Fake Cadet')"
+        "INSERT INTO users (id, name) VALUES ('999', 'Fake Cadet')",
+        "ATTACH DATABASE 'evil.db' AS evil",
+        "PRAGMA database_list",
+        "SELECT * FROM users; DROP TABLE events"
     ]
     
     for bq in bad_queries:
@@ -55,19 +58,39 @@ async def run_tests():
             
     # 3. Test security (password filtering)
     print("\n3. Testing password filtering security...")
+    
+    # Test 3.1: Explicit password query (should be blocked at compile-time/query string level)
+    print("\n3.1 Testing explicit password selection...")
+    sql_with_password = "SELECT id, name, email, password FROM users LIMIT 1"
     try:
-        # Intentionally select password
-        sql_with_password = "SELECT id, name, email, password FROM users LIMIT 1"
-        res_data = execute_sql(sql_with_password)
+        execute_sql(sql_with_password)
+        print("❌ Test Failed: Explicit password selection executed successfully!")
+    except ValueError as e:
+        print(f"Blocked successfully: {e}")
+
+    # Test 3.2: Aliased password selection (should be blocked at compile-time/query string level)
+    print("\n3.2 Testing aliased password selection...")
+    sql_aliased_password = "SELECT password AS secret FROM users LIMIT 1"
+    try:
+        execute_sql(sql_aliased_password)
+        print("❌ Test Failed: Aliased password selection executed successfully!")
+    except ValueError as e:
+        print(f"Blocked successfully: {e}")
+
+    # Test 3.3: Star expansion selection (should execute but strip the password field dynamically)
+    print("\n3.3 Testing star expansion password stripping...")
+    sql_star = "SELECT * FROM users LIMIT 1"
+    try:
+        res_data = execute_sql(sql_star)
         if len(res_data) > 0:
             if "password" in res_data[0]:
-                print("❌ Test Failed: Hashed password leaked in output rows!")
+                print("❌ Test Failed: Hashed password leaked in star query output!")
             else:
-                print("✅ Password successfully filtered out from returned rows.")
+                print("✅ Password successfully stripped from star query output.")
         else:
-            print("No users found to test password filtering.")
+            print("No users found to test star query stripping.")
     except Exception as e:
-        print(f"Query failed or error occurred: {e}")
+        print(f"❌ Star query execution failed: {e}")
 
 if __name__ == "__main__":
     asyncio.run(run_tests())

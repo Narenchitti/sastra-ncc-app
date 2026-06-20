@@ -418,9 +418,9 @@ async def delete_achievement(ach_id: str, current_user: dict = Depends(get_curre
 # ── Attendance (protected) ─────────────────────────────────────────────────
 
 async def recalculate_user_camp_count(user_id: str):
-    # Fetch all attendance for this user marked 'Present'
+    # Fetch all attendance for this user marked 'Present' or 'Permission'
     all_att = await database.get_attendance()
-    user_presents = [a for a in all_att if a.user_id == user_id and a.status == "Present"]
+    user_presents = [a for a in all_att if a.user_id == user_id and a.status in ("Present", "Permission")]
     
     if not user_presents:
         camp_count = 0
@@ -441,8 +441,17 @@ async def recalculate_user_camp_count(user_id: str):
 async def submit_bulk_attendance(data: Dict[str, Any], current_user: dict = Depends(get_current_user)):
     role = current_user.get("role")
     rank = current_user.get("rank")
-    if role != "ANO" and not is_rank_at_least(rank, "SGT"):
-        raise HTTPException(status_code=403, detail="Only Sergeants (SGT) and above can mark attendance")
+    user_id = current_user.get("sub")
+
+    # Fetch unit config to check if user is the assigned Permission Manager
+    unit_config = await database.get_unit_config()
+    is_pm = unit_config.get("permission_manager_id") == user_id if unit_config else False
+
+    # Check if user is a rank holder (any rank other than Cadet or CDT)
+    is_rank_holder = rank not in ("Cadet", "CDT")
+
+    if role != "ANO" and not is_pm and not is_rank_holder:
+        raise HTTPException(status_code=403, detail="Unauthorized to mark attendance")
 
     event_id = data.get("eventId")
     records = data.get("records", [])
