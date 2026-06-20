@@ -134,12 +134,11 @@ export default function SignupPage() {
       <div className="absolute inset-0 bg-gradient-to-l from-[#080b06]/65 via-transparent to-transparent z-[1] pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#080b06] to-transparent z-[1] pointer-events-none" />
 
-      {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-6 md:p-12 lg:p-16">
-        <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center gap-10 lg:gap-12">
+      <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-4 md:p-6 lg:p-8">
+        <div className="max-w-[1360px] w-full flex flex-col md:flex-row items-stretch justify-between gap-6 lg:gap-12">
           
           {/* LEFT: Branding & Console logs */}
-          <div className="flex flex-col justify-between w-full md:w-[45%] py-4">
+          <div className="flex flex-col justify-between w-full md:w-[25%] py-2 md:mr-auto">
             {/* Top Brand */}
             <div className="flex items-center gap-3">
               <Link href="/" className="hover:opacity-80 transition-opacity" onMouseEnter={() => playTacClick('hover')}>
@@ -189,13 +188,13 @@ export default function SignupPage() {
           </div>
 
           {/* RIGHT: Signup Form Card */}
-          <div className="flex items-center justify-center w-full md:w-[55%] relative">
+          <div className="flex items-center justify-center md:justify-end w-full md:w-[72%] relative">
             
             {/* Glowing backdrops for depth */}
             <div className="glow-backdrop-blur-sky absolute -top-12 -left-12 opacity-65 z-0"></div>
             <div className="glow-backdrop-blur-gold absolute -bottom-12 -right-12 opacity-45 z-0"></div>
 
-            <div className="w-full max-w-[480px] relative overflow-hidden rounded-xl bg-black/75 border border-ncc-sky/35 shadow-[0_30px_70px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto custom-scrollbar z-10 group">
+            <div className="w-full max-w-[840px] relative overflow-hidden rounded-xl bg-black/75 border border-ncc-sky/35 shadow-[0_30px_70px_rgba(0,0,0,0.85)] md:max-h-[96vh] overflow-y-auto custom-scrollbar z-10 group">
               
               {/* CornerBrackets on hover */}
               <CornerBrackets colorClass="border-ncc-sky/60" />
@@ -203,23 +202,23 @@ export default function SignupPage() {
               {/* Tricolor top bar */}
               <div className="h-1.5 w-full bg-gradient-to-r from-ncc-orange via-white to-ncc-green" />
 
-              <div className="p-8">
+              <div className="px-6 py-4">
                 {/* Logos */}
-                <div className="text-center mb-6">
+                <div className="text-center mb-3">
                   <h1 className="font-heading text-xl font-black text-white tracking-wider uppercase">
                     Register Account
                   </h1>
                   <p className="text-ncc-sky/70 text-[10px] font-mono tracking-widest mt-1 uppercase">
                     Submit Nom Roll Telemetry
                   </p>
-                  <div className="mt-3 w-full h-px bg-gradient-to-r from-transparent via-ncc-sky/30 to-transparent" />
+                  <div className="mt-1 w-full h-px bg-gradient-to-r from-transparent via-ncc-sky/30 to-transparent" />
                 </div>
 
                 {/* Form */}
-                <form action={clientAction} className="space-y-4">
+                <form action={clientAction} className="space-y-3">
                   
-                  {/* Two Column Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Row 1: Name & Email */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {/* Name */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
@@ -238,7 +237,7 @@ export default function SignupPage() {
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('name'); addLog('SYS: ENTERING NAME...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full px-7 py-1.5 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'name' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
@@ -264,7 +263,7 @@ export default function SignupPage() {
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('email'); addLog('SYS: ENTERING EMAIL...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full px-7 py-1.5 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'email' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
@@ -273,8 +272,8 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  {/* Password & Rank */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Row 2: Password, Rank & DOB */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {/* Password */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
@@ -293,7 +292,7 @@ export default function SignupPage() {
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('password'); addLog('SYS: SECURING PASSWORD...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full pl-7 pr-12 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full pl-7 pr-12 py-1.5 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
                         <button
                           type="button"
@@ -345,10 +344,34 @@ export default function SignupPage() {
                         } z-10 pointer-events-none`}>]</span>
                       </div>
                     </div>
+
+                    {/* Date of Birth */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
+                        Date of Birth
+                      </label>
+                      <div className="relative">
+                        <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                          activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                        } z-10 pointer-events-none`}>[</span>
+                        <HudDatePicker
+                          name="dob"
+                          value={dob}
+                          onChange={(val) => {
+                            setDob(val);
+                            addLog(`SYS: DOB CONFIG → ${val}`);
+                          }}
+                          required
+                        />
+                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
+                          activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
+                        } z-10 pointer-events-none`}>]</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Regimental No & Reg No */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Row 3: Regimental No, University Reg No & Hostel Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {/* Regimental No */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
@@ -367,7 +390,7 @@ export default function SignupPage() {
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('regimentalNo'); addLog('SYS: ENTERING REGIMENTAL NUMBER...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full px-7 py-1.5 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'regimentalNo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
@@ -393,38 +416,11 @@ export default function SignupPage() {
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('regNo'); addLog('SYS: ENTERING UNIVERSITY REGISTER NUMBER...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full px-7 py-1.5 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'regNo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
                         }`}>]</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* DOB & Hostel Info */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Date of Birth */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
-                        Date of Birth
-                      </label>
-                      <div className="relative">
-                        <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
-                          activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        } z-10 pointer-events-none`}>[</span>
-                        <HudDatePicker
-                          name="dob"
-                          value={dob}
-                          onChange={(val) => {
-                            setDob(val);
-                            addLog(`SYS: DOB CONFIG → ${val}`);
-                          }}
-                          required
-                        />
-                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
-                          activeField === 'dob' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
-                        } z-10 pointer-events-none`}>]</span>
                       </div>
                     </div>
 
@@ -446,7 +442,7 @@ export default function SignupPage() {
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('hostelInfo'); addLog('SYS: ENTERING RESIDENCY RECORD...'); playTacClick('soft'); }}
                           onBlur={() => setActiveField(null)}
-                          className="w-full px-7 py-2 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
+                          className="w-full px-7 py-1.5 bg-black/60 border border-ncc-sky/25 outline-none text-gray-200 placeholder-white/30 text-sm font-sans transition-all duration-300 focus:border-ncc-sky/55 focus:ring-1 focus:ring-ncc-sky/25 focus:shadow-[0_0_12px_rgba(75,156,211,0.15)]"
                         />
                         <span className={`absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm transition-all duration-300 ${
                           activeField === 'hostelInfo' ? 'text-ncc-sky drop-shadow-[0_0_6px_rgba(75,156,211,0.85)] font-bold' : 'text-ncc-olive/40'
@@ -455,7 +451,7 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  {/* Branch (Full Width Selector) */}
+                  {/* Row 4: Academic Branch / Course */}
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
                       Academic Branch / Course
@@ -532,8 +528,8 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  {/* Year & Batch Year */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Row 5: Year & Batch Year */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {/* Academic Year */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[10px] font-bold text-ncc-sky/80 uppercase tracking-widest font-sans">
@@ -638,7 +634,7 @@ export default function SignupPage() {
                 </form>
 
                 {/* Navigation Back */}
-                <div className="text-center mt-5 pt-3 border-t border-ncc-sky/15 flex justify-between items-center text-xs font-sans uppercase tracking-widest">
+                <div className="text-center mt-4 pt-2.5 border-t border-ncc-sky/15 flex justify-between items-center text-xs font-sans uppercase tracking-widest">
                   <Link
                     href="/login"
                     className="text-ncc-sky/55 hover:text-white transition-colors duration-300 flex items-center gap-1"

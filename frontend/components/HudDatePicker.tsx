@@ -26,6 +26,8 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
   // Parse value or default to today
   const selected = value ? new Date(value + 'T00:00:00') : null;
   const todayStr = toLocalDateStr(new Date());
+  const currentYear = new Date().getFullYear();
+  const YEARS_RANGE = Array.from({ length: 91 }, (_, i) => currentYear - 80 + i);
 
   // Calendar view state
   const [viewYear, setViewYear] = useState(selected?.getFullYear() ?? new Date().getFullYear());
@@ -43,7 +45,13 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
   // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        const target = e.target as Element;
+        if (target && (target.tagName === 'SELECT' || target.tagName === 'OPTION' || target.closest('select'))) {
+          return;
+        }
+        setOpen(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -123,9 +131,30 @@ export default function HudDatePicker({ value, onChange, name, required }: HudDa
             >
               <i className="fas fa-chevron-left text-[10px]"></i>
             </button>
-            <span className="text-xs font-sans font-bold text-white uppercase tracking-widest">
-              {MONTH_NAMES[viewMonth]} {viewYear}
-            </span>
+            <div className="flex gap-1.5">
+              <select
+                value={viewMonth}
+                onChange={(e) => setViewMonth(parseInt(e.target.value, 10))}
+                className="bg-[#12190f] border border-ncc-olive/45 text-[10px] font-sans font-bold text-gray-200 uppercase px-1 py-0.5 rounded outline-none focus:border-ncc-sky cursor-pointer"
+              >
+                {MONTH_NAMES.map((m, idx) => (
+                  <option key={m} value={idx} className="bg-[#0d120a] text-white">
+                    {m.slice(0, 3)}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={viewYear}
+                onChange={(e) => setViewYear(parseInt(e.target.value, 10))}
+                className="bg-[#12190f] border border-ncc-olive/45 text-[10px] font-sans font-bold text-gray-200 px-1 py-0.5 rounded outline-none focus:border-ncc-sky cursor-pointer"
+              >
+                {YEARS_RANGE.map((y) => (
+                  <option key={y} value={y} className="bg-[#0d120a] text-white">
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button
               type="button"
               onClick={() => navigate(1)}
