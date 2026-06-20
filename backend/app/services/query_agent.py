@@ -113,6 +113,7 @@ SQLite specific instructions:
 - DO NOT SELECT the `password` column under any circumstances.
 - Enforce lowercase table and column names in SQL syntax.
 - Write ONLY a SELECT statement. Do not perform INSERT, UPDATE, DELETE, or table modifications.
+- "Pending" leave or permission requests correspond to status 'PENDING_REVIEW' or 'FORWARDED_TO_ANO'. Always filter status by 'PENDING_REVIEW' or 'FORWARDED_TO_ANO' when the user asks for pending leave or permission requests.
 
 Return a JSON object with a single key "sql" containing the SQLite query string.
 """
@@ -163,6 +164,59 @@ async def execute_natural_query(query_text: str) -> Dict[str, Any]:
     Translates a natural language query into SQL, runs it,
     and returns SQL, data, and an explanation.
     """
+    # Synchronize Supabase tables to local SQLite if not using local SQLite mode
+    from .database import USE_SQLITE
+    if not USE_SQLITE:
+        try:
+            logger.info("Synchronizing Supabase tables to SQLite for Text-to-SQL...")
+            from .database import (
+                get_users, get_events, get_permissions, get_achievements,
+                get_attendance, get_unit_config, get_inquiries
+            )
+            
+            # Retrieve all records from Supabase
+            users = await get_users()
+            events = await get_events()
+            permissions = await get_permissions()
+            achievements = await get_achievements()
+            attendance = await get_attendance()
+            config = await get_unit_config()
+            inquiries = await get_inquiries()
+            
+            from . import sqlite_db
+            conn = sqlite_db.get_connection()
+            cursor = conn.cursor()
+            
+            # Wipe local SQLite tables to ensure exact replication of deletions/updates
+            tables = ["users", "events", "permissions", "achievements", "attendance", "unit_config", "inquiries"]
+            for tbl in tables:
+                cursor.execute(f"DELETE FROM {tbl}")
+            conn.commit()
+            conn.close()
+            
+            # Save the retrieved records locally
+            for u in users:
+                await sqlite_db.save_user(u)
+            for e in events:
+                await sqlite_db.save_event(e)
+            for p in permissions:
+                await sqlite_db.save_permission(p)
+            for a in achievements:
+                await sqlite_db.save_achievement(a)
+            for att in attendance:
+                await sqlite_db.mark_attendance(att)
+            if config.get("permission_manager_id"):
+                await sqlite_db.set_permission_manager(
+                    config["permission_manager_id"],
+                    config.get("updated_by") or "system"
+                )
+            for i in inquiries:
+                await sqlite_db.save_inquiry(i.model_dump() if hasattr(i, "model_dump") else i)
+                
+            logger.info("Database synchronization completed.")
+        except Exception as sync_err:
+            logger.warning(f"Database synchronization failed, using existing SQLite cache: {sync_err}")
+
     api_key = os.getenv("GEMINI_API_KEY")
     
     if not api_key:
@@ -176,14 +230,17 @@ async def execute_natural_query(query_text: str) -> Dict[str, Any]:
         elif "3rd" in query_lower or "third" in query_lower or "batch" in query_lower:
             sql = "SELECT name, email, rank, regimental_number, year_branch FROM users WHERE role = 'cadet' AND batch_year = 5 ORDER BY name ASC"
             explanation = "🟢 Here are the 3rd-year cadets (batch year 5) currently registered in the unit."
-        elif "pending" in query_lower or "leave" in query_lower or "request" in query_lower:
-            sql = "SELECT cadet_name, start_date, end_date, reason, status FROM permissions WHERE status LIKE '%PENDING%' ORDER BY created_at DESC"
+        elif "leave" in query_lower or "request" in query_lower or ("pending" in query_lower and "achievement" not in query_lower):
+            sql = "SELECT cadet_name, start_date, end_date, reason, status FROM permissions WHERE status IN ('PENDING_REVIEW', 'FORWARDED_TO_ANO') ORDER BY created_at DESC"
             explanation = "🟢 Here are the active leave and permission requests currently pending review by SUO or ANO."
         elif "attendance" in query_lower or "present" in query_lower:
             sql = "SELECT u.name as cadet_name, e.title as event_title, a.status, e.date FROM attendance a JOIN users u ON a.user_id = u.id JOIN events e ON a.event_id = e.id ORDER BY e.date DESC LIMIT 15"
             explanation = "🟢 Here is a list of recent event attendance records containing cadet attendance logs."
         elif "achievement" in query_lower or "medal" in query_lower:
-            sql = "SELECT u.name as cadet_name, a.title, a.category, a.status FROM achievements a JOIN users u ON a.cadet_id = u.id ORDER BY a.status ASC"
+            if "pending" in query_lower or "verification" in query_lower:
+                sql = "SELECT u.name as cadet_name, a.title, a.category, a.status FROM achievements a JOIN users u ON a.cadet_id = u.id WHERE a.status = 'PENDING' ORDER BY a.title ASC"
+            else:
+                sql = "SELECT u.name as cadet_name, a.title, a.category, a.status FROM achievements a JOIN users u ON a.cadet_id = u.id ORDER BY a.status ASC"
             explanation = "🟢 Here are the achievements submitted by cadets in the central registry."
         else:
             sql = "SELECT name, email, rank, role FROM users LIMIT 10"
