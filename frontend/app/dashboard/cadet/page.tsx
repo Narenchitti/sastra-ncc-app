@@ -9,6 +9,8 @@ import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
 import HudDatePicker from '@/components/HudDatePicker';
+import HudSelect from '@/components/HudSelect';
+import HudDialog from '@/components/HudDialog';
 
 /** Format Date as YYYY-MM-DD in local timezone (not UTC) */
 function toLocalDateStr(d: Date): string {
@@ -71,6 +73,65 @@ function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
 
 export default function CadetDashboard() {
   const router = useRouter();
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    type: 'info' | 'confirm';
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+    confirmText?: string;
+    cancelText?: string;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    onCancel: () => {},
+  });
+
+  const hudAlert = (message: string, title = "System Notification") => {
+    return new Promise<void>((resolve) => {
+      setDialog({
+        isOpen: true,
+        type: 'info',
+        title,
+        message,
+        confirmText: 'Acknowledge',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve();
+        },
+        onCancel: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve();
+        }
+      });
+    });
+  };
+
+  const hudConfirm = (message: string, title = "Action Confirmation", confirmText = "Proceed") => {
+    return new Promise<boolean>((resolve) => {
+      setDialog({
+        isOpen: true,
+        type: 'confirm',
+        title,
+        message,
+        confirmText,
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve(true);
+        },
+        onCancel: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve(false);
+        }
+      });
+    });
+  };
+
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [data, setData] = useState<{ events: Event[], permissions: Permission[], achievements: Achievement[], attendance: Attendance[], permissionManagerId?: string | null }>({ events: [], permissions: [], achievements: [], attendance: [] });
@@ -110,6 +171,20 @@ export default function CadetDashboard() {
   const [scheduleFilter, setScheduleFilter] = useState<'All' | 'Parade' | 'Theory' | 'Camp' | 'Event'>('All');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [leavePrefill, setLeavePrefill] = useState<{ startDate: string; endDate: string; reason: string } | null>(null);
+
+  // Leave Form Dates State
+  const [leaveStartDate, setLeaveStartDate] = useState('');
+  const [leaveEndDate, setLeaveEndDate] = useState('');
+
+  useEffect(() => {
+    if (leavePrefill) {
+      setLeaveStartDate(leavePrefill.startDate);
+      setLeaveEndDate(leavePrefill.endDate);
+    } else {
+      setLeaveStartDate('');
+      setLeaveEndDate('');
+    }
+  }, [leavePrefill]);
 
   useEffect(() => {
     setCurrentTime(new Date());
@@ -170,12 +245,12 @@ export default function CadetDashboard() {
     if (!ev) {
       ev = data.events.find(e => isRegisterOpen(e));
       if (!ev) {
-        alert('No Attendance Registers are currently open (opens 10 mins before start).');
+        await hudAlert('No Attendance Registers are currently open (opens 10 mins before start).', 'Register Not Open');
         return;
       }
     } else {
       if (!isRegisterOpen(ev)) {
-        alert(`Attendance for "${ev.title}" is not open yet. It opens 10 mins before ${ev.startTime}.`);
+        await hudAlert(`Attendance for "${ev.title}" is not open yet. It opens 10 mins before ${ev.startTime}.`, 'Register Upcoming');
         return;
       }
     }
@@ -787,16 +862,16 @@ export default function CadetDashboard() {
                       <input id={`comment-${p.id}`} name="comment" className="hud-input" placeholder="e.g. Verified medical certificate. Recommended." required />
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => {
+                      <button type="button" onClick={async () => {
                         const input = document.getElementById(`comment-${p.id}`) as HTMLInputElement;
-                        if (!input.value) { alert('Please add a comment'); return; }
+                        if (!input.value) { await hudAlert('Please add a comment', 'Review Comments Required'); return; }
                         handleSuoAction(p.id, 'FORWARD', input.value); playTacClick('confirm');
                       }} className="bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 px-4 py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-wider hover:bg-emerald-600/30 transition-colors flex items-center gap-1.5">
                         <i className="fas fa-check"></i> Forward
                       </button>
-                      <button type="button" onClick={() => {
+                      <button type="button" onClick={async () => {
                         const input = document.getElementById(`comment-${p.id}`) as HTMLInputElement;
-                        if (!input.value) { alert('Please add a comment'); return; }
+                        if (!input.value) { await hudAlert('Please add a comment', 'Review Comments Required'); return; }
                         handleSuoAction(p.id, 'REJECT', input.value); playTacClick('error');
                       }} className="bg-ncc-red/15 text-ncc-red border border-ncc-red/35 px-4 py-2.5 rounded-sm font-sans font-bold text-xs uppercase tracking-wider hover:bg-ncc-red/25 transition-colors flex items-center gap-1.5">
                         <i className="fas fa-times"></i> Reject
@@ -896,24 +971,22 @@ export default function CadetDashboard() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">From Date</label>
-                    <input 
+                    <HudDatePicker 
                       name="startDate" 
-                      type="date" 
-                      className="hud-input" 
-                      defaultValue={leavePrefill?.startDate || ''} 
-                      key={leavePrefill ? `prefill-start-${leavePrefill.startDate}` : 'normal-start'} 
+                      value={leaveStartDate} 
+                      onChange={setLeaveStartDate} 
                       required 
+                      openUpward={true} 
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 tracking-widest">To Date</label>
-                    <input 
+                    <HudDatePicker 
                       name="endDate" 
-                      type="date" 
-                      className="hud-input" 
-                      defaultValue={leavePrefill?.endDate || ''} 
-                      key={leavePrefill ? `prefill-end-${leavePrefill.endDate}` : 'normal-end'} 
+                      value={leaveEndDate} 
+                      onChange={setLeaveEndDate} 
                       required 
+                      openUpward={true} 
                     />
                   </div>
                 </div>
@@ -997,7 +1070,7 @@ export default function CadetDashboard() {
                         {/* Withdraw option */}
                         {(p.status === 'PENDING_REVIEW' || p.status === 'PENDING_SUO') && (
                           <form action={async (fd) => {
-                            if (confirm('Are you sure you want to withdraw this request?')) {
+                            if (await hudConfirm('Are you sure you want to withdraw this request?', 'Withdraw Request', 'Withdraw')) {
                               fd.append('id', p.id);
                               await deletePermission(fd);
                               refreshData();
@@ -1066,7 +1139,7 @@ export default function CadetDashboard() {
                     {/* Submit Button */}
                     {(ach.status === 'DRAFT' || ach.status === 'REJECTED' || !ach.status) && (
                       <form action={async (fd) => {
-                        if (confirm('Submit this achievement for verification? You will strictly NOT be able to edit it once submitted.')) {
+                        if (await hudConfirm('Submit this achievement for verification? You will strictly NOT be able to edit it once submitted.', 'Submit Achievement', 'Submit')) {
                           fd.append('id', ach.id);
                           await submitAchievementForVerification(fd);
                           setMessage('Achievement Submitted for Verification');
@@ -1114,11 +1187,16 @@ export default function CadetDashboard() {
 
                 <div>
                   <label className="text-xs font-sans font-bold uppercase text-ncc-olive/60 mb-1.5 block tracking-widest">Category</label>
-                  <select name="category" className="hud-input py-2" onChange={(e) => setAchCategory(e.target.value)} value={achCategory}>
-                    <option value="Camp">Camp / Drill</option>
-                    <option value="Sports">Sports / Firing</option>
-                    <option value="Cultural">Cultural / NI</option>
-                  </select>
+                  <HudSelect
+                    name="category"
+                    value={achCategory}
+                    onChange={(val) => setAchCategory(val)}
+                    options={[
+                      { label: 'Camp / Drill', value: 'Camp' },
+                      { label: 'Sports / Firing', value: 'Sports' },
+                      { label: 'Cultural / NI', value: 'Cultural' }
+                    ]}
+                  />
                 </div>
 
                 <div>
@@ -1155,7 +1233,7 @@ export default function CadetDashboard() {
                   </button>
                   {editingAch && (
                     <button type="button" onClick={async () => {
-                      if (confirm('Are you sure you want to delete this achievement? This cannot be undone.')) {
+                      if (await hudConfirm('Are you sure you want to delete this achievement? This cannot be undone.', 'Delete Achievement', 'Delete')) {
                         const fd = new FormData();
                         fd.append('id', editingAch.id);
                         await deleteAchievement(fd);
@@ -1472,6 +1550,17 @@ export default function CadetDashboard() {
         })()}
 
       </main>
+
+      <HudDialog
+        isOpen={dialog.isOpen}
+        type={dialog.type}
+        title={dialog.title}
+        message={dialog.message}
+        onConfirm={dialog.onConfirm}
+        onCancel={dialog.onCancel}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+      />
     </div>
   );
 }

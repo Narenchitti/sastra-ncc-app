@@ -10,6 +10,8 @@ import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
 import HudDatePicker from '@/components/HudDatePicker';
 import HudTimePicker from '@/components/HudTimePicker';
+import HudSelect from '@/components/HudSelect';
+import HudDialog from '@/components/HudDialog';
 
 /** Format Date as YYYY-MM-DD in local timezone (not UTC) */
 function toLocalDateStr(d: Date): string {
@@ -81,6 +83,66 @@ export default function ANODashboard() {
   // Inquiries & Alerts states
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [replyText, setReplyText] = useState<Record<string, string>>({});
+
+  // Custom HUD Dialog State
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    type: 'info' | 'confirm';
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+    confirmText?: string;
+    cancelText?: string;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    onCancel: () => {},
+  });
+
+  const hudAlert = (message: string, title = "System Notification") => {
+    return new Promise<void>((resolve) => {
+      setDialog({
+        isOpen: true,
+        type: 'info',
+        title,
+        message,
+        confirmText: 'Acknowledge',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve();
+        },
+        onCancel: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve();
+        }
+      });
+    });
+  };
+
+  const hudConfirm = (message: string, title = "Action Confirmation", confirmText = "Proceed") => {
+    return new Promise<boolean>((resolve) => {
+      setDialog({
+        isOpen: true,
+        type: 'confirm',
+        title,
+        message,
+        confirmText,
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve(true);
+        },
+        onCancel: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+          resolve(false);
+        }
+      });
+    });
+  };
   const [broadcastSubject, setBroadcastSubject] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcastLoading, setBroadcastLoading] = useState(false);
@@ -166,13 +228,16 @@ export default function ANODashboard() {
   }
 
   // Smart Title Logic
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const type = e.target.value;
-    setEventType(type);
-    if (type === 'Parade') setEventTitle('Morning Drill Parade');
-    else if (type === 'Theory') setEventTitle('Theory Session: ');
-    else if (type === 'Camp') setEventTitle('Annual Training Camp');
+  const handleTypeChangeVal = (val: string) => {
+    setEventType(val);
+    if (val === 'Parade') setEventTitle('Morning Drill Parade');
+    else if (val === 'Theory') setEventTitle('Theory Session: ');
+    else if (val === 'Camp') setEventTitle('Annual Training Camp');
     else setEventTitle('');
+  };
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleTypeChangeVal(e.target.value);
   };
 
   if (!user) return null;
@@ -393,7 +458,7 @@ export default function ANODashboard() {
                       <i className="fas fa-edit"></i>
                     </button>
                     <form action={async (fd) => {
-                      if (!confirm('Are you sure you want to delete this event?')) return;
+                      if (!(await hudConfirm('Are you sure you want to delete this event? This will permanently remove it from the unit schedules.', 'Delete Event Confirmation'))) return;
                       fd.append('id', ev.id);
                       await deleteEvent(fd);
                       refreshData();
@@ -411,6 +476,17 @@ export default function ANODashboard() {
       </div>
     );
   };
+
+  const cadetOptions = [
+    { label: 'Select a Cadet...', value: '' },
+    ...data.users
+      .filter(u => u.role?.toLowerCase() === 'cadet')
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .map(u => ({
+        label: `${u.rank} ${u.name} (${u.regimentalNumber || 'N/A'})`,
+        value: u.id
+      }))
+  ];
 
   return (
     <div className="min-h-screen tacops-dark-bg flex font-body relative overflow-x-hidden">
@@ -617,36 +693,36 @@ export default function ANODashboard() {
                         <button
                           type="button"
                           onClick={async () => {
-                            if (confirm(`Approve cadet ${pendingUser.name}?`)) {
+                            if (await hudConfirm(`Approve registration request for cadet ${pendingUser.name}?`, 'Approve Cadet Registration', 'Approve')) {
                               playTacClick('confirm');
                               const res = await approveUserAction(pendingUser.id, 'APPROVED');
                               if (res.success) {
-                                alert('Cadet approved successfully!');
+                                await hudAlert('Cadet approved successfully!', 'Registration Authorized');
                                 refreshData();
                               } else {
-                                alert(res.message);
+                                await hudAlert(res.message, 'Operation Failed');
                               }
                             }
                           }}
-                          className="px-4 py-2 rounded-sm bg-emerald-600/15 border border-emerald-500/40 text-emerald-400 font-sans font-bold text-xs uppercase tracking-widest hover:bg-emerald-600/25 transition-all w-1/2"
+                          className="px-4 py-2 rounded-sm bg-emerald-600/15 border border-emerald-500/40 text-emerald-400 font-sans font-bold text-xs uppercase tracking-widest hover:bg-emerald-600/25 transition-all w-1/2 cursor-pointer"
                         >
                           Approve
                         </button>
                         <button
                           type="button"
                           onClick={async () => {
-                            if (confirm(`Reject cadet ${pendingUser.name}?`)) {
+                            if (await hudConfirm(`Reject registration request for cadet ${pendingUser.name}? They will have to register again.`, 'Reject Cadet Registration', 'Reject')) {
                               playTacClick('error');
                               const res = await approveUserAction(pendingUser.id, 'REJECTED');
                               if (res.success) {
-                                alert('Cadet registration rejected.');
+                                await hudAlert('Cadet registration rejected.', 'Registration Disapproved');
                                 refreshData();
                               } else {
-                                alert(res.message);
+                                await hudAlert(res.message, 'Operation Failed');
                               }
                             }
                           }}
-                          className="px-4 py-2 rounded-sm bg-ncc-red/15 border border-ncc-red/40 text-ncc-red font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-red/25 transition-all w-1/2"
+                          className="px-4 py-2 rounded-sm bg-ncc-red/15 border border-ncc-red/40 text-ncc-red font-sans font-bold text-xs uppercase tracking-widest hover:bg-ncc-red/25 transition-all w-1/2 cursor-pointer"
                         >
                           Reject
                         </button>
@@ -670,21 +746,23 @@ export default function ANODashboard() {
                 </div>
                 <form action={async (formData) => {
                   const res = await updatePermissionManager(formData);
-                  if (res.success) { alert('Permission Manager Assigned!'); refreshData(); playTacClick('confirm'); }
-                  else alert(res.message);
+                  if (res.success) { 
+                    await hudAlert('Permission Manager Assigned!', 'Access Authorization'); 
+                    refreshData(); 
+                    playTacClick('confirm'); 
+                  } else {
+                    await hudAlert(res.message, 'Authorization Error');
+                  }
                 }} className="flex items-center gap-3 w-full md:w-auto z-10">
-                  <select 
-                    name="managerId" 
-                    className="hud-input md:w-64 text-sm" 
-                    value={selectedManagerId || ''} 
-                    onChange={(e) => setSelectedManagerId(e.target.value)}
-                    required
-                  >
-                    <option value="" disabled>Select a Cadet...</option>
-                    {data.users.filter(u => u.role?.toLowerCase() === 'cadet').sort((a,b) => a.name.localeCompare(b.name)).map(u => (
-                      <option key={u.id} value={u.id}>{u.rank} {u.name} ({u.regimentalNumber || 'N/A'})</option>
-                    ))}
-                  </select>
+                  <div className="w-full md:w-64">
+                    <HudSelect
+                      name="managerId"
+                      value={selectedManagerId || ''}
+                      onChange={(val) => setSelectedManagerId(val)}
+                      options={cadetOptions}
+                      placeholder="Select a Cadet..."
+                    />
+                  </div>
                   <button 
                     type="submit" 
                     disabled={selectedManagerId === data.permissionManagerId && !!selectedManagerId}
@@ -1127,17 +1205,28 @@ export default function ANODashboard() {
                 <>
                   <h1 className="text-xl font-heading font-bold text-white mb-4 uppercase tracking-widest">{editingId ? 'Update Event' : 'Create Event'}</h1>
                   <div className="tac-card p-6">
-                    <form action={async (fd) => { await createEvent(fd); alert(editingId ? 'Event Updated' : 'Event Published'); playTacClick('confirm'); refreshData(); resetForm(); }} className="space-y-4">
+                    <form action={async (fd) => { 
+                      await createEvent(fd); 
+                      await hudAlert(editingId ? 'Event Updated' : 'Event Published', 'Database Sync'); 
+                      playTacClick('confirm'); 
+                      refreshData(); 
+                      resetForm(); 
+                    }} className="space-y-4">
                       <input type="hidden" name="id" value={editingId || ''} />
 
                       <div>
                         <label className="block text-xs font-sans font-bold text-ncc-olive/60 uppercase tracking-widest mb-1">Event Type</label>
-                        <select name="type" className="hud-input cursor-pointer" onChange={handleTypeChange} value={eventType}>
-                          <option value="Parade">Parade</option>
-                          <option value="Theory">Theory Class</option>
-                          <option value="Camp">Camp</option>
-                          <option value="Event">Other Event</option>
-                        </select>
+                        <HudSelect
+                          name="type"
+                          value={eventType}
+                          onChange={handleTypeChangeVal}
+                          options={[
+                            { label: 'Parade', value: 'Parade' },
+                            { label: 'Theory Class', value: 'Theory' },
+                            { label: 'Camp', value: 'Camp' },
+                            { label: 'Other Event', value: 'Event' }
+                          ]}
+                        />
                       </div>
 
                       <div>
@@ -1208,10 +1297,10 @@ export default function ANODashboard() {
                             setAiProposedEvents(res.events || []);
                             setAiPlanningExplanation(res.explanation || '');
                           } else {
-                            alert(res.message || 'Planning failed');
+                            await hudAlert(res.message || 'Planning failed', 'AI Planning Failed');
                           }
                         } catch (err: any) {
-                          alert(err.message || 'Generation error');
+                          await hudAlert(err.message || 'Generation error', 'AI Planning Error');
                         } finally {
                           setAiScheduleLoading(false);
                         }
@@ -1279,21 +1368,21 @@ export default function ANODashboard() {
                         <button
                           type="button"
                           onClick={async () => {
-                            if (!confirm('Publish all 4 proposed events to the active calendar?')) return;
+                            if (!await hudConfirm('Publish all 4 proposed events to the active calendar?', 'AI Schedule Publish', 'Publish')) return;
                             try {
                               const res = await publishBulkEvents(aiProposedEvents);
                               if (res.success) {
-                                alert(`Successfully published ${res.count} events!`);
+                                await hudAlert(`Successfully published ${res.count} events!`, 'AI Schedule Published');
                                 playTacClick('confirm');
                                 refreshData();
                                 setAiProposedEvents([]);
                                 setAiPlanningExplanation('');
                                 setScheduleMethod('manual');
                               } else {
-                                alert('Failed to publish events.');
+                                await hudAlert('Failed to publish events.', 'Publication Failed');
                               }
                             } catch (err: any) {
-                              alert(err.message || 'Publication failed');
+                              await hudAlert(err.message || 'Publication failed', 'Publication Error');
                             }
                           }}
                           className="px-3 py-1.5 bg-emerald-600/80 border border-emerald-500/40 text-white font-sans font-bold text-xs uppercase tracking-widest rounded-sm transition-all flex items-center gap-1.5"
@@ -1443,22 +1532,22 @@ export default function ANODashboard() {
                     onSubmit={async (e) => {
                       e.preventDefault();
                       if (!broadcastSubject || !broadcastMessage) return;
-                      if (!confirm('Broadcast this announcement to all subscribers?')) return;
+                      if (!await hudConfirm('Broadcast this announcement to all subscribers?', 'Broadcast Bulletin', 'Send')) return;
                       
                       setBroadcastLoading(true);
                       playTacClick('confirm');
                       try {
                         const res = await broadcastAlertAction(broadcastSubject, broadcastMessage);
                         if (res && res.success) {
-                          alert(`Broadcast sent successfully to ${res.recipientCount || 0} subscribers!`);
+                          await hudAlert(`Broadcast sent successfully to ${res.recipientCount || 0} subscribers!`, 'Broadcast Successful');
                           setBroadcastSubject('');
                           setBroadcastMessage('');
                           refreshData();
                         } else {
-                          alert(res?.message || 'Failed to send broadcast');
+                          await hudAlert(res?.message || 'Failed to send broadcast', 'Broadcast Failed');
                         }
                       } catch (err) {
-                        alert('Error executing broadcast');
+                        await hudAlert('Error executing broadcast', 'Broadcast Error');
                       } finally {
                         setBroadcastLoading(false);
                       }
@@ -1580,14 +1669,14 @@ export default function ANODashboard() {
                                 try {
                                   const res = await replyToInquiryAction(inq.id, text);
                                   if (res && res.success) {
-                                    alert('Reply email dispatched successfully!');
+                                    await hudAlert('Reply email dispatched successfully!', 'Reply Dispatched');
                                     setReplyText(prev => ({ ...prev, [inq.id]: '' }));
                                     refreshData();
                                   } else {
-                                    alert(res?.message || 'Failed to send reply');
+                                    await hudAlert(res?.message || 'Failed to send reply', 'Reply Failed');
                                   }
                                 } catch (err) {
-                                  alert('Error sending reply');
+                                  await hudAlert('Error sending reply', 'Reply Error');
                                 } finally {
                                   setReplyLoading(prev => ({ ...prev, [inq.id]: false }));
                                 }
@@ -2149,6 +2238,17 @@ export default function ANODashboard() {
       >
         <i className="fas fa-chart-line text-lg animate-pulse"></i>
       </button>
+
+      <HudDialog
+        isOpen={dialog.isOpen}
+        type={dialog.type}
+        title={dialog.title}
+        message={dialog.message}
+        onConfirm={dialog.onConfirm}
+        onCancel={dialog.onCancel}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+      />
 
       </main>
     </div>
