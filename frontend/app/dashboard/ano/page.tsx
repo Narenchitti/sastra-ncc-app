@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction } from '@/app/actions';
+import { getDashboardData, updatePermissionStatus, createEvent, verifyAchievement, deleteEvent, updatePermissionManager, runNaturalLanguageQuery, generateSchedulePlan, publishBulkEvents, getTelemetryTraces, approveUserAction, getInquiriesAction, replyToInquiryAction, broadcastAlertAction } from '@/app/actions';
 import { User, Permission, Event, Achievement, Attendance } from '@/lib/types';
 import ArmyNewsFeed from '@/components/ArmyNewsFeed';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
@@ -78,6 +78,14 @@ export default function ANODashboard() {
   const [selectedManagerId, setSelectedManagerId] = useState('');
   const [actionComments, setActionComments] = useState<Record<string, string>>({});
 
+  // Inquiries & Alerts states
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
+  const [broadcastSubject, setBroadcastSubject] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastLoading, setBroadcastLoading] = useState(false);
+  const [replyLoading, setReplyLoading] = useState<Record<string, boolean>>({});
+
   // Event Creation / Editing State
   const [editingId, setEditingId] = useState<string | null>(null);
   const [eventType, setEventType] = useState('Parade');
@@ -146,6 +154,14 @@ export default function ANODashboard() {
     setData(freshData);
     if (freshData.permissionManagerId) {
       setSelectedManagerId(freshData.permissionManagerId);
+    }
+    
+    // Fetch public inquiries
+    try {
+      const inq = await getInquiriesAction();
+      setInquiries(inq || []);
+    } catch (e) {
+      console.error("Failed to refresh inquiries:", e);
     }
   }
 
@@ -426,6 +442,7 @@ export default function ANODashboard() {
             { id: 'approvals', label: 'Approvals', icon: 'check-double', badge: allActionRequired.length },
             { id: 'achievements', label: 'Achievements', icon: 'medal', badge: pendingAchievements.length },
             { id: 'schedule', label: 'Schedule', icon: 'calendar-alt' },
+            { id: 'inquiries', label: 'Public Queries & Alerts', icon: 'envelope-open-text' },
             { id: 'command', label: 'Command Center', icon: 'terminal' }
           ].map((item) => {
             const isActive = activeTab === item.id;
@@ -1401,6 +1418,214 @@ export default function ANODashboard() {
                 <span>All published events are visible to cadets on their dashboards.</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* --- PUBLIC INQUIRIES & ALERTS TAB --- */}
+        {activeTab === 'inquiries' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in flex-grow">
+            
+            {/* Left: Broadcast Bulletin (ANO Only) */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="tac-card p-6 relative overflow-hidden">
+                <CornerBrackets colorClass="border-ncc-red/40" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ncc-red via-ncc-gold to-ncc-olive"></div>
+                
+                <h3 className="font-heading font-bold text-white text-lg flex items-center gap-2.5 uppercase tracking-wider mb-2">
+                  <i className="fas fa-bullhorn text-ncc-red"></i> Broadcast Alerts
+                </h3>
+                <p className="text-xs text-ncc-olive/75 leading-relaxed font-sans mb-5">
+                  Compose and dispatch an official email announcement. This broadcast will be delivered directly to all public newsletter subscribers.
+                </p>
+
+                {isANO ? (
+                  <form 
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!broadcastSubject || !broadcastMessage) return;
+                      if (!confirm('Broadcast this announcement to all subscribers?')) return;
+                      
+                      setBroadcastLoading(true);
+                      playTacClick('confirm');
+                      try {
+                        const res = await broadcastAlertAction(broadcastSubject, broadcastMessage);
+                        if (res && res.success) {
+                          alert(`Broadcast sent successfully to ${res.recipientCount || 0} subscribers!`);
+                          setBroadcastSubject('');
+                          setBroadcastMessage('');
+                          refreshData();
+                        } else {
+                          alert(res?.message || 'Failed to send broadcast');
+                        }
+                      } catch (err) {
+                        alert('Error executing broadcast');
+                      } finally {
+                        setBroadcastLoading(false);
+                      }
+                    }}
+                    className="space-y-4 font-sans text-xs"
+                  >
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-ncc-olive uppercase tracking-wider font-bold">Bulletin Subject</label>
+                      <input 
+                        type="text"
+                        value={broadcastSubject}
+                        onChange={e => setBroadcastSubject(e.target.value)}
+                        placeholder="e.g. 2026 Cadet Enlistment Drive Now Open"
+                        className="hud-input py-2 text-sm font-sans"
+                        required
+                        disabled={broadcastLoading}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-ncc-olive uppercase tracking-wider font-bold">Bulletin Message Body</label>
+                      <textarea
+                        rows={6}
+                        value={broadcastMessage}
+                        onChange={e => setBroadcastMessage(e.target.value)}
+                        placeholder="Write the official recruitment announcement or news updates here..."
+                        className="hud-input py-2.5 text-sm font-sans resize-none"
+                        required
+                        disabled={broadcastLoading}
+                      ></textarea>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={broadcastLoading}
+                      className="w-full py-3 bg-ncc-red/15 border border-ncc-red/40 hover:bg-ncc-red/25 hover:border-ncc-red/75 text-ncc-red font-bold text-center tracking-widest uppercase transition-all duration-300 disabled:opacity-50"
+                    >
+                      {broadcastLoading ? "DISPATCHING BROADCAST..." : "DISPATCH BROADCAST BULLETIN"}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="bg-ncc-red/5 border border-ncc-red/20 text-ncc-red p-4 rounded text-xs font-mono">
+                    <i className="fas fa-exclamation-triangle mr-2"></i> SECURITY CLEARANCE REJECTED. ONLY THE ASSOCIATE NCC OFFICER (ANO) CAN DISPATCH PUBLIC BROADCASTS.
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-ncc-gold/5 border border-ncc-gold/25 p-4 rounded-md text-xs text-ncc-gold/80 flex items-start gap-2.5 font-sans">
+                <i className="fas fa-info-circle text-base mt-0.5 text-ncc-gold/60"></i>
+                <div className="space-y-1">
+                  <p className="font-bold">Subscriber Analytics:</p>
+                  <p>Total subscribed email terminals: <span className="font-mono text-white font-bold">{new Set(inquiries.filter(i => i.subscribed).map(i => i.email)).size}</span> unique addresses.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Public Inquiries List */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="tac-card p-6 relative overflow-hidden">
+                <CornerBrackets colorClass="border-ncc-sky/40" />
+                
+                <div className="flex justify-between items-center border-b border-ncc-olive/15 pb-4 mb-4">
+                  <div>
+                    <h3 className="font-heading font-bold text-white text-lg flex items-center gap-2.5 uppercase tracking-wider">
+                      <i className="fas fa-envelope-open-text text-ncc-sky"></i> Visitor Inquiries
+                    </h3>
+                  </div>
+                  <span className="text-[10px] text-ncc-sky font-bold font-mono uppercase bg-ncc-sky/10 border border-ncc-sky/25 px-2 py-0.5 rounded">
+                    Total: {inquiries.length}
+                  </span>
+                </div>
+
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                  {inquiries.length === 0 ? (
+                    <p className="text-xs text-ncc-olive/40 italic text-center py-12 font-sans">No public queries logged in database.</p>
+                  ) : (
+                    inquiries.map((inq) => {
+                      const isPending = inq.status === 'PENDING';
+                      return (
+                        <div 
+                          key={inq.id}
+                          className={`p-4 rounded-lg border transition-all ${
+                            isPending 
+                              ? 'bg-ncc-sky/5 border-ncc-sky/25 shadow-md' 
+                              : 'bg-black/35 border-ncc-olive/15'
+                          }`}
+                        >
+                          {/* Card Header */}
+                          <div className="flex justify-between items-start gap-4 mb-2">
+                            <div>
+                              <div className="font-heading font-bold text-white text-sm uppercase tracking-wider">{inq.name}</div>
+                              <div className="text-[10px] text-ncc-olive/70 font-mono mt-0.5">{inq.email}</div>
+                            </div>
+                            <span className={`hud-badge ${isPending ? 'hud-badge-pending' : 'hud-badge-verified'}`}>
+                              {inq.status}
+                            </span>
+                          </div>
+
+                          {/* Message Body */}
+                          <div className="bg-black/45 border border-ncc-olive/10 p-3 rounded text-gray-300 text-xs mb-3 font-sans leading-relaxed">
+                            {inq.message}
+                          </div>
+
+                          {/* Date */}
+                          <div className="text-[9px] text-ncc-olive/50 font-mono flex items-center gap-1.5 mb-3">
+                            <i className="far fa-clock"></i> Logged: {inq.createdAt ? new Date(inq.createdAt).toLocaleString() : 'N/A'}
+                          </div>
+
+                          {/* Reply section */}
+                          {isPending ? (
+                            <form 
+                              onSubmit={async (e) => {
+                                e.preventDefault();
+                                const text = replyText[inq.id];
+                                if (!text) return;
+                                
+                                setReplyLoading(prev => ({ ...prev, [inq.id]: true }));
+                                playTacClick('confirm');
+                                try {
+                                  const res = await replyToInquiryAction(inq.id, text);
+                                  if (res && res.success) {
+                                    alert('Reply email dispatched successfully!');
+                                    setReplyText(prev => ({ ...prev, [inq.id]: '' }));
+                                    refreshData();
+                                  } else {
+                                    alert(res?.message || 'Failed to send reply');
+                                  }
+                                } catch (err) {
+                                  alert('Error sending reply');
+                                } finally {
+                                  setReplyLoading(prev => ({ ...prev, [inq.id]: false }));
+                                }
+                              }}
+                              className="border-t border-ncc-olive/10 pt-3 space-y-2 font-sans"
+                            >
+                              <label className="text-[10px] text-ncc-sky uppercase tracking-wider font-bold">Compose Email Reply</label>
+                              <textarea
+                                rows={3}
+                                value={replyText[inq.id] || ''}
+                                onChange={e => setReplyText(prev => ({ ...prev, [inq.id]: e.target.value }))}
+                                placeholder="Type your response to the visitor's query..."
+                                className="hud-input text-xs py-2"
+                                required
+                                disabled={replyLoading[inq.id]}
+                              ></textarea>
+                              <button
+                                type="submit"
+                                disabled={replyLoading[inq.id] || !replyText[inq.id]}
+                                className="px-4 py-2 bg-ncc-sky/15 border border-ncc-sky/30 hover:bg-ncc-sky/25 hover:border-ncc-sky/60 text-ncc-sky font-bold text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
+                              >
+                                {replyLoading[inq.id] ? "SENDING EMAIL..." : "SEND EMAIL REPLY"}
+                              </button>
+                            </form>
+                          ) : (
+                            <div className="border-t border-ncc-olive/10 pt-3 text-xs font-sans text-gray-400">
+                              <span className="text-[10px] text-ncc-olive/60 font-bold uppercase tracking-wider block mb-1">Reply Dispatched</span>
+                              <p className="bg-black/20 p-2.5 rounded border border-ncc-olive/5 italic">{inq.replyMessage}</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+            
           </div>
         )}
 

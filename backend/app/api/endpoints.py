@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from typing import List, Dict, Any
 import datetime
+import uuid
 
 from ..services import database, news
-from ..services.notifications import send_discord_notification
-from ..schemas.models import UserBase, UserPublic, EventBase, PermissionBase, AchievementBase, AttendanceBase, APIModel
+from ..services.notifications import send_discord_notification, send_email_notification
+from ..schemas.models import UserBase, UserPublic, EventBase, PermissionBase, AchievementBase, AttendanceBase, APIModel, InquiryBase, InquiryResponse
 from ..core.auth import verify_password, create_access_token, get_current_user
 
 
@@ -712,5 +713,161 @@ async def approve_user(user_id: str, data: Dict[str, str], current_user: dict = 
     await database.save_user(target_user)
     
     return {"success": True, "message": f"User status updated to {status}"}
+
+
+# ── Public Inquiries & Broadcast Alerts ────────────────────────────────────
+
+@router.post("/inquiries", response_model=InquiryResponse)
+async def create_inquiry(data: Dict[str, Any]):
+    name = data.get("name")
+    email = data.get("email")
+    message = data.get("message")
+    subscribed = data.get("subscribed", True)
+
+    if not name or not email or not message:
+        raise HTTPException(status_code=400, detail="Name, email, and message are required")
+
+    inquiry_id = str(uuid.uuid4())
+    inquiry = InquiryBase(
+        id=inquiry_id,
+        name=name,
+        email=email,
+        message=message,
+        status="PENDING",
+        reply_message=None,
+        subscribed=subscribed,
+        created_at=datetime.datetime.utcnow().isoformat() + "Z"
+    )
+
+    await database.save_inquiry(inquiry)
+    
+    # Optionally trigger a Discord alert so the ANO gets notified immediately
+    send_discord_notification(
+        title="New Public Inquiry Received",
+        description=f"**Visitor:** {name} ({email})\n**Inquiry:** {message}",
+        color=13743895  # Golden color
+    )
+
+    return InquiryResponse(success=True, message="Inquiry submitted and subscription verified", data=inquiry)
+
+
+@router.get("/inquiries", response_model=List[InquiryBase])
+async def get_all_inquiries(current_user: dict = Depends(get_current_user)):
+    user_role = current_user.get("role")
+    user_rank = current_user.get("rank")
+    
+    # Only ANO or SUO/CUO can review public inquiries
+    if user_role != "ANO" and user_rank not in ["SUO", "CUO"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return await database.get_inquiries()
+
+
+@router.post("/inquiries/{inquiry_id}/reply")
+async def reply_to_inquiry(inquiry_id: str, data: Dict[str, str], current_user: dict = Depends(get_current_user)):
+    user_role = current_user.get("role")
+    user_rank = current_user.get("rank")
+    
+    # Only ANO or SUO/CUO can reply to queries
+    if user_role != "ANO" and user_rank not in ["SUO", "CUO"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    reply_message = data.get("replyMessage")
+    if not reply_message:
+        raise HTTPException(status_code=400, detail="Reply message is required")
+
+    inquiry = await database.get_inquiry_by_id(inquiry_id)
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+
+    inquiry.status = "REPLIED"
+    inquiry.reply_message = reply_message
+    await database.save_inquiry(inquiry)
+
+    # Trigger SMTP email notification to the visitor
+    subject = "Response to your NCC inquiry"
+    html_body = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="background-color: #4A5D23; color: white; padding: 15px; font-size: 18px; font-weight: bold;">
+                🎖️ SASTRA NCC ARMY contingent
+            </div>
+            <div style="padding: 20px; border: 1px solid #ddd; border-top: none;">
+                <p>Hello <strong>{inquiry.name}</strong>,</p>
+                <p>Thank you for reaching out to us. We have received your inquiry:</p>
+                <blockquote style="background-color: #f9f9f9; border-left: 3px solid #ccc; padding: 10px; margin: 10px 0;">
+                    <em>"{inquiry.message}"</em>
+                </blockquote>
+                <p><strong>Response from Command Staff:</strong></p>
+                <p>{reply_message}</p>
+                <br />
+                <p>Best regards,<br />
+                <strong>Command Office</strong><br />
+                06/34 (TN) Indep Coy NCC (Army)<br />
+                SASTRA Deemed University</p>
+            </div>
+        </body>
+    </html>
+    """
+    send_email_notification(to_email=inquiry.email, subject=subject, html_body=html_body)
+
+    return {"success": True, "message": "Reply saved and response email sent"}
+
+
+@router.post("/inquiries/broadcast")
+async def broadcast_alert(data: Dict[str, str], current_user: dict = Depends(get_current_user)):
+    user_role = current_user.get("role")
+    
+    # Only ANO can issue broadcast announcements to public subscribers
+    if user_role != "ANO":
+        raise HTTPException(status_code=403, detail="Only the ANO can send public broadcasts")
+
+    subject = data.get("subject")
+    message = data.get("message")
+
+    if not subject or not message:
+        raise HTTPException(status_code=400, detail="Subject and message are required")
+
+    inquiries = await database.get_inquiries()
+    
+    # Filter unique subscribed emails
+    subscribed_emails = {}
+    for i in inquiries:
+        if i.subscribed and i.email not in subscribed_emails:
+            subscribed_emails[i.email] = i.name
+
+    if not subscribed_emails:
+        return {"success": True, "message": "No active newsletter subscribers found", "recipientCount": 0}
+
+    # Broadcast emails
+    count = 0
+    for email, name in subscribed_emails.items():
+        html_body = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="background-color: #D21034; color: white; padding: 15px; font-size: 18px; font-weight: bold;">
+                    🎖️ SASTRA NCC RECRUITMENT BULLETIN
+                </div>
+                <div style="padding: 20px; border: 1px solid #ddd; border-top: none;">
+                    <p>Hello <strong>{name}</strong>,</p>
+                    <p>This is an official announcement from SASTRA NCC Army Wing:</p>
+                    <div style="background-color: #fdf8e2; border-left: 4px solid #D4AF37; padding: 15px; margin: 15px 0;">
+                        <h3 style="margin-top: 0; color: #856404;">{subject}</h3>
+                        <p style="white-space: pre-wrap; margin-bottom: 0;">{message}</p>
+                    </div>
+                    <p>You received this email because you registered for recruitment alerts at our landing page. If you wish to unsubscribe, please reply to this email.</p>
+                    <br />
+                    <p>Best regards,<br />
+                    <strong>Command Office</strong><br />
+                    06/34 (TN) Indep Coy NCC (Army)<br />
+                    SASTRA Deemed University</p>
+                </div>
+            </body>
+        </html>
+        """
+        send_email_notification(to_email=email, subject=subject, html_body=html_body)
+        count += 1
+
+    return {"success": True, "message": f"Broadcast email sent to {count} subscribers", "recipientCount": count}
 
 

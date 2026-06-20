@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { submitInquiryAction } from '@/app/actions';
 import TacticalBattleMap from '@/components/TacticalBattleMap';
 import TargetCursor from '@/components/TargetCursor';
 import CornerBrackets from '@/components/CornerBrackets';
@@ -48,6 +50,7 @@ function playTacClick(type: 'soft' | 'confirm' | 'error' | 'hover' = 'soft') {
 }
 
 export default function Home() {
+    const router = useRouter();
     const [scrolled, setScrolled] = useState(false);
     const [soundMuted, setSoundMuted] = useState(true);
     const [activeSector, setActiveSector] = useState<'alpha' | 'bravo' | 'charlie' | 'delta' | 'epsilon' | 'zeta'>('alpha');
@@ -152,7 +155,7 @@ export default function Home() {
         }
     }, [terminalLogs]);
 
-    const handleTerminalSubmit = (e: React.FormEvent) => {
+    const handleTerminalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (recruitmentOpen) {
@@ -162,18 +165,33 @@ export default function Home() {
             }
 
             setIsSubmitting(true);
-            addLog(`SYS: PROCESSING ENLISTMENT APPLICATION FOR CADET ${name.toUpperCase()}...`);
-            setTimeout(() => {
-                addLog("SYS: ROUTING CADET PACKET TO 34 (TN) COY BATTALION COMMAND...");
+            addLog(`SYS: PROCESSING PUBLIC QUERY TELEMETRY FOR ${name.toUpperCase()}...`);
+            
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('message', `[REG: ${regNo}] [DEPT: ${dept}] ${reason || 'Wants to join contingent'}`);
+            formData.append('subscribed', 'true');
+
+            setTimeout(async () => {
+                addLog("SYS: UPLINKING TELEMETRY PACKET TO COMMAND NET...");
+                const result = await submitInquiryAction(formData);
                 setTimeout(() => {
-                    addLog("SYS: ENLISTMENT TRANSMISSION COMPLETED. GATEWAY STATUS: OK.");
-                    setIsSubmitting(false);
-                    setSubmitSuccess(true);
-                    setName('');
-                    setRegNo('');
-                    setEmail('');
-                    setDept('');
-                    setReason('');
+                    if (result && result.success) {
+                        addLog("SYS: TRANSMISSION COMPLETED. GATEWAY STATUS: OK.");
+                        addLog("SYS: QUERY FILED & ALERTS SUBSCRIBED SUCCESSFULLY.");
+                        setIsSubmitting(false);
+                        setSubmitSuccess(true);
+                        setName('');
+                        setRegNo('');
+                        setEmail('');
+                        setDept('');
+                        setReason('');
+                    } else {
+                        addLog(`ALERT: UPLINK ERROR. MSG: ${result?.message || 'UNKNOWN ERROR'}`);
+                        setIsSubmitting(false);
+                        setSubmitSuccess(false);
+                    }
                 }, 1000);
             }, 1000);
         } else {
@@ -184,15 +202,29 @@ export default function Home() {
 
             setIsSubmitting(true);
             addLog(`SYS: PROCESSING RECRUITMENT ALERT REQUEST FOR ${name.toUpperCase()}...`);
-            setTimeout(() => {
-                addLog(`SYS: REGISTERING ${email.toUpperCase()} FOR NOTIFICATIONS...`);
+            
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('message', reason || 'Requesting recruitment notifications');
+            formData.append('subscribed', 'true');
+
+            setTimeout(async () => {
+                addLog(`SYS: REGISTERING ${email.toUpperCase()} FOR PUBLIC NOTIFICATIONS...`);
+                const result = await submitInquiryAction(formData);
                 setTimeout(() => {
-                    addLog("SYS: INQUIRY PACKET STORED. ALERTS REGISTERED. STATUS: OK.");
-                    setIsSubmitting(false);
-                    setSubmitSuccess(true);
-                    setName('');
-                    setEmail('');
-                    setReason('');
+                    if (result && result.success) {
+                        addLog("SYS: INQUIRY PACKET STORED. ALERTS REGISTERED. STATUS: OK.");
+                        setIsSubmitting(false);
+                        setSubmitSuccess(true);
+                        setName('');
+                        setEmail('');
+                        setReason('');
+                    } else {
+                        addLog(`ALERT: REGISTRATION ERROR. MSG: ${result?.message || 'UNKNOWN ERROR'}`);
+                        setIsSubmitting(false);
+                        setSubmitSuccess(false);
+                    }
                 }, 1000);
             }, 1000);
         }
@@ -237,7 +269,7 @@ export default function Home() {
                     </Link>
 
                     {/* Nav Links (Desktop) */}
-                    <nav className="hidden lg:flex items-center gap-7 text-[11px] font-bold tracking-widest text-ncc-olive/80">
+                    <nav className="hidden lg:flex items-center gap-7 text-[11px] font-bold tracking-widest text-ncc-khaki/90">
                         <a href="#sector-brief" onMouseEnter={() => playTacClick('hover')} className="hover:text-ncc-gold transition-colors duration-200 uppercase flex items-center gap-1.5">
                             <span className="text-[8px] text-ncc-gold/60">01.</span> PROFILE
                         </a>
@@ -417,10 +449,10 @@ export default function Home() {
                             
                             <div className="md:col-span-8 flex flex-col gap-4 font-sans text-sm text-gray-300 leading-relaxed">
                                 <p>
-                                    The **National Cadet Corps (NCC)** Boys Wing at **SASTRA Deemed University** is a highly disciplined senior division platoon. Formally designated as the **06/34 (TN) INDEP COY, NCC (ARMY), THANJAVUR**, our contingent is part of the **34 (TN), NCC (ARMY), THANJAVUR Unit**, which is under the **TRICHY Group** within the **TN, P & AN (Tamil Nadu, Puducherry, and Andaman & Nicobar) Directorate** of the 17 directorates of NCC in India. We train volunteer youth to become potential leaders and responsible citizens.
+                                    The National Cadet Corps (NCC) Boys Wing at SASTRA Deemed University is a highly disciplined senior division platoon. Formally designated as the 06/34 (TN) INDEP COY, NCC (ARMY), THANJAVUR, our contingent is part of the 34 (TN), NCC (ARMY), THANJAVUR Unit, which is under the TRICHY Group within the TN, P & AN (Tamil Nadu, Puducherry, and Andaman & Nicobar) Directorate of the 17 directorates of NCC in India. We train volunteer youth to become potential leaders and responsible citizens.
                                 </p>
                                 <p>
-                                    Our ANO (Associate NCC Officer), **Lt. Dr. G Jegadeesan**, commands and coordinates all contingent actions inside the campus. The NCC Command Office is situated on the **First Floor, Gnanavihar Block (opposite Gurunath Stores)**.
+                                    Our ANO (Associate NCC Officer), Lt. Dr. G Jegadeesan, commands and coordinates all contingent actions inside the campus. The NCC Command Office is situated on the First Floor, Gnanavihar Block (opposite Gurunath Stores).
                                 </p>
                                 <div className="border-l-2 border-ncc-gold pl-4 text-xs text-ncc-khaki/90 bg-ncc-gold/5 py-3.5 rounded-r font-sans flex flex-col gap-2">
                                     <div className="font-bold text-white uppercase tracking-wider text-[9px] font-mono">// OFFICIAL AIMS OF NCC:</div>
@@ -565,7 +597,7 @@ export default function Home() {
                                     <div className="flex flex-col gap-4 animate-fade-in font-sans">
                                         <h3 className="text-xl font-bold font-heading text-white tracking-wide uppercase">Foot & Weapons Parade</h3>
                                         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                                            Regular morning parades on drill are conducted inside the university campus. Cadets learn ceremonial foot marching and advanced weapons drill maneuvers, including standard **Guard of Honour** procedures. Outstanding cadets are sent to district parade grounds for training and get selection opportunities for the **Republic Day Parade (RDP)**.
+                                            Regular morning parades on drill are conducted inside the university campus. Cadets learn ceremonial foot marching and advanced weapons drill maneuvers, including standard Guard of Honour procedures. Outstanding cadets are sent to district parade grounds for training and get selection opportunities for the Republic Day Parade (RDP).
                                         </p>
                                         
                                         {/* Drill Video Player frame */}
@@ -601,7 +633,7 @@ export default function Home() {
                                     <div className="flex flex-col gap-4 animate-fade-in font-sans">
                                         <h3 className="text-xl font-bold font-heading text-white tracking-wide uppercase">Marksmanship & SLR Assembly</h3>
                                         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                                            Weapon training teaches the handling of standard issue NCC rifles. Cadets are trained in the use of the **.22 Deluxe Rifle** (the authorized firing training weapon) and practice dry firing postures. Cadets also learn the disassembly and assembly (**Kholna Jorna**) of the **7.62mm SLR (Self-Loading Rifle)**.
+                                            Weapon training teaches the handling of standard issue NCC rifles. Cadets are trained in the use of the .22 Deluxe Rifle (the authorized firing training weapon) and practice dry firing postures. Cadets also learn the disassembly and assembly (Kholna Jorna) of the 7.62mm SLR (Self-Loading Rifle).
                                         </p>
                                         <div className="border border-ncc-olive/25 bg-[#0e130a]/50 p-4 rounded-lg flex gap-4 items-center mt-3 max-w-lg font-mono">
                                             <i className="fa-solid fa-crosshairs text-ncc-red text-2xl animate-pulse"></i>
@@ -645,7 +677,7 @@ export default function Home() {
                                     <div className="flex flex-col gap-4 animate-fade-in font-sans">
                                         <h3 className="text-xl font-bold font-heading text-white tracking-wide uppercase">Technical Field Subjects</h3>
                                         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                                            Cadets learn military field skills including **Map Reading (MR)** (prismatic compass, service protractor usage), **Field Craft & Battle Craft (FCBC)** (judging distance, section formations), Health & Hygiene, **Tent Pitching**, and obstacle training. Practical sessions are held inside the college campus (and occasionally externally) to provide hands-on experience. Cadets study the authorized NCC syllabus to take up the **B and C Certificate examinations** at the end of their 3-year Senior Division course.
+                                            Cadets learn military field skills including Map Reading (MR) (prismatic compass, service protractor usage), Field Craft & Battle Craft (FCBC) (judging distance, section formations), Health & Hygiene, Tent Pitching, and obstacle training. Practical sessions are held inside the college campus (and occasionally externally) to provide hands-on experience. Cadets study the authorized NCC syllabus to take up the B and C Certificate examinations at the end of their 3-year Senior Division course.
                                         </p>
                                     </div>
                                 )}
@@ -654,7 +686,7 @@ export default function Home() {
                                     <div className="flex flex-col gap-4 animate-fade-in font-sans">
                                         <h3 className="text-xl font-bold font-heading text-white tracking-wide uppercase">Social & Awareness Campaigns</h3>
                                         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                                            Social service forms the core of our community duties. Cadets are regularly involved in tree plantation drives, awareness rallies, programs, and conducting events like fire safety demonstrations and workshops. Cadets also participate in **SSCD (Social Service and Community Development)** activities, including organizing special educational and engagement events for kids in juvenile homes.
+                                            Social service forms the core of our community duties. Cadets are regularly involved in tree plantation drives, awareness rallies, programs, and conducting events like fire safety demonstrations and workshops. Cadets also participate in SSCD (Social Service and Community Development) activities, including organizing special educational and engagement events for kids in juvenile homes.
                                         </p>
                                     </div>
                                 )}
@@ -839,90 +871,90 @@ export default function Home() {
                     </div>
 
                     {/* Gallery Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    <div className="flex flex-wrap justify-center gap-8">
                         
                         {/* Image 1 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_camp_training.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-4 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between transition-all duration-300 hover:border-ncc-gold/40 hover:shadow-[0_0_15px_rgba(212,175,55,0.1)] w-full md:w-[calc(50%-16px)] lg:w-[calc(33.33%-22px)] max-w-md"
                         >
-                            <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7px] font-mono px-1.5 py-0.5 rounded z-10">
+                            <div className="absolute top-6 right-6 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[8.5px] font-mono px-2 py-0.5 rounded z-10 uppercase tracking-widest">
                                 CAMPS // CATC // COC
                             </div>
                             <div className="aspect-video w-full overflow-hidden rounded-lg bg-black relative">
                                 <img src="/assets/images/ncc_camp_training.png" alt="Camps" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
-                            <div className="mt-3 px-1.5">
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-heading">Tactical Field Camps</span>
-                                <span className="text-[8px] text-gray-500 mt-1 block font-mono">COMBINED & NATIONAL DEPLOYMENTS</span>
+                            <div className="mt-4 px-1">
+                                <span className="text-sm sm:text-base font-bold text-white uppercase tracking-wider block font-heading">Tactical Field Camps</span>
+                                <span className="text-[10px] text-gray-500 mt-1 block font-mono">COMBINED & NATIONAL DEPLOYMENTS</span>
                             </div>
                         </button>
 
                         {/* Image 2 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_social_service.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-4 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between transition-all duration-300 hover:border-ncc-gold/40 hover:shadow-[0_0_15px_rgba(212,175,55,0.1)] w-full md:w-[calc(50%-16px)] lg:w-[calc(33.33%-22px)] max-w-md"
                         >
-                            <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7px] font-mono px-1.5 py-0.5 rounded z-10">
+                            <div className="absolute top-6 right-6 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[8.5px] font-mono px-2 py-0.5 rounded z-10 uppercase tracking-widest">
                                 SOCIAL SERVICES // SSCD
                             </div>
                             <div className="aspect-video w-full overflow-hidden rounded-lg bg-black relative">
                                 <img src="/assets/images/ncc_social_service.png" alt="Social activities" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
-                            <div className="mt-3 px-1.5">
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-heading">Social Service & SSCD</span>
-                                <span className="text-[8px] text-gray-500 mt-1 block font-mono">AWARENESS & OUTREACH DRIVES</span>
+                            <div className="mt-4 px-1">
+                                <span className="text-sm sm:text-base font-bold text-white uppercase tracking-wider block font-heading">Social Service & SSCD</span>
+                                <span className="text-[10px] text-gray-500 mt-1 block font-mono">AWARENESS & OUTREACH DRIVES</span>
                             </div>
                         </button>
 
                         {/* Image 3 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_drill_parade.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-4 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between transition-all duration-300 hover:border-ncc-gold/40 hover:shadow-[0_0_15px_rgba(212,175,55,0.1)] w-full md:w-[calc(50%-16px)] lg:w-[calc(33.33%-22px)] max-w-md"
                         >
-                            <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7px] font-mono px-1.5 py-0.5 rounded z-10">
+                            <div className="absolute top-6 right-6 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[8.5px] font-mono px-2 py-0.5 rounded z-10 uppercase tracking-widest">
                                 FOOT DRILL // PARADES
                             </div>
                             <div className="aspect-video w-full overflow-hidden rounded-lg bg-black relative">
                                 <img src="/assets/images/ncc_drill_parade.png" alt="Foot Drill" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
-                            <div className="mt-3 px-1.5">
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-heading">Contingent Parades</span>
-                                <span className="text-[8px] text-gray-500 mt-1 block font-mono">FOOT & WEAPONS DRILLS</span>
+                            <div className="mt-4 px-1">
+                                <span className="text-sm sm:text-base font-bold text-white uppercase tracking-wider block font-heading">Contingent Parades</span>
+                                <span className="text-[10px] text-gray-500 mt-1 block font-mono">FOOT & WEAPONS DRILLS</span>
                             </div>
                         </button>
 
                         {/* Image 4 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_guard_honour.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-4 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between transition-all duration-300 hover:border-ncc-gold/40 hover:shadow-[0_0_15px_rgba(212,175,55,0.1)] w-full md:w-[calc(50%-16px)] lg:w-[calc(33.33%-22px)] max-w-md"
                         >
-                            <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7px] font-mono px-1.5 py-0.5 rounded z-10">
+                            <div className="absolute top-6 right-6 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[8.5px] font-mono px-2 py-0.5 rounded z-10 uppercase tracking-widest">
                                 GUARD OF HONOUR
                             </div>
                             <div className="aspect-video w-full overflow-hidden rounded-lg bg-black relative">
                                 <img src="/assets/images/ncc_guard_honour.png" alt="Guard of Honour" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
-                            <div className="mt-3 px-1.5">
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-heading">Guard of Honour</span>
-                                <span className="text-[8px] text-gray-500 mt-1 block font-mono">DIGNITARY CEREMONIAL REVIEWS</span>
+                            <div className="mt-4 px-1">
+                                <span className="text-sm sm:text-base font-bold text-white uppercase tracking-wider block font-heading">Guard of Honour</span>
+                                <span className="text-[10px] text-gray-500 mt-1 block font-mono">DIGNITARY CEREMONIAL REVIEWS</span>
                             </div>
                         </button>
 
                         {/* Image 5 */}
                         <button 
                             onClick={() => setLightboxImage('/assets/images/ncc_external_achievements.png')}
-                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-2.5 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between"
+                            className="border border-ncc-olive/25 bg-[#0e130a]/50 backdrop-blur-sm p-4 rounded-xl overflow-hidden group text-left relative flex flex-col justify-between transition-all duration-300 hover:border-ncc-gold/40 hover:shadow-[0_0_15px_rgba(212,175,55,0.1)] w-full md:w-[calc(50%-16px)] lg:w-[calc(33.33%-22px)] max-w-md"
                         >
-                            <div className="absolute top-4 right-4 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[7px] font-mono px-1.5 py-0.5 rounded z-10">
+                            <div className="absolute top-6 right-6 bg-black/75 border border-ncc-olive/20 text-ncc-gold text-[8.5px] font-mono px-2 py-0.5 rounded z-10 uppercase tracking-widest">
                                 EXTERNAL ACHIEVEMENTS
                             </div>
                             <div className="aspect-video w-full overflow-hidden rounded-lg bg-black relative">
                                 <img src="/assets/images/ncc_external_achievements.png" alt="External Achievements" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
-                            <div className="mt-3 px-1.5">
-                                <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-heading">Cadet Achievements</span>
-                                <span className="text-[8px] text-gray-500 mt-1 block font-mono">NATIONAL & BATTALION HONOURS</span>
+                            <div className="mt-4 px-1">
+                                <span className="text-sm sm:text-base font-bold text-white uppercase tracking-wider block font-heading">Cadet Achievements</span>
+                                <span className="text-[10px] text-gray-500 mt-1 block font-mono">NATIONAL & BATTALION HONOURS</span>
                             </div>
                         </button>
 

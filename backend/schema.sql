@@ -100,6 +100,18 @@ CREATE TABLE IF NOT EXISTS unit_config (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ── PUBLIC INQUIRIES & ALERTS TABLE ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS inquiries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING', -- 'PENDING', 'REPLIED'
+    reply_message TEXT,
+    subscribed BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Enable Row Level Security (RLS) policies on Supabase for data isolation
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
@@ -107,6 +119,7 @@ ALTER TABLE permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE unit_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
 
 -- Add general public read policies or full access bypass for basic operations 
 -- Note: Adjust these in production depending on user role checks
@@ -116,3 +129,4 @@ CREATE POLICY "Allow all access permissions" ON permissions FOR ALL USING (true)
 CREATE POLICY "Allow all access achievements" ON achievements FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all access attendance" ON attendance FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all access unit_config" ON unit_config FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all access inquiries" ON inquiries FOR ALL USING (true) WITH CHECK (true);

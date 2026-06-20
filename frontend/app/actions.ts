@@ -431,6 +431,56 @@ export async function approveUserAction(userId: string, status: 'APPROVED' | 'RE
     }
 }
 
+// --- PUBLIC INQUIRIES & BROADCAST ALERTS ACTIONS ---
+
+export async function submitInquiryAction(formData: FormData) {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const message = formData.get('message') as string;
+    const subscribed = formData.get('subscribed') !== 'false';
+
+    try {
+        const result = await apiClient.post('/inquiries', {
+            name,
+            email,
+            message,
+            subscribed
+        });
+        return result;
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Submission failed' };
+    }
+}
+
+export async function getInquiriesAction() {
+    try {
+        return await apiClient.get('/inquiries');
+    } catch (error: any) {
+        console.error("Failed to fetch public inquiries:", error);
+        return [];
+    }
+}
+
+export async function replyToInquiryAction(inquiryId: string, replyMessage: string) {
+    try {
+        const result = await apiClient.post(`/inquiries/${inquiryId}/reply`, { replyMessage });
+        revalidatePath('/dashboard');
+        return result;
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to submit reply' };
+    }
+}
+
+export async function broadcastAlertAction(subject: string, message: string) {
+    try {
+        const result = await apiClient.post('/inquiries/broadcast', { subject, message });
+        revalidatePath('/dashboard');
+        return result;
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Failed to send broadcast alert' };
+    }
+}
+
 
 
 

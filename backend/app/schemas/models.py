@@ -87,3 +87,18 @@ class AttendanceBase(APIModel):
     status: str
     marked_by: str
     timestamp: Optional[str] = None
+
+class InquiryBase(APIModel):
+    id: str
+    name: str
+    email: str
+    message: str
+    status: str = "PENDING"
+    reply_message: Optional[str] = None
+    subscribed: Optional[bool] = True
+    created_at: Optional[str] = None
+
+class InquiryResponse(APIModel):
+    success: bool
+    message: str
+    data: Optional[InquiryBase] = None

@@ -110,6 +110,20 @@ def init_db():
     )
     """)
 
+    # Create inquiries
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS inquiries (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'PENDING',
+        reply_message TEXT,
+        subscribed INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     conn.commit()
 
     # Schema migration: check and add columns if they do not exist
@@ -358,3 +372,39 @@ async def set_permission_manager(manager_id: str, updated_by: str):
     """, (manager_id, updated_by))
     conn.commit()
     conn.close()
+
+async def get_inquiries() -> List[dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM inquiries ORDER BY created_at DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    res = []
+    for r in rows:
+        d = dict(r)
+        d["subscribed"] = bool(d["subscribed"])
+        res.append(d)
+    return res
+
+async def save_inquiry(inquiry_data: dict) -> None:
+    conn = get_connection()
+    cursor = conn.cursor()
+    payload = dict(inquiry_data)
+    payload["subscribed"] = 1 if payload.get("subscribed", True) else 0
+    columns = ", ".join(payload.keys())
+    placeholders = ", ".join(["?"] * len(payload))
+    cursor.execute(f"INSERT OR REPLACE INTO inquiries ({columns}) VALUES ({placeholders})", list(payload.values()))
+    conn.commit()
+    conn.close()
+
+async def get_inquiry_by_id(inquiry_id: str) -> Optional[dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM inquiries WHERE id = ?", (inquiry_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        d = dict(row)
+        d["subscribed"] = bool(d["subscribed"])
+        return d
+    return None

@@ -2,7 +2,7 @@ import asyncio
 import os
 import logging
 from ..core.supabase import supabase
-from ..schemas.models import UserBase, EventBase, PermissionBase, AchievementBase, AttendanceBase
+from ..schemas.models import UserBase, EventBase, PermissionBase, AchievementBase, AttendanceBase, InquiryBase
 from typing import List, Optional
 from . import sqlite_db
 
@@ -153,3 +153,41 @@ async def set_permission_manager(manager_id: str, updated_by: str):
             ).execute()
         )
     return await _execute(_supa, lambda: sqlite_db.set_permission_manager(manager_id, updated_by))
+
+
+# ── Public Inquiries ───────────────────────────────────────────────────────
+
+async def get_inquiries() -> List[InquiryBase]:
+    async def _supa():
+        response = await _run(lambda: supabase.table("inquiries").select("*").order("created_at", desc=True).execute())
+        return [InquiryBase(**i) for i in response.data]
+    
+    async def _sqlite():
+        res = await sqlite_db.get_inquiries()
+        return [InquiryBase(**i) for i in res]
+        
+    return await _execute(_supa, _sqlite)
+
+async def get_inquiry_by_id(inquiry_id: str) -> Optional[InquiryBase]:
+    async def _supa():
+        response = await _run(lambda: supabase.table("inquiries").select("*").eq("id", inquiry_id).execute())
+        if response.data:
+            return InquiryBase(**response.data[0])
+        return None
+        
+    async def _sqlite():
+        res = await sqlite_db.get_inquiry_by_id(inquiry_id)
+        if res:
+            return InquiryBase(**res)
+        return None
+        
+    return await _execute(_supa, _sqlite)
+
+async def save_inquiry(inquiry: InquiryBase):
+    async def _supa():
+        await _run(lambda: supabase.table("inquiries").upsert(inquiry.model_dump(), on_conflict="id").execute())
+        
+    async def _sqlite():
+        await sqlite_db.save_inquiry(inquiry.model_dump())
+        
+    return await _execute(_supa, _sqlite)

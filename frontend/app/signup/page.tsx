@@ -64,6 +64,9 @@ export default function SignupPage() {
   const [year, setYear] = useState('I Year');
   const [branch, setBranch] = useState('');
   const [batchYear, setBatchYear] = useState('2026');
+  const [nameVal, setNameVal] = useState('');
+  const [emailVal, setEmailVal] = useState('');
+  const [regNoVal, setRegNoVal] = useState('');
   const [authLogs, setAuthLogs] = useState<string[]>([]);
   const logsEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,6 +82,101 @@ export default function SignupPage() {
       `[${ts}] SYS: INITIALIZING CADET REGISTRATION LINK...`,
       `[${ts}] SYS: AWAITING ENLISTMENT TELEMETRY INPUTS...`,
     ]);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const paramName = params.get('name');
+      const paramEmail = params.get('email');
+      const paramRegNo = params.get('regNo');
+      const paramDept = params.get('dept');
+
+      if (paramName) {
+        setNameVal(paramName.toUpperCase());
+        addLog(`SYS: LOADED TELEMETRY NAME → ${paramName.toUpperCase()}`);
+      }
+      if (paramEmail) {
+        setEmailVal(paramEmail);
+        addLog(`SYS: LOADED TELEMETRY EMAIL → ${paramEmail}`);
+      }
+      if (paramRegNo) {
+        setRegNoVal(paramRegNo);
+        addLog(`SYS: LOADED TELEMETRY REG_NO → ${paramRegNo}`);
+      }
+      if (paramDept) {
+        addLog(`SYS: PARSING TELEMETRY DEPT → ${paramDept.toUpperCase()}`);
+        const lowerDept = paramDept.toLowerCase();
+        
+        // Auto-select Branch/Course
+        if (lowerDept.includes('computer') || lowerDept.includes('cse') || lowerDept.includes('c.s.e')) {
+          if (lowerDept.includes('artificial') || lowerDept.includes('ai') || lowerDept.includes('a.i')) {
+            setBranch('B.Tech. Computer Science & Engineering (Artificial Intelligence & Data Science)');
+          } else if (lowerDept.includes('cyber') || lowerDept.includes('security') || lowerDept.includes('cys')) {
+            setBranch('B.Tech. Computer Science & Engineering (Cyber Security & Block Chain Technology)');
+          } else if (lowerDept.includes('iot') || lowerDept.includes('automation')) {
+            setBranch('B.Tech. Computer Science & Engineering (IoT & Automation)');
+          } else if (lowerDept.includes('network')) {
+            setBranch('B.Tech. Computer Science & Engineering (Networks)');
+          } else {
+            setBranch('B.Tech. Computer Science & Engineering');
+          }
+        } else if (lowerDept.includes('aerospace') || lowerDept.includes('aero')) {
+          setBranch('B.Tech. Aerospace Engineering');
+        } else if (lowerDept.includes('bioengineering') || lowerDept.includes('bio eng')) {
+          setBranch('B.Tech. Bioengineering');
+        } else if (lowerDept.includes('bioinformatics')) {
+          setBranch('B.Tech. Bioinformatics');
+        } else if (lowerDept.includes('biotech') || lowerDept.includes('biotechnology')) {
+          setBranch('B.Tech. Biotechnology');
+        } else if (lowerDept.includes('chemical') || lowerDept.includes('chem')) {
+          setBranch('B.Tech. Chemical Engineering');
+        } else if (lowerDept.includes('civil')) {
+          setBranch('B.Tech. Civil Engineering [2023-24]');
+        } else if (lowerDept.includes('electrical') || lowerDept.includes('eee')) {
+          setBranch('B.Tech. Electrical and Electronics Engineering');
+        } else if (lowerDept.includes('electronics') || lowerDept.includes('ece') || lowerDept.includes('e.c.e')) {
+          if (lowerDept.includes('computer')) {
+            setBranch('B.Tech. Electronics and Computer Engineering');
+          } else if (lowerDept.includes('instrumentation') || lowerDept.includes('eie')) {
+            setBranch('B.Tech. Electronics & Instrumentation Engineering');
+          } else if (lowerDept.includes('vlsi')) {
+            setBranch('B.Tech. Electronics Engineering (VLSI Design & Technology)');
+          } else {
+            setBranch('B.Tech. Electronics & Communication Engineering');
+          }
+        } else if (lowerDept.includes('robotics')) {
+          setBranch('B.Tech. Robotics & Artificial Intelligence');
+        } else if (lowerDept.includes('information') || lowerDept.includes('it') || lowerDept.includes('i.t')) {
+          setBranch('B.Tech. Information Technology');
+        } else if (lowerDept.includes('mechanical') || lowerDept.includes('mech')) {
+          setBranch('B.Tech. Mechanical Engineering');
+        } else if (lowerDept.includes('mechatronics')) {
+          setBranch('B.Tech. Mechatronics');
+        } else if (lowerDept.includes('law') || lowerDept.includes('llb') || lowerDept.includes('l.l.b')) {
+          if (lowerDept.includes('ba')) {
+            setBranch('BA LLB [2024-29] (5 Years Integrated)');
+          } else if (lowerDept.includes('bba')) {
+            setBranch('BBA LLB [2024-29] (5 Years Integrated)');
+          } else {
+            setBranch('B.Com LLB [2024-29] (5 Years Integrated)');
+          }
+        }
+
+        // Auto-select Year
+        if (lowerDept.includes('ii year') || lowerDept.includes('2nd year') || lowerDept.includes('/ ii') || lowerDept.includes('second year')) {
+          setYear('II Year');
+        } else if (lowerDept.includes('iii year') || lowerDept.includes('3rd year') || lowerDept.includes('/ iii') || lowerDept.includes('third year')) {
+          setYear('III Year');
+        } else if (lowerDept.includes('iv year') || lowerDept.includes('4th year') || lowerDept.includes('/ iv') || lowerDept.includes('fourth year')) {
+          setYear('IV Year');
+        } else if (lowerDept.includes('v year') || lowerDept.includes('5th year') || lowerDept.includes('/ v') || lowerDept.includes('fifth year')) {
+          setYear('V Year');
+        } else if (lowerDept.includes('i year') || lowerDept.includes('1st year') || lowerDept.includes('/ i') || lowerDept.includes('first year')) {
+          setYear('I Year');
+        }
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -233,6 +331,8 @@ export default function SignupPage() {
                           type="text"
                           required
                           placeholder="A B VENKATARAMANAN"
+                          value={nameVal}
+                          onChange={e => setNameVal(e.target.value)}
                           disabled={isLoading}
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('name'); addLog('SYS: ENTERING NAME...'); playTacClick('soft'); }}
@@ -259,6 +359,8 @@ export default function SignupPage() {
                           type="email"
                           required
                           placeholder="cadet@sastra.edu"
+                          value={emailVal}
+                          onChange={e => setEmailVal(e.target.value)}
                           disabled={isLoading}
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('email'); addLog('SYS: ENTERING EMAIL...'); playTacClick('soft'); }}
@@ -412,6 +514,8 @@ export default function SignupPage() {
                           type="text"
                           required
                           placeholder="127009001"
+                          value={regNoVal}
+                          onChange={e => setRegNoVal(e.target.value)}
                           disabled={isLoading}
                           onMouseEnter={() => playTacClick('hover')}
                           onFocus={() => { setActiveField('regNo'); addLog('SYS: ENTERING UNIVERSITY REGISTER NUMBER...'); playTacClick('soft'); }}
