@@ -217,6 +217,62 @@ def init_db():
                   cadet["dob"], cadet["year_branch"], cadet["hostel_info"], cadet["camp_count"]))
         
         conn.commit()
+
+    # Seed achievements if empty
+    cursor.execute("SELECT COUNT(*) FROM achievements")
+    if cursor.fetchone()[0] == 0:
+        print("Seeding dummy achievements into local database...")
+        dummy_achs = [
+            {
+                "id": "ach-001",
+                "cadet_id": "44f0bcd4-1a2f-4c38-abdc-2e78783eb4bf",
+                "title": "Best Shooter - TSC Selection",
+                "date": "2026-05-15",
+                "end_date": None,
+                "category": "Camps",
+                "location": "Trichy Group HQ",
+                "description": "Secured 1st place in the group-level firing competition during Thal Sainik Camp selection trails.",
+                "certificate_url": "https://example.com/certificates/shooter_tsc.pdf",
+                "status": "PENDING",
+                "is_verified": 0,
+                "ano_comment": None
+            },
+            {
+                "id": "ach-002",
+                "cadet_id": "5cb99503-3194-4386-8d32-9ca992dae696",
+                "title": "Republic Day Camp Selection",
+                "date": "2026-01-10",
+                "end_date": "2026-01-28",
+                "category": "Camps",
+                "location": "New Delhi",
+                "description": "Represented the Directorate in the Prime Minister's Rally and Guard of Honour at RDC 2026.",
+                "certificate_url": "https://example.com/certificates/rdc_2026.pdf",
+                "status": "VERIFIED",
+                "is_verified": 1,
+                "ano_comment": "Excellent performance representing the institution at the national level."
+            },
+            {
+                "id": "ach-003",
+                "cadet_id": "1ad74fe9-e0ae-4298-b601-3344fef0c8b1",
+                "title": "B-Certificate Exam Topper",
+                "date": "2026-03-20",
+                "end_date": None,
+                "category": "Certificates",
+                "location": "SASTRA Campus",
+                "description": "Scored Alpha Grade with 94% marks in the Certificate-B theoretical and practical examinations.",
+                "certificate_url": None,
+                "status": "PENDING",
+                "is_verified": 0,
+                "ano_comment": None
+            }
+        ]
+        for ach in dummy_achs:
+            cursor.execute("""
+            INSERT INTO achievements (id, cadet_id, title, date, end_date, category, location, description, certificate_url, status, is_verified, ano_comment)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (ach["id"], ach["cadet_id"], ach["title"], ach["date"], ach["end_date"], ach["category"], ach["location"], ach["description"], ach["certificate_url"], ach["status"], ach["is_verified"], ach["ano_comment"]))
+        conn.commit()
+
     conn.close()
 
 # Initialize DB on import

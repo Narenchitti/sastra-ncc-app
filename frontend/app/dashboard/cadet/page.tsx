@@ -791,9 +791,9 @@ export default function CadetDashboard() {
                 </div>
               ))}
               {pendingRequests.length === 0 && (
-                <div className="text-center py-12 tac-card border border-dashed border-ncc-olive/20 text-ncc-olive/40 text-xs font-sans">
-                  <i className="fas fa-check-circle text-2xl mb-2 block opacity-30"></i>
-                  No new requests pending your endorsement.
+                <div className="flex flex-col items-center justify-center text-center py-12 tac-card border border-dashed border-ncc-olive/20 text-ncc-olive/80 text-xs font-sans gap-3">
+                  <i className="fas fa-check-circle text-3xl text-ncc-olive/40 animate-pulse"></i>
+                  <span>No new requests pending your endorsement.</span>
                 </div>
               )}
             </div>
@@ -998,8 +998,9 @@ export default function CadetDashboard() {
                   </div>
                 ))}
                 {data.permissions.filter(p => p.cadetId === user.id).length === 0 && (
-                  <div className="text-center text-ncc-olive/40 py-12 tac-card border border-dashed border-ncc-olive/15 text-xs font-sans">
-                    No request history found.
+                  <div className="flex flex-col items-center justify-center text-center py-12 tac-card border border-dashed border-ncc-olive/15 text-ncc-olive/80 text-xs font-sans gap-3">
+                    <i className="fas fa-history text-3xl text-ncc-olive/40"></i>
+                    <span>No request history found.</span>
                   </div>
                 )}
               </div>
@@ -1014,6 +1015,12 @@ export default function CadetDashboard() {
             {/* List */}
             <div className="md:col-span-2 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {data.achievements.filter(a => a.cadetId === user.id).length === 0 && (
+                  <div className="sm:col-span-2 p-10 flex flex-col items-center justify-center text-center text-ncc-olive/80 tac-card border-dashed font-sans text-xs gap-3">
+                    <i className="fas fa-medal text-3xl text-ncc-gold/50 animate-pulse"></i>
+                    <span>No achievements logged yet. Use the form on the right to log your first accolade!</span>
+                  </div>
+                )}
                 {data.achievements.filter(a => a.cadetId === user.id).map(ach => (
                   <div key={ach.id} className="tac-card p-5 relative group">
                     {(ach.status === 'DRAFT' || ach.status === 'REJECTED') && (
@@ -1206,9 +1213,9 @@ export default function CadetDashboard() {
 
             {/* Grid Table */}
             {attFiltered.length === 0 ? (
-              <div className="text-center py-16 tac-card border border-dashed border-ncc-olive/15 text-ncc-olive/40 font-sans text-xs">
-                <i className="fas fa-calendar-times text-4xl mb-3 block opacity-20"></i>
-                No attendance logs found for this category.
+              <div className="flex flex-col items-center justify-center text-center py-16 tac-card border border-dashed border-ncc-olive/15 text-ncc-olive/80 font-sans text-xs gap-3">
+                <i className="fas fa-calendar-times text-4xl text-ncc-olive/40"></i>
+                <span>No attendance logs found for this category.</span>
               </div>
             ) : (
               <div className="tac-card overflow-hidden">

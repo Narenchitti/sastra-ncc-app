@@ -833,9 +833,9 @@ export default function ANODashboard() {
             )}
 
             {allActionRequired.length === 0 && (
-              <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed text-xs font-sans">
-                <i className="fas fa-check-circle text-2xl mb-2 block text-emerald-500/50"></i>
-                ALL CLEAR — no active requests pending review.
+              <div className="p-10 flex flex-col items-center justify-center text-center text-ncc-olive/80 tac-card border-dashed text-xs font-sans gap-3">
+                <i className="fas fa-check-circle text-3xl text-emerald-500/50"></i>
+                <span>ALL CLEAR — no active requests pending review.</span>
               </div>
             )}
 
@@ -912,9 +912,9 @@ export default function ANODashboard() {
             <div className="space-y-4">
               <h3 className="font-sans text-xs font-bold text-ncc-sky border-b border-ncc-sky/20 pb-2 uppercase tracking-widest">Pending Verification Queue</h3>
               {pendingAchievements.length === 0 ? (
-                <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed font-sans text-xs">
-                  <i className="fas fa-medal text-3xl mb-2 block opacity-30"></i>
-                  No pending achievements to verify.
+                <div className="p-10 flex flex-col items-center justify-center text-center text-ncc-olive/80 tac-card border-dashed font-sans text-xs gap-3">
+                  <i className="fas fa-medal text-3xl text-ncc-sky/50"></i>
+                  <span>No pending achievements to verify.</span>
                 </div>
               ) : (
                 pendingAchievements.map(a => {
@@ -1003,11 +1003,11 @@ export default function ANODashboard() {
                   <input
                     type="text"
                     placeholder="Search Cadet Name..."
-                    className="hud-input pl-8 pr-4 py-2 text-sm w-full"
+                    className="hud-input !pl-9 pr-4 py-2 text-sm w-full"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <i className="fas fa-search absolute left-3 top-3 text-xs text-ncc-olive/50"></i>
+                  <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-ncc-olive/60"></i>
                 </div>
               </div>
 
@@ -1081,9 +1081,9 @@ export default function ANODashboard() {
                   })}
 
                 {verifiedAchievements.length === 0 && (
-                  <div className="p-10 text-center text-ncc-olive/40 tac-card border-dashed font-mono text-xs">
-                    <i className="fas fa-database text-3xl mb-2 block opacity-30"></i>
-                    No verified achievements found in the database.
+                  <div className="p-10 flex flex-col items-center justify-center text-center text-ncc-olive/80 tac-card border-dashed font-mono text-xs gap-3">
+                    <i className="fas fa-database text-3xl text-emerald-400/50"></i>
+                    <span>No verified achievements found in the database.</span>
                   </div>
                 )}
               </div>
