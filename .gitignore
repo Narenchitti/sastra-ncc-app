@@ -6,25 +6,56 @@ __pycache__/
 .Python
 env/
 venv/
+backend/venv/
 pip-log.txt
 pip-delete-this-directory.txt
 .venv
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Environment Variables & Secrets
 .env
 .env.*
 !.env.example
 backend/.env
-backend/app/db.sqlite3
+backend/.env.*
+!backend/.env.example
+frontend/.env.local
+frontend/.env.*.local
+!frontend/.env.example
 
-# Next.js
+# Local SQLite & Databases
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+backend/*.sqlite3
+backend/app/*.db
+backend/app/*.sqlite3
+
+# Scratch & Static Uploads
+backend/scratch_*.py
+static/
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
+
+# Next.js & Frontend
 frontend/.next/
 frontend/out/
 frontend/build/
 frontend/node_modules/
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+frontend/*.tsbuildinfo
 
-# OS
+# OS & IDEs
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/

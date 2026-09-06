@@ -142,21 +142,27 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
         weeks = {}
         for d in dates_with_status:
             if "CLASH" not in d["status"]:
+                if prefer_sunday and d["day_name"] != "Sunday":
+                    continue
                 is_preferred = (d["day_name"] == "Sunday" if prefer_sunday else d["day_name"] == "Saturday")
                 dt = datetime.datetime.strptime(d["date"], "%Y-%m-%d").date()
                 week_number = dt.isocalendar()[1]
                 if week_number not in weeks or is_preferred:
                     weeks[week_number] = d["date"]
                     
-        selected_dates = sorted(list(weeks.values()))[:4]
+        target_count = len(weeks)
+        selected_dates = sorted(list(weeks.values()))
         
-        # If still less than 4, fill from any free weekend date
-        if len(selected_dates) < 4:
-            all_free = [d["date"] for d in dates_with_status if "CLASH" not in d["status"]]
+        # If still less than target_count, fill from any free weekend date
+        if len(selected_dates) < target_count:
+            all_free = [
+                d["date"] for d in dates_with_status
+                if "CLASH" not in d["status"] and (d["day_name"] == "Sunday" if prefer_sunday else True)
+            ]
             for fd in all_free:
                 if fd not in selected_dates:
                     selected_dates.append(fd)
-            selected_dates = sorted(selected_dates)[:4]
+            selected_dates = sorted(selected_dates)[:target_count]
             
         # Pick topics based on focus keyword or default to balanced rotation
         focus_categories = []
@@ -231,7 +237,7 @@ async def plan_training_schedule(query_text: str) -> Dict[str, Any]:
             
         year_str = f" for {target_year} Year cadets" if target_year else ""
         focus_desc = ", ".join(focus_categories) if focus_categories else "balanced curriculum"
-        explanation = f"📋 Automated planning agent compiled a 4-week schedule{year_str} for next month. The plan focuses on a {focus_desc}, avoiding repeating recently scheduled unit events."
+        explanation = f"📋 Automated planning agent compiled a {len(events)}-event schedule{year_str} for next month. The plan focuses on a {focus_desc}, avoiding repeating recently scheduled unit events."
         
         return {
             "success": True,
